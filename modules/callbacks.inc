@@ -290,13 +290,20 @@ function entity_metadata_taxonomy_vocabulary_get_properties($vocabulary, array $
 function entity_metadata_user_get_properties($account, array $options, $name, $entity_type) {
   switch ($name) {
     case 'last_login':
-      return $account->login;
+      return empty($account->login) ? NULL : $account->login;
 
     case 'name':
-      return ($account->uid == 0) ? variable_get('anonymous', t('Anonymous')) : $account->name;
+      return empty($account->uid) ? variable_get('anonymous', t('Anonymous')) : $account->name;
+
+    case 'url':
+      if (empty($account->uid)) {
+        return NULL;
+      }
+      $return = entity_uri('user', $account);
+      return $return ? url($return['path'], $return['options'] + $options) : '';
 
     case 'edit_url':
-      return url("user/$account->uid/edit", $options);
+      return empty($account->uid) ? NULL : url("user/$account->uid/edit", $options);
 
     case 'roles':
       return isset($account->roles) ? array_keys($account->roles) : array();

@@ -797,6 +797,7 @@ class EntityMetadataIntegrationTestCase extends DrupalWebTestCase {
    */
   function testUserProperties() {
     $account = $this->drupalCreateUser();
+    $account->login = time();
     $wrapper = entity_metadata_wrapper('user', $account);
     foreach ($wrapper as $key => $value) {
       $this->assertValue($wrapper, $key);
