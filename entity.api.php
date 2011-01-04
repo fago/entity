@@ -32,7 +32,9 @@
  *   type, as described by the documentation of hook_entity_info().
  * - module: The module providing the entity type. Optionally, but suggested.
  * - exportable: (optional) Whether the entity is exportable. Defaults to FALSE.
- *   If enabled, a name key should be specified. See 'entity keys' below.
+ *   If enabled, a name key should be specified and db columns for the module
+ *   and status key as defined by entity_exportable_schema_fields() have to
+ *   exist in the entity's base table. Also see 'entity keys' below.
  * - entity keys: An array of keys as defined by Drupal core. The following
  *   additional keys are used by the entity CRUD API:
  *   - name: (optional) The key of the entity property containing the unique,
@@ -45,10 +47,10 @@
  *     For exportable entities, it's strongly recommended to use a machine name
  *     here as those are more portable across systems.
  *   - module: (optional) A key for the module property used by the entity CRUD
- *     API to provide the source module name for exportable entities, which are
+ *     API to save the source module name for exportable entities, which are
  *     provided in code. Defaults to 'module'.
  *   - status: (optional) The name of the entity property used by the entity
- *     CRUD API to provide the exportable entity status using defined bit flags.
+ *     CRUD API to save the exportable entity status using defined bit flags.
  *     Defaults to 'status'.
  * - export: (optional) An array of information used for exporting. For ctools
  *   exportables compatibility any export-keys supported by ctools may be added
@@ -330,42 +332,6 @@ function entity_hook_field_info() {
       // ...
     ),
   );
-}
-
-/**
- * Respond when exportable entities are enabled.
- *
- * This hook is invoked for entities as soon as new enabled entities are
- * available to the system - either as a new entity has been inserted into the
- * database or modules with entities in code have been enabled.
- *
- * @param $entities
- *   The entities keyed by entity ID.
- * @param $entity_type
- *   The type of entities being enabled (i.e. profile2_type, rules_config, ..).
- *
- * @see hook_entity_disabled()
- */
-function hook_entity_enabled($entities, $entity_type) {
-  mymodule_initialize($entities, $entity_type);
-}
-
-/**
- * Respond when exportable entities are disabled.
- *
- * This hook is invoked for entities when exportable entities have been disabled
- * or disappeared - either as an customly created entity has been deleted from
- * the database or modules providing default configurations have been disabled.
- *
- * @param $entities
- *   The entities keyed by entity ID.
- * @param $entity_type
- *   The type of entities being disabled (i.e. profile2_type, rules_config, ..).
- *
- * @see hook_entity_enabled()
- */
-function hook_entity_disabled($entities, $entity_type) {
-  mymodule_deactivate($entities, $entity_type);
 }
 
 /**

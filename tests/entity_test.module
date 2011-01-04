@@ -147,33 +147,53 @@ class EntityClass extends Entity {
 
 
 /**
- * Implements hook_entity_enabled().
+ * Implements hook_entity_insert().
  */
-function entity_test_entity_enabled($entities) {
-  $_SESSION['entity_hook_test']['entity_enabled'][] = array_keys($entities);
+function entity_test_entity_insert($entity, $entity_type) {
+  $_SESSION['entity_hook_test']['entity_insert'][] = entity_id($entity_type, $entity);
 }
 
 /**
- * Implements hook_entity_disabled().
+ * Implements hook_entity_update().
  */
-function entity_test_entity_disabled($entities) {
-  $_SESSION['entity_hook_test']['entity_disabled'][] = array_keys($entities);
+function entity_test_entity_update($entity, $entity_type) {
+  $_SESSION['entity_hook_test']['entity_update'][] = entity_id($entity_type, $entity);
 }
 
 /**
- * Implements hook_entity_test_type_enabled().
+ * Implements hook_entity_delete().
  */
-function entity_test_entity_test_type_enabled($entities) {
-  $_SESSION['entity_hook_test']['entity_test_type_enabled'][] = array_keys($entities);
+function entity_test_entity_delete($entity, $entity_type) {
+  $_SESSION['entity_hook_test']['entity_delete'][] = entity_id($entity_type, $entity);
 }
 
 /**
- * Implements hook_entity_test_type_disabled().
+ * Implements hook_entity_test_type_insert().
  */
-function entity_test_entity_test_type_disabled($entities) {
-  $_SESSION['entity_hook_test']['entity_test_type_disabled'][] = array_keys($entities);
+function entity_test_entity_test_type_insert($entity) {
+  $_SESSION['entity_hook_test']['entity_test_type_insert'][] = $entity->identifier();
 }
 
+/**
+ * Implements hook_entity_test_type_update().
+ */
+function entity_test_entity_test_type_update($entity) {
+  $_SESSION['entity_hook_test']['entity_test_type_update'][] = $entity->identifier();
+
+  // Determine changes on update.
+  if (!empty($entity->original) && $entity->original->label == 'test_changes') {
+    if ($entity->original->label != $entity->label) {
+      $entity->label .= '_update';
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_test_type_delete().
+ */
+function entity_test_entity_test_type_delete($entity) {
+  $_SESSION['entity_hook_test']['entity_test_type_delete'][] = $entity->identifier();
+}
 
 /**
  * Implements hook_entity_test_type_presave().
@@ -183,18 +203,6 @@ function entity_test_entity_test_type_presave($entity) {
   if (!empty($entity->original) && $entity->original->label == 'test_changes') {
     if ($entity->original->label != $entity->label) {
       $entity->label .= '_presave';
-    }
-  }
-}
-
-/**
- * Implements hook_entity_test_type_update().
- */
-function entity_test_entity_test_type_update($entity) {
-  // Determine changes on update.
-  if (!empty($entity->original) && $entity->original->label == 'test_changes') {
-    if ($entity->original->label != $entity->label) {
-      $entity->label .= '_update';
     }
   }
 }

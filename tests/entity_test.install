@@ -113,7 +113,7 @@ function entity_test_schema() {
         'description' => 'A serialized array of additional data related to this entity_test type.',
         'merge' => TRUE,
       ),
-    ),
+    ) + entity_exportable_schema_fields(),
     'primary key' => array('id'),
     'unique keys' => array(
       'name' => array('name'),

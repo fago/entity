@@ -396,8 +396,7 @@ class EntityDefaultUIController {
         // First check if there is any existing entity with the same ID.
         $id = entity_id($this->entityType, $entity);
         $entities = entity_load($this->entityType, array($id));
-        $existing_entity = reset($entities);
-        if ($existing_entity && entity_has_status($this->entityType, $existing_entity, ENTITY_IN_DB)) {
+        if ($existing_entity = reset($entities)) {
           // Copy DB id and remove the new indicator to overwrite the DB record.
           $idkey = $this->entityInfo['entity keys']['id'];
           $entity->{$idkey} = $existing_entity->{$idkey};

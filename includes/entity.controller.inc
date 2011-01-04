@@ -118,8 +118,8 @@ interface EntityAPIControllerInterface extends DrupalEntityControllerInterface {
  */
 class EntityAPIController extends DrupalDefaultEntityController implements EntityAPIControllerInterface {
 
-  protected $defaultEntities, $cacheComplete = FALSE;
-  protected $nameKey, $statusKey, $bundleKey, $moduleKey;
+  protected $cacheComplete = FALSE;
+  protected $nameKey, $statusKey, $bundleKey;
 
   /**
    * Overridden.
@@ -133,9 +133,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
     // Use the name key as primary identifier.
     $this->nameKey = isset($this->entityInfo['entity keys']['name']) ? $this->entityInfo['entity keys']['name'] : $this->idKey;
     if (!empty($this->entityInfo['exportable'])) {
-      $this->entityInfo['entity keys'] += array('module' => 'module', 'status' => 'status');
-      $this->statusKey = $this->entityInfo['entity keys']['status'];
-      $this->moduleKey = $this->entityInfo['entity keys']['module'];
+      $this->statusKey = isset($this->entityInfo['entity keys']['status']) ? $this->entityInfo['entity keys']['status'] : 'status';
     }
     // If this is the bundle of another entity, set the bundle key.
     if (isset($this->entityInfo['bundle of'])) {
@@ -181,6 +179,11 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
   public function load($ids = array(), $conditions = array()) {
     $entities = array();
 
+    // For exportable entities, make sure the defaults have been built.
+    if (!empty($this->entityInfo['exportable']) && empty($GLOBALS['conf']['entity_defaults_built'][$this->entityType])) {
+      _entity_defaults_rebuild($this->entityType);
+    }
+
     // Revisions are not statically cached, and require a different query to
     // other conditions, so separate the revision id into its own variable.
     if ($this->revisionKey && isset($conditions[$this->revisionKey])) {
@@ -198,10 +201,6 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
     // database when all requested entities are loaded from cache.
     $passed_ids = !empty($ids) ? array_flip($ids) : FALSE;
 
-    // Add default entities defined in code to the cache.
-    if (!empty($this->entityInfo['exportable']) && !isset($this->defaultEntities)) {
-      $this->getDefaults();
-    }
     // Try to load entities from the static cache.
     if (!$revision_id) {
       $entities = $this->cacheGet($ids, $conditions);
@@ -213,9 +212,8 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
 
     // Load any remaining entities from the database. This is the case if $ids
     // is set to FALSE (so we load all entities), if there are any ids left to
-    // load, if loading a revision, or if $conditions was passed without $ids.
-    if (!$this->cacheComplete && ($ids === FALSE || $ids || $revision_id || ($conditions && !$passed_ids))) {
-      $schema = drupal_get_schema($this->entityInfo['base table']);
+    // load or if loading a revision.
+    if (!$this->cacheComplete && ($ids === FALSE || $ids || $revision_id)) {
       $queried_entities = array();
       foreach ($this->query($ids, $conditions, $revision_id) as $record) {
         // Skip entities already retrieved from cache.
@@ -224,6 +222,8 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
         }
 
         // Care for serialized columns.
+        $schema = drupal_get_schema($this->entityInfo['base table']);
+
         foreach ($schema['fields'] as $field => $info) {
           if (!empty($info['serialize']) && isset($record->$field)) {
             $record->$field = unserialize($record->$field);
@@ -236,15 +236,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
             }
           }
         }
-        if (isset($this->statusKey)) {
-          // Care for setting the status key properly.
-          $record->{$this->statusKey} |= ENTITY_IN_DB;
-          $id = $record->{$this->nameKey};
-          if (isset($this->defaultEntities[$id])) {
-            $record->{$this->statusKey} |= ENTITY_IN_CODE;
-            $record->{$this->moduleKey} = $this->defaultEntities[$id]->{$this->moduleKey};
-          }
-        }
+
         $queried_entities[$record->{$this->nameKey}] = $record;
       }
     }
@@ -277,30 +269,6 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       $entities = $passed_ids;
     }
     return $entities;
-  }
-
-  /**
-   * For exportables, incorporate defaults into the cache.
-   */
-  protected function getDefaults() {
-    $this->defaultEntities = array();
-    $hook = isset($this->entityInfo['export']['default hook']) ? $this->entityInfo['export']['default hook'] : 'default_' . $this->entityType;
-    // Invoke the hook and collect default entities.
-    foreach (module_implements($hook) as $module) {
-      foreach ((array) module_invoke($module, $hook) as $id => $entity) {
-        $entity->{$this->statusKey} |= ENTITY_IN_CODE;
-        $entity->{$this->nameKey} = $id;
-        $entity->{$this->moduleKey} = $module;
-        $this->defaultEntities[$id] = $entity;
-      }
-    }
-    drupal_alter($hook, $this->defaultEntities);
-    // Remove any default entities that have been overridden.
-    foreach ($this->query(array_keys($this->defaultEntities), array()) as $record) {
-      $overridden[$record->{$this->nameKey}] = TRUE;
-    }
-    // Handle fetching defaults via the cache.
-    $this->cacheSet(isset($overridden) ? array_diff_key($this->defaultEntities, $overridden) : $this->defaultEntities);
   }
 
   protected function applyConditions($entities, $conditions = array()) {
@@ -373,16 +341,8 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
   }
 
   public function resetCache(array $ids = NULL) {
-    unset($this->defaultEntities);
     $this->cacheComplete = FALSE;
-    if (isset($ids)) {
-      foreach ($ids as $id) {
-        unset($this->entityCache[$id]);
-      }
-    }
-    else {
-      $this->entityCache = array();
-    }
+    parent::resetCache($ids);
   }
 
   /**
@@ -392,6 +352,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
     if (!empty($this->entityInfo['fieldable']) && function_exists($function = 'field_attach_' . $hook)) {
       $function($this->entityType, $entity);
     }
+
     if (isset($this->entityInfo['bundle of']) && $type = $this->entityInfo['bundle of']) {
       // Call field API bundle attachers for the entity we are a bundle of.
       if ($hook == 'insert') {
@@ -441,13 +402,9 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
 
       foreach ($entities as $id => $entity) {
         $this->invoke('delete', $entity);
-        if (!empty($this->entityInfo['exportable']) && !($entity->{$this->statusKey} & ENTITY_IN_CODE)) {
-          $disabled_entities[$id] = $entity;
+        if (entity_has_status($this->entityType, $entity, ENTITY_IN_CODE)) {
+          $rebuild = TRUE;
         }
-      }
-      if (!empty($disabled_entities)) {
-        module_invoke_all($this->entityType . '_disabled', $disabled_entities);
-        module_invoke_all('entity_disabled', $disabled_entities, $this->entityType);
       }
       // Ignore slave server temporarily.
       db_ignore_slave();
@@ -456,6 +413,13 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       $transaction->rollback();
       watchdog_exception($this->entityType, $e);
       throw $e;
+    }
+    // We have to postpone rebuilding defaults until the transaction has been
+    // committed. This is as variable_set() triggers a merge query and dies with
+    // a savepoint exception if it is inside a transaction.
+    if (!empty($rebuild)) {
+      $transaction = NULL;
+      entity_defaults_rebuild(array($this->entityType));
     }
   }
 
@@ -473,6 +437,10 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       if (!empty($entity->{$this->nameKey}) && !isset($entity->original)) {
         $entity->original = entity_load_unchanged($this->entityType, $entity->{$this->nameKey});
       }
+      // Update the status for entities getting overridden.
+      if (entity_has_status($this->entityType, $entity, ENTITY_IN_CODE) && empty($entity->is_rebuild)) {
+        $entity->{$this->statusKey} |= ENTITY_CUSTOM;
+      }
 
       $this->invoke('presave', $entity);
 
@@ -484,16 +452,6 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       else {
         $return = drupal_write_record($this->entityInfo['base table'], $entity);
         $this->invoke('insert', $entity);
-
-        if (!empty($this->entityInfo['exportable'])) {
-          $entity->{$this->statusKey} |= ENTITY_IN_DB;
-          $this->resetCache(array($entity->{$this->nameKey}));
-          if (!entity_has_status($this->entityType, $entity, ENTITY_IN_CODE)) {
-            $entities = array($entity->{$this->nameKey} => $entity);
-            module_invoke_all($this->entityType . '_enabled', $entities);
-            module_invoke_all('entity_enabled', $entities, $this->entityType);
-          }
-        }
       }
       // Ignore slave server temporarily.
       db_ignore_slave();

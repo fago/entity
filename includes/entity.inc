@@ -49,11 +49,9 @@ class Entity {
    * Returns the internal, numeric identifier.
    *
    * For exportable entities, this differs to the uniform identifier returned
-   * by Entity::identifier(). The internal identifier is supposed to be used
-   * internally in order to refer to a specify, stored (ENTITY_IN_DB)
-   * entity. For referring to entities which might not live in the DB, use the
-   * uniform identifier.
-   * If unsure, use Entity:identifier().
+   * by Entity::identifier(). The internal identifier is supposed to be only
+   * used internally to refer to an entity, i.e. in the database. If unsure, use
+   * Entity:identifier().
    */
   public function internalIdentifier() {
     return isset($this->{$this->idKey}) ? $this->{$this->idKey} : NULL;
