@@ -541,6 +541,12 @@ function entity_modules_enabled($modules) {
 function entity_modules_disabled($modules) {
   foreach (_entity_modules_get_default_types($modules) as $entity_type) {
     $info = entity_get_info($entity_type);
+
+    // Do nothing if the module providing the entity type has been disabled too.
+    if (isset($info['module']) && in_array($info['module'], $modules)) {
+      return;
+    }
+
     $keys = $info['entity keys'] + array('module' => 'module', 'status' => 'status', 'name' => $info['entity keys']['id']);
     // Remove entities provided in code.
     $query = new EntityFieldQuery();
@@ -586,6 +592,28 @@ function _entity_modules_get_default_types($modules) {
     }
   }
   return $types;
+}
+
+/**
+ * Defines schema fields required for exportable entities.
+ * To be utilized by modules defining exportable entities.
+ */
+function entity_exportable_schema_fields($module_col = 'module', $status_col = 'status') {
+  return array(
+    $status_col => array(
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => ENTITY_CUSTOM,
+      'size' => 'tiny',
+      'description' => 'The exportable status of the entity.',
+    ),
+    $module_col => array(
+      'description' => 'The name of the providing module if the entity has been defined in code.',
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => FALSE,
+    ),
+  );
 }
 
 /**
