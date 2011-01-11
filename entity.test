@@ -204,7 +204,7 @@ class EntityAPITestCase extends DrupalWebTestCase {
 
     // Now make sure 'test' is not overridden any more, but custom.
     $result = entity_load('entity_test_type', array('test'));
-    $this->assertTrue(!entity_has_status('entity_test_type', $result['test'], ENTITY_OVERRIDDEN), 'Entity is not marked as overridden any more.');
+    $this->assertTrue(!$result['test']->hasStatus(ENTITY_OVERRIDDEN), 'Entity is not marked as overridden any more.');
     $this->assertTrue(entity_has_status('entity_test_type', $result['test'], ENTITY_CUSTOM), 'Entity is marked as custom.');
 
     // Test deleting the remaining entities from DB.

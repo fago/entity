@@ -213,7 +213,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
     // Load any remaining entities from the database. This is the case if $ids
     // is set to FALSE (so we load all entities), if there are any ids left to
     // load or if loading a revision.
-    if (!$this->cacheComplete && ($ids === FALSE || $ids || $revision_id)) {
+    if (!($this->cacheComplete && $ids === FALSE && !$conditions) && ($ids === FALSE || $ids || $revision_id)) {
       $queried_entities = array();
       foreach ($this->query($ids, $conditions, $revision_id) as $record) {
         // Skip entities already retrieved from cache.
@@ -362,9 +362,8 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
         field_attach_delete_bundle($type, $entity->{$this->bundleKey});
       }
       elseif ($hook == 'update' && $id = $entity->{$this->nameKey}) {
-        $entities = entity_load($this->entityType, array($id));
-        if ($entities[$id]->{$this->bundleKey} != $entity->{$this->bundleKey}) {
-          field_attach_rename_bundle($type, $entities[$id]->{$this->bundleKey}, $entity->{$this->bundleKey});
+        if ($entity->original->{$this->bundleKey} != $entity->{$this->bundleKey}) {
+          field_attach_rename_bundle($type, $entity->original->{$this->bundleKey}, $entity->{$this->bundleKey});
         }
       }
     }
@@ -435,7 +434,9 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
     try {
       // Load the stored entity, if any.
       if (!empty($entity->{$this->nameKey}) && !isset($entity->original)) {
-        $entity->original = entity_load_unchanged($this->entityType, $entity->{$this->nameKey});
+        // In order to properly work in case of name changes, load the original
+        // entity using the id key if it is available.
+        $entity->original = entity_load_unchanged($this->entityType, isset($entity->{$this->idKey}) ? $entity->{$this->idKey} : $entity->{$this->nameKey});
       }
       // Update the status for entities getting overridden.
       if (entity_has_status($this->entityType, $entity, ENTITY_IN_CODE) && empty($entity->is_rebuild)) {
