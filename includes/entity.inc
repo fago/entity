@@ -38,6 +38,7 @@ class Entity {
     $this->entityInfo = entity_get_info($entityType);
     $this->idKey = $this->entityInfo['entity keys']['id'];
     $this->nameKey = isset($this->entityInfo['entity keys']['name']) ? $this->entityInfo['entity keys']['name'] : $this->idKey;
+    $this->statusKey = empty($info['entity keys']['status']) ? 'status' : $info['entity keys']['status'];
 
     // Set initial values.
     foreach ($values as $key => $value) {
@@ -131,6 +132,25 @@ class Entity {
    */
   protected function defaultUri() {
     return array('path' => 'default/' . $entity->identifier());
+  }
+
+  /**
+   * Checks if the entity has a certain exportable status.
+   *
+   * @param $status
+   *   A status constant, i.e. one of ENTITY_CUSTOM, ENTITY_IN_CODE,
+   *   ENTITY_OVERRIDDEN or ENTITY_FIXED.
+   *
+   * @return
+   *   For exportable entities TRUE if the entity has the status, else FALSE.
+   *   In case the entity is not exportable, NULL is returned.
+   *
+   * @see entity_has_status()
+   */
+  public function hasStatus($status) {
+    if (!empty($this->entityInfo['exportable'])) {
+      return isset($this->{$this->statusKey}) && ($this->{$this->statusKey} & $status) == $status;
+    }
   }
 
   /**
