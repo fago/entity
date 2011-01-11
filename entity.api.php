@@ -183,7 +183,7 @@ function entity_metadata_hook_entity_info() {
  * separated from hook_entity_info() for performance reasons only.
  * For making use of the metadata have a look at the provided wrappers returned
  * by entity_metadata_wrapper().
- * For providing entity metadata for fields see entity_metadata_field_info().
+ * For providing property information for fields see entity_field_info().
  *
  * @return
  *   An array whose keys are entity type names and whose values are arrays
