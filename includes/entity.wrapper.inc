@@ -814,7 +814,13 @@ class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggrega
   public function value(array $options = array()) {
     // For lists of entities fetch full entity objects before returning.
     if ($this->get(0) instanceof EntityDrupalWrapper && empty($options['identifier']) && $this->dataAvailable()) {
-      return array_values(entity_load($this->get(0)->type, parent::value()));
+      $list = parent::value();
+      $entities = entity_load($this->get(0)->type, $list);
+      // Make sure to keep the array keys as present in the list.
+      foreach ($list as $key => $id) {
+        $list[$key] = isset($entities[$id]) ? $entities[$id] : NULL;
+      }
+      return $list;
     }
     return parent::value();
   }
@@ -835,7 +841,7 @@ class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggrega
    */
   public function getIterator() {
     // In case there is no data available, just iterate over the first item.
-    return new EntityMetadataWrapperIterator($this, $this->dataAvailable() ? array_keys($this->value()) : array(0));
+    return new EntityMetadataWrapperIterator($this, $this->dataAvailable() ? array_keys(parent::value()) : array(0));
   }
 
   /**
