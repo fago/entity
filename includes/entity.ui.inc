@@ -464,6 +464,11 @@ function entity_ui_main_form_defaults($form, &$form_state, $entity = NULL, $op =
     $entity_info = entity_get_info($form_state['entity_type']);
     $entity->{$entity_info['entity keys']['id']} = FALSE;
     $entity->is_new = TRUE;
+    // Make sure the status of a cloned exportable is custom.
+    if (!empty($entity_info['exportable'])) {
+      $status_key = isset($entity_info['entity keys']['status']) ? $entity_info['entity keys']['status'] : 'status';
+      $entity->$status_key = ENTITY_CUSTOM;
+    }
   }
   return entity_ui_form_defaults($form, $form_state, $form_state['entity_type'], $entity, $op);
 }
