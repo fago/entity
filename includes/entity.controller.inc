@@ -436,7 +436,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       if (!empty($entity->{$this->nameKey}) && !isset($entity->original)) {
         // In order to properly work in case of name changes, load the original
         // entity using the id key if it is available.
-        $entity->original = entity_load_unchanged($this->entityType, isset($entity->{$this->idKey}) ? $entity->{$this->idKey} : $entity->{$this->nameKey});
+        $entity->original = entity_load_unchanged($this->entityType, !empty($entity->{$this->idKey}) ? $entity->{$this->idKey} : $entity->{$this->nameKey});
       }
       // Update the status for entities getting overridden.
       if (entity_has_status($this->entityType, $entity, ENTITY_IN_CODE) && empty($entity->is_rebuild)) {
