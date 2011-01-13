@@ -20,7 +20,7 @@ function entity_features_get_controller($type) {
 }
 
 /**
- * Default controller for generating some basic metadata.
+ * Default controller handling features integration.
  */
 class EntityDefaultFeaturesController {
 
@@ -104,6 +104,7 @@ class EntityDefaultFeaturesController {
     $output[] = '  $items = array();';
     foreach (entity_load($this->type, $data) as $name => $entity) {
       $export  = "  \$items['$name'] = entity_import('{$this->type}', '";
+      // Make sure to escape the characters \ and '.
       $export .= addcslashes(entity_export($this->type, $entity, '  '), '\\\'');
       $export .= "');";
       $output[] = $export;
