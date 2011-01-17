@@ -123,7 +123,7 @@ class Entity {
     if (isset($this->entityInfo['uri callback']) && $this->entityInfo['uri callback'] == 'entity_class_uri') {
       return $this->defaultUri();
     }
-    return entity_uri($entity_type, $entity);
+    return entity_uri($this->entityType, $this);
   }
 
   /**
@@ -131,7 +131,7 @@ class Entity {
    * 'entity_class_uri' as 'uri callback' hook_entity_info().
    */
   protected function defaultUri() {
-    return array('path' => 'default/' . $entity->identifier());
+    return array('path' => 'default/' . $this->identifier());
   }
 
   /**
