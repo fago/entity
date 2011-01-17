@@ -74,6 +74,8 @@ class EntityDefaultMetadataController {
 
     // Set better metadata for known entity keys.
     $id_key = $this->info['entity keys']['id'];
+    $info['properties'][$id_key]['validation callback'] = 'entity_metadata_validate_integer_positive';
+
     if (!empty($this->info['entity keys']['name']) && $key = $this->info['entity keys']['name']) {
       $info['properties'][$key]['type'] = 'token';
       $info['properties'][$key]['label'] = t('Machine-readable name');
