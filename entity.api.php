@@ -95,6 +95,12 @@
  *   Features module integration for exportable entities. The given class has to
  *   inherit from the default class being EntityDefaultFeaturesController. Set
  *   it to FALSE to disable this feature.
+ * - views controller class: (optional) A controller class for providing views
+ *   integration. The given class has to inherit from the class
+ *   EntityDefaultViewsController, which is set as default in case the providing
+ *   module has been specified (see 'module') and the module does not provide
+ *   any views integration. Else it defaults to FALSE, which disables this
+ *   feature. See EntityDefaultViewsController.
  * - access callback: (optional) Specify a callback that returns access
  *   permissions for the operations 'create', 'updated', 'delete' and 'view'.
  *   The callback gets optionally the entity and the user account to check for
