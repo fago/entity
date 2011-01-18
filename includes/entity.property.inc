@@ -300,7 +300,9 @@ function entity_property_verbatim_set(&$data, $name, $value) {
  * Gets the property using the getter method (named just like the property).
  */
 function entity_property_getter_method($object, array $options, $name) {
-  return $object->$name();
+  // Remove any underscores as classes are expected to use CamelCase.
+  $method = strtr($name, array('_' => ''));
+  return $object->$method();
 }
 
 /**
@@ -308,7 +310,8 @@ function entity_property_getter_method($object, array $options, $name) {
  * 'setter callback'.
  */
 function entity_property_setter_method($object, $name, $value) {
-  $method = 'set' . $name;
+  // Remove any underscores as classes are expected to use CamelCase.
+  $method = 'set' . strtr($name, array('_' => ''));
   // Invoke the setProperty() method where 'Property' is the property name.
   $object->$method($value);
 }
