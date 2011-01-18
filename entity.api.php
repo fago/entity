@@ -216,6 +216,9 @@ function entity_metadata_hook_entity_info() {
  *        - entities - You may use the type of each entity known by
  *          hook_entity_info(), e.g. 'node' or 'user'. Internally entities are
  *          represented by their identifieres.
+ *        - entity: A special type to be used generically for entities where the
+ *          entity type is not known beforehand. The entity has to be
+ *          represented using an EntityMetadataWrapper.
  *        - struct: This as well as any else not known type may be used for
  *          supporting arbitrary data structures. For that additional metadata
  *          has to be specified with the 'property info' key.
