@@ -670,10 +670,10 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
    */
   public function save() {
     if ($this->data) {
-      $return = entity_save($this->type, $this->data);
-      if ($return === FALSE) {
+      if (!entity_type_supports($this->type, 'save')) {
         throw new EntityMetadataWrapperException("There is no information about how to save entities of type " . check_plain($this->type) . '.');
       }
+      $return = entity_save($this->type, $this->data);
       // On insert, update the identifier afterwards.
       if (!$this->id) {
         list($this->id, , ) = entity_extract_ids($this->type, $this->data);
