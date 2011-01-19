@@ -396,8 +396,7 @@ function entity_metadata_field_options_list($name, $info) {
  */
 function entity_metadata_field_verbatim_get($entity, array $options, $name, $entity_type, &$context) {
   // Set contextual info useful for getters of any child properties.
-  $entity_info = $context['parent']->info();
-  $context['instance'] = field_info_instance($entity_info['type'], $name, $entity_info['bundle']);
+  $context['instance'] = field_info_instance($context['parent']->type(), $name, $context['parent']->getBundle());
   $context['field'] = field_info_field($name);
 
   $langcode = field_language($entity_type, $entity, $name, isset($options['language']) ? $options['language']->language : NULL);

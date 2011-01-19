@@ -508,6 +508,11 @@ class EntityStructureWrapper extends EntityMetadataWrapper implements IteratorAg
     unset($vars['propertyInfoDefaults']);
     return $vars;
   }
+
+  public function clear() {
+    $this->propertyInfoAltered = FALSE;
+    parent::clear();
+  }
 }
 
 /**
@@ -522,6 +527,7 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
    * Contains the entity id.
    */
   protected $id = FALSE;
+  protected $bundle;
   protected $entityInfo;
 
   /**
@@ -536,17 +542,18 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
    */
   public function __construct($type, $data = NULL, $info = NULL) {
     parent::__construct($type, $data, $info);
-    $this->setUp();
     $this->setEntity($data);
+    $this->setUp();
   }
 
   protected function setUp() {
     $this->propertyInfo = entity_get_property_info($this->type) + array('properties' => array());
-    $info = $this->info + array('property info' => array());
+    $info = $this->info + array('property info' => array(), 'bundle' => NULL);
     $this->propertyInfo['properties'] += $info['property info'];
+    $this->bundle = $info['bundle'];
     $this->entityInfo = entity_get_info($this->type);
-    if (isset($this->info['bundle'])) {
-      $this->spotInfo($this->info['bundle']);
+    if (isset($this->bundle)) {
+      $this->spotBundleInfo(FALSE);
     }
   }
 
@@ -558,10 +565,19 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
       $this->id = $data;
       $this->data = FALSE;
     }
+    elseif (is_object($data) && $data instanceof EntityDrupalWrapper) {
+      // We got a wrapped entity passed.
+      $this->id = $data->getIdentifier();
+      $this->data = $data->data;
+      // For entity references, also update the entity type accordingly.
+      if ($this->info['type'] == 'entity') {
+        $this->type = $data->type();
+      }
+    }
     elseif (is_object($data)) {
       // We got the entity object passed.
       $this->data = $data;
-      list($id, $vid, $bundle) = entity_extract_ids($this->type, $data);
+      list($id, $vid, $this->bundle) = entity_extract_ids($this->type, $data);
       $this->id = isset($id) ? $id : FALSE;
     }
   }
@@ -570,26 +586,37 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
    * Used to lazy-load bundle info. So the wrapper can be loaded e.g. just
    * for setting without the data being loaded.
    */
-  protected function spotInfo($bundle = NULL) {
-    if (!isset($this->info['bundle']) || isset($bundle)) {
-      $this->info['bundle'] = $bundle;
-      // Detect the bundle if not set yet and add in properties from the bundle.
-      if (!isset($this->info['bundle']) && !empty($this->entityInfo['fieldable']) && $this->dataAvailable() && $entity = $this->value()) {
-        list($id, $vid, $bundle) = entity_extract_ids($this->type, $entity);
-        $this->info['bundle'] = $bundle;
+  protected function spotInfo() {
+    if (!$this->propertyInfoAltered) {
+      if ($this->info['type'] == 'entity' && $this->dataAvailable() && $this->value()) {
+        // Add in entity-type specific details.
+        $this->setUp();
       }
-      // Like entity_extract_ids() assume the entity type if no key is given.
-      elseif (empty($this->entityInfo['entity keys']['bundle'])) {
-        $this->info['bundle'] = $this->type;
-      }
-      elseif (!isset($this->info['bundle'])) {
-        $this->info['bundle'] = FALSE;
-      }
-      if ($this->info['bundle'] && isset($this->propertyInfo['bundles'][$this->info['bundle']])) {
-        $bundle_info = (array)$this->propertyInfo['bundles'][$this->info['bundle']] + array('properties' => array());
-        $this->propertyInfo['properties'] += $bundle_info['properties'];
-      }
+      $this->spotBundleInfo(TRUE);
       parent::spotInfo();
+      $this->propertyInfoAltered = TRUE;
+    }
+  }
+
+  /**
+   * Tries to determine the bundle and adds in the according property info.
+   *
+   * @param $load
+   *   Whether the entity should be loaded to spot the info if necessary.
+   */
+  protected function spotBundleInfo($load = TRUE) {
+    // Detect the bundle if not set yet and add in properties from the bundle.
+    if (!$this->bundle && !empty($this->entityInfo['fieldable']) && $load && $this->dataAvailable() && $entity = $this->value()) {
+      list($id, $vid, $bundle) = entity_extract_ids($this->type, $entity);
+      $this->bundle = $bundle;
+    }
+    // Like entity_extract_ids() assume the entity type if no key is given.
+    elseif (empty($this->entityInfo['entity keys']['bundle']) && $this->type != 'entity') {
+      $this->bundle = $this->type;
+    }
+    if ($this->bundle && isset($this->propertyInfo['bundles'][$this->bundle])) {
+      $bundle_info = (array) $this->propertyInfo['bundles'][$this->bundle] + array('properties' => array());
+      $this->propertyInfo['properties'] += $bundle_info['properties'];
     }
   }
 
@@ -606,7 +633,7 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
   public function getBundle() {
     if ($this->dataAvailable()) {
       $this->spotInfo();
-      return $this->info['bundle'];
+      return $this->bundle;
     }
   }
 
@@ -634,12 +661,17 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
       throw new EntityMetadataWrapperException('Invalid data value given. Be sure it matches the required data type and format.');
     }
     $previous_id = $this->id;
+    $previous_type = $this->type;
     // Set value, so we get the identifier and pass it to the normal setter.
     $this->clear();
     $this->setEntity($value);
-    // For entities being referenced in a data property, it's only necessary
-    // to propagate the update to the parent if the id changed.
-    if ($previous_id != $this->id) {
+    // Generally, we have to update the parent only if the entity reference
+    // has changed. In case of a generic entity reference, we pass the entity
+    // wrapped. Else we just pass the id of the entity to the setter callback.
+    if ($this->info['type'] == 'entity' && ($previous_id != $this->id || $previous_type != $this->type)) {
+      $this->updateParent($this);
+    }
+    elseif ($previous_id != $this->id) {
       $this->updateParent($this->id);
     }
     return $this;
@@ -650,6 +682,10 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
    */
   public function clear() {
     $this->id = NULL;
+    // Reset entity info / property info based upon the info provided during
+    // the creation of the wrapper.
+    $this->type = $this->info['type'];
+    $this->setUp();
     parent::clear();
   }
 

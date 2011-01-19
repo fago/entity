@@ -446,6 +446,13 @@ class EntityMetadataTestCase extends DrupalWebTestCase {
     // Test getting options lists.
     $this->assertEqual($wrapper->type->optionsList(), node_type_get_names(), 'Options list returned.');
 
+    // Test making use of a generic 'entity' reference property the
+    // 'entity_test' module provides. The property defaults to the node author.
+    $this->assertEqual($wrapper->reference->uid->value(), $wrapper->author->getIdentifier(), 'Used generic entity reference property.');
+    // For testing, just point the reference to the node itself now.
+    $wrapper->reference->set($wrapper);
+    $this->assertEqual($wrapper->reference->nid->value(), $wrapper->getIdentifier(), 'Correctly updated the generic entity referenced property.');
+
     // Test saving and deleting.
     $wrapper->save();
     $wrapper->delete();
