@@ -119,7 +119,7 @@ interface EntityAPIControllerInterface extends DrupalEntityControllerInterface {
 class EntityAPIController extends DrupalDefaultEntityController implements EntityAPIControllerInterface {
 
   protected $cacheComplete = FALSE;
-  protected $nameKey, $statusKey, $bundleKey;
+  protected $nameKey, $statusKey, $moduleKey, $bundleKey;
 
   /**
    * Overridden.
@@ -134,6 +134,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
     $this->nameKey = isset($this->entityInfo['entity keys']['name']) ? $this->entityInfo['entity keys']['name'] : $this->idKey;
     if (!empty($this->entityInfo['exportable'])) {
       $this->statusKey = isset($this->entityInfo['entity keys']['status']) ? $this->entityInfo['entity keys']['status'] : 'status';
+      $this->moduleKey = isset($this->entityInfo['entity keys']['module']) ? $this->entityInfo['entity keys']['module'] : 'module';
     }
     // If this is the bundle of another entity, set the bundle key.
     if (isset($this->entityInfo['bundle of'])) {
@@ -488,7 +489,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
    */
   public function export($entity, $prefix = '') {
     $vars = get_object_vars($entity);
-    unset($vars[$this->statusKey], $vars['is_new']);
+    unset($vars[$this->statusKey], $vars[$this->moduleKey], $vars['is_new']);
     if ($this->nameKey != $this->idKey) {
       unset($vars[$this->idKey]);
     }
