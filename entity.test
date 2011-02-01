@@ -576,7 +576,7 @@ class EntityMetadataTestCase extends DrupalWebTestCase {
     $values[LANGUAGE_NONE][0] = array('value' => 'foo');
     $node = $this->drupalCreateNode(array($this->field_name => $values, 'title' => $title));
 
-    $results = entity_property_query('node', 'title', array($title, 'another title'));
+    $results = entity_property_query('node', 'title', $title);
     $this->assertEqual($results, array($node->nid), 'Queried nodes with a given title.');
 
     $results = entity_property_query('node', $this->field_name, 'foo');

@@ -649,11 +649,11 @@ function entity_metadata_view_single($entities, $view_mode = 'full', $langcode =
 function entity_metadata_table_query($entity_type, $property, $value, $limit) {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', $entity_type, '=')
-        ->entityCondition($property, $value, '=')
+        ->propertyCondition($property, $value, '=')
         ->range(0, $limit);
 
   $result = $query->execute();
-  return array_keys($result[$entity_type]);
+  return !empty($result[$entity_type]) ? array_keys($result[$entity_type]) : array();
 }
 
 /**
