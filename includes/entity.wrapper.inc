@@ -232,7 +232,7 @@ class EntityValueWrapper extends EntityMetadataWrapper {
 class EntityStructureWrapper extends EntityMetadataWrapper implements IteratorAggregate {
 
   protected $propertyInfo = array(), $propertyInfoAltered = FALSE;
-  protected $langcode = NULL;
+  protected $langcode = LANGUAGE_NONE;
 
   protected $propertyInfoDefaults = array(
     'type' => 'text',
@@ -314,7 +314,7 @@ class EntityStructureWrapper extends EntityMetadataWrapper implements IteratorAg
    *   The language code of the language to set.
    * @return EntityWrapper
    */
-  public function language($langcode = NULL) {
+  public function language($langcode = LANGUAGE_NONE) {
     if ($langcode != $this->langcode) {
       $this->langcode = $langcode;
       $this->cache = array();
@@ -331,7 +331,7 @@ class EntityStructureWrapper extends EntityMetadataWrapper implements IteratorAg
    * @see EntityStructureWrapper::language()
    */
   public function getPropertyLanguage() {
-    if (isset($this->langcode) && $list = language_list()) {
+    if ($this->langcode != LANGUAGE_NONE && $list = language_list()) {
       if (isset($list[$this->langcode])) {
         return $list[$this->langcode];
       }

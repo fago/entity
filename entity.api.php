@@ -278,6 +278,8 @@ function entity_metadata_hook_entity_info() {
  *       if necessary, e.g. as the data structure is not created yet but one of
  *       its properties is set. See entity_metadata_field_file_callback() for
  *       an example.
+ *     - translatable: (optional) Whether the property is translatable, defaults
+ *       to FALSE.
  *   - bundles: An array keyed by bundle name containing further metadata
  *     related to the bundles only. This array may contain the key 'properties'
  *     with an array of info about the bundle specific properties, structured in

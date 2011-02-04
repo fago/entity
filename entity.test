@@ -325,7 +325,7 @@ class EntityMetadataTestCase extends DrupalWebTestCase {
   }
 
   function setUp() {
-    parent::setUp('entity', 'entity_test');
+    parent::setUp('entity', 'entity_test', 'locale');
     // Create a field having 4 values for testing multiple value support.
     $this->field_name = drupal_strtolower($this->randomName() . '_field_name');
     $this->field = array('field_name' => $this->field_name, 'type' => 'text', 'cardinality' => 4);
@@ -430,6 +430,21 @@ class EntityMetadataTestCase extends DrupalWebTestCase {
     $this->assertEqual("<p>The second body.</p>\n", $wrapper->body->value->value(), "Setting a processed field value and reading it again.");
     $this->assertEqual($node->body[LANGUAGE_NONE][0]['value'], "<b>The second body.</b>", 'Update appears in the wrapped entity.');
     $this->assert(isset($node->body[LANGUAGE_NONE][0]['safe_value']), 'Formatted text has been processed.');
+
+    // Test translating the body.
+    locale_add_language('de');
+    $wrapper->language('de');
+
+    $languages = language_list();
+    $this->assertEqual($wrapper->getPropertyLanguage(), $languages['de'], 'Wrapper language has been set to German');
+    $this->assertEqual($wrapper->body->value->value(), "<p>The second body.</p>\n", 'Language fallback on neutral language.');
+
+    // Set a German text using the wrapper.
+    $wrapper->body->set(array('value' => "<b>Der zweite Text.</b>"));
+
+    $this->assertEqual($wrapper->body->value->value(), "<p>Der zweite Text.</p>\n", 'German body set and retrieved.');
+    $wrapper->language(NULL);
+    $this->assertEqual($wrapper->body->value->value(), "<p>The second body.</p>\n", 'Language neutral text is still there.');
 
     // Test iterator.
     $type_info = entity_get_property_info('node');

@@ -374,6 +374,9 @@ function entity_metadata_field_property_set($entity, $name, $value, $langcode, $
     $items[$delta][$columns[0]] = $value;
   }
   $entity->{$name}[$langcode] = $items;
+  // Empty the static field language cache, so the field system picks up any
+  // possible new languages.
+  drupal_static_reset('field_language');
 }
 
 /**
@@ -414,6 +417,9 @@ function entity_metadata_field_verbatim_set($entity, $name, $items, $langcode) {
   $field = field_info_field($name);
   $langcode = isset($langcode) ? $langcode : LANGUAGE_NONE;
   $entity->{$name}[$langcode] = $field['cardinality'] == 1 ? array($items) : $items;
+  // Empty the static field language cache, so the field system picks up any
+  // possible new languages.
+  drupal_static_reset('field_language');
 }
 
 /**

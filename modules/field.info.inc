@@ -59,6 +59,7 @@ function entity_metadata_field_default_property_callback(&$info, $entity_type, $
       'setter callback' => 'entity_metadata_field_property_set',
       'access callback' => 'entity_metadata_field_access_callback',
       'query callback' => 'entity_metadata_field_query',
+      'translatable' => !empty($field['translatable']),
       // Specify that this property stems from a field.
       'field' => TRUE,
     );
