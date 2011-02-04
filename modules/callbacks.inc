@@ -515,6 +515,34 @@ function entity_metadata_user_access($op, $entity = NULL, $account = NULL, $enti
 }
 
 /**
+ * Access callback for restricted user properties.
+ */
+function entity_metadata_user_properties_access($op, $property, $entity = NULL, $account = NULL) {
+  if (user_access('administer users', $account)) {
+    return TRUE;
+  }
+  $account = isset($account) ? $account : $GLOBALS['user'];
+  // Flag to indicate if this user entity is the own user account.
+  $is_own_account = isset($entity) && $account->uid == $entity->uid;
+  switch ($property) {
+    case 'name':
+      // Allow view access to anyone with access to the entity.
+      if ($op == 'view') {
+        return TRUE;
+      }
+      // Allow edit access for own user name if the permission is satisfied.
+      return $is_own_account && user_access('change own username', $account);
+    case 'mail':
+      // Allow access to own mail address.
+      return $is_own_account;
+    case 'roles':
+      // Allow view access for own roles.
+      return ($op == 'view' && $is_own_account);
+  }
+  return FALSE;
+}
+
+/**
  * Access callback for the comment entity.
  */
 function entity_metadata_comment_access($op, $entity = NULL, $account = NULL) {

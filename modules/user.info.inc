@@ -27,6 +27,7 @@ function entity_metadata_user_entity_property_info() {
     'setter callback' => 'entity_property_verbatim_set',
     'sanitize' => 'filter_xss',
     'required' => TRUE,
+    'access callback' => 'entity_metadata_user_properties_access',
   );
   $properties['mail'] = array(
     'label' => t("Email"),
@@ -34,6 +35,7 @@ function entity_metadata_user_entity_property_info() {
     'setter callback' => 'entity_property_verbatim_set',
     'validation callback' => 'valid_email_address',
     'required' => TRUE,
+    'access callback' => 'entity_metadata_user_properties_access',
   );
   $properties['url'] = array(
     'label' => t("URL"),
@@ -66,6 +68,7 @@ function entity_metadata_user_entity_property_info() {
     'setter callback' => 'entity_metadata_user_set_properties',
     'setter permission' => 'administer users',
     'options list' => 'entity_metadata_user_roles',
+    'access callback' => 'entity_metadata_user_properties_access',
   );
   return $info;
 }
