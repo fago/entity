@@ -23,7 +23,7 @@ class Entity {
 
   protected $entityType;
   protected $entityInfo;
-  protected $idKey, $nameKey;
+  protected $idKey, $nameKey, $statusKey;
 
   /**
    * Creates a new entity.
