@@ -433,7 +433,7 @@ class EntityStructureWrapper extends EntityMetadataWrapper implements IteratorAg
       }
 
       // Invoke the setter callback for updating our data.
-      $info['setter callback']($data, $name, $value, $this->langcode, $this->type);
+      $info['setter callback']($data, $name, $value, $this->langcode, $this->type, $info);
 
       // If the setter has not thrown any exceptions, proceed and apply the
       // update to the current and any parent wrappers as necessary.
