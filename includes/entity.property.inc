@@ -245,8 +245,10 @@ function entity_property_verify_data_type($data, $type) {
 function entity_property_values_create_entity($entity_type, $values = array()) {
   if (entity_type_supports($entity_type, 'create')) {
     $info = entity_get_info($entity_type);
-    // Create the initial entity.
-    $entity = entity_create($entity_type, array_intersect_key($values, array_flip($info['entity keys'])));
+    // Create the initial entity by passing the values for all 'entity keys'
+    // to entity_create().
+    $entity_keys = array_filter($info['entity keys']);
+    $entity = entity_create($entity_type, array_intersect_key($values, array_flip($entity_keys)));
     // Now set the remaining values using the wrapper.
     $wrapper = entity_metadata_wrapper($entity_type, $entity);
     foreach ($values as $key => $value) {
