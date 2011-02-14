@@ -68,7 +68,7 @@ abstract class EntityMetadataWrapper {
    *     strips HTML tags and decodes HTML entities. Defaults to FALSE.
    */
   public function value(array $options = array()) {
-    if (!$this->dataAvailable()) {
+    if (!$this->dataAvailable() && isset($this->info['parent'])) {
       throw new EntityMetadataWrapperException('Missing data values.');
     }
     if (!isset($this->data) && isset($this->info['name'])) {
