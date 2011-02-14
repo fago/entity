@@ -322,14 +322,16 @@ function entity_metadata_user_set_properties($account, $name, $value) {
   }
 }
 
-
 /**
- * Options list callback for user roles.
+ * Options list callback returning all user roles.
  */
-function entity_metadata_user_roles() {
-  return user_roles(TRUE);
+function entity_metadata_user_roles($property_name = 'roles', $info = array(), $op = 'edit') {
+  $roles = user_roles();
+  if ($op == 'edit') {
+    unset($roles[DRUPAL_AUTHENTICATED_RID], $roles[DRUPAL_ANONYMOUS_RID]);
+  }
+  return $roles;
 }
-
 
 /**
  * Callback defining an options list for language properties.
@@ -440,10 +442,10 @@ function entity_metadata_field_text_get($item, array $options, $name, $type, $co
 }
 
 /**
- * Defines the list of formats available for the current user.
+ * Defines the list of all available text formats.
  */
 function entity_metadata_field_text_formats() {
-  foreach (filter_formats($GLOBALS['user']) as $key => $format) {
+  foreach (filter_formats() as $key => $format) {
     $formats[$key] = $format->name;
   }
   return $formats;

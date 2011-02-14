@@ -150,17 +150,41 @@ abstract class EntityMetadataWrapper {
   }
 
   /**
-   * Returns the options list specifying possible key value pairs for the
-   * property, if defined.
+   * Returns the options list specifying possible values for the property, if
+   * defined.
+   *
+   * @param $op
+   *   (optional) One of 'edit' or 'view'. In case the list of possible values
+   *   a user could set for a property differs from the list of values a
+   *   property could have, $op determines which options should be returned.
+   *   Defaults to 'edit'.
+   *   E.g. all possible roles a user could have include the anonymous and the
+   *   authenticated user roles, while those roles cannot be added to a user
+   *   account. So their options would be included for 'view', but for 'edit'
+   *   not.
    *
    * @return
    *   An array as used by hook_options_list() or FALSE.
    */
-  public function optionsList() {
+  public function optionsList($op = 'edit') {
     if (isset($this->info['options list']) && is_callable($this->info['options list']) && isset($this->info['name'])) {
-      return call_user_func($this->info['options list'], $this->info['name'], $this->info);
+      return call_user_func($this->info['options list'], $this->info['name'], $this->info, $op);
     }
     return FALSE;
+  }
+
+  /**
+   * Returns the label for the currently set property value if there is one
+   * available, i.e. if an options list has been specified.
+   */
+  public function label() {
+    if ($options = $this->optionsList('view')) {
+      $options = entity_property_options_flatten($options);
+      $value = $this->value();
+      if (is_scalar($value) && isset($options[$value])) {
+        return $options[$value];
+      }
+    }
   }
 
   /**
@@ -754,6 +778,15 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
   }
 
   /**
+   * Returns the entity label.
+   *
+   * @see entity_label()
+   */
+  public function label() {
+    return entity_label($this->type, $this->value());
+  }
+
+  /**
    * Prepare for serializiation.
    */
   public function __sleep() {
@@ -912,6 +945,29 @@ class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggrega
    */
   public function validate($value) {
     return entity_property_verify_data_type($value, $this->type);
+  }
+
+  /**
+   * Returns the label for the list of set values if available.
+   */
+  public function label() {
+    if ($options = $this->optionsList('view')) {
+      $options = entity_property_options_flatten($options);
+      $labels = array_intersect_key($options, array_flip(parent::value()));
+    }
+    else {
+      // Get each label on its own, e.g. to support getting labels of a list
+      // of entities.
+      $labels = array();
+      foreach ($this as $key => $property) {
+        $label = $property->label();
+        if (!$label) {
+          return NULL;
+        }
+        $labels[] = $label;
+      }
+    }
+    return isset($labels) ? implode(', ', $labels) : NULL;
   }
 }
 

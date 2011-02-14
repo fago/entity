@@ -250,9 +250,12 @@ function entity_metadata_hook_entity_info() {
  *       callback which can be used to retrieve the raw, unprocessed value.
  *     - bundle: If the property is an entity, you may specify the bundle of the
  *       retrieved entity. Optional.
- *     - 'options list': Optionally, a callback that returns a list of key value
- *       pairs for the property. The callback has to return an array as
+ *     - 'options list': Optionally, a callback that returns a list of possible
+ *       values for the property. The callback has to return an array as
  *       used by hook_options_list().
+ *       Note that it is possible to return a different set of options depending
+ *       whether they are used in read or in write context. See
+ *       EntityMetadataWrapper::optionsList() for more details on that.
  *     - 'access callback': An optional access callback to allow for checking
  *       'view' and 'edit' access for the described property. If no callback
  *       is specified, a 'setter permission' may be specified instead.

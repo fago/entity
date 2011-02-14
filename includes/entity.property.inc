@@ -349,6 +349,25 @@ function entity_property_create_array($property_name, $context) {
 }
 
 /**
+ * Flattens the given options in single dimensional array.
+ * We don't depend on options module, so we cannot use options_array_flatten().
+ *
+ * @see options_array_flatten()
+ */
+function entity_property_options_flatten($options) {
+  $result = array();
+  foreach ($options as $key => $value) {
+    if (is_array($value)) {
+      $result += $value;
+    }
+    else {
+      $result[$key] = $value;
+    }
+  }
+  return $result;
+}
+
+/**
  * Defines info for the properties of the text_formatted data structure.
  */
 function entity_property_text_formatted_info() {
