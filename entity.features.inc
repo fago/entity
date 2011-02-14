@@ -92,6 +92,10 @@ class EntityDefaultFeaturesController {
     // Add the module providing the entity type as dependency.
     if ($data && !empty($this->info['module'])) {
       $export['dependencies'][$this->info['module']] = $this->info['module'];
+      // In case entity is not already an indirect dependency, add it.
+      // We can do so without causing redundant dependencies because,
+      // if entity is an indirect dependency, Features will filter it out.
+      $export['dependencies']['entity'] = 'entity';
     }
     return $pipe;
   }
