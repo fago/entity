@@ -601,7 +601,7 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
     elseif (is_object($data)) {
       // We got the entity object passed.
       $this->data = $data;
-      list($id, $vid, $this->bundle) = entity_extract_ids($this->type, $data);
+      $id = entity_id($this->type, $data);
       $this->id = isset($id) ? $id : FALSE;
     }
   }
@@ -646,6 +646,8 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
 
   /**
    * Returns the identifier of the wrapped entity.
+   *
+   * @see entity_id()
    */
   public function getIdentifier() {
     return $this->dataAvailable() && $this->value() ? $this->id : NULL;
