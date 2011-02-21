@@ -102,7 +102,7 @@
  *   any views integration. Else it defaults to FALSE, which disables this
  *   feature. See EntityDefaultViewsController.
  * - access callback: (optional) Specify a callback that returns access
- *   permissions for the operations 'create', 'updated', 'delete' and 'view'.
+ *   permissions for the operations 'create', 'update', 'delete' and 'view'.
  *   The callback gets optionally the entity and the user account to check for
  *   passed. See entity_access() for more details on the arguments and
  *   entity_metadata_no_hook_node_access() for an example.
@@ -149,7 +149,7 @@ function entity_crud_hook_entity_info() {
  *
  * Additional keys are:
  * - access callback: (optional) Specify a callback that returns access
- *   permissions for the operations 'create', 'updated', 'delete' and 'view'.
+ *   permissions for the operations 'create', 'update', 'delete' and 'view'.
  *   The callback gets optionally the entity and the user account to check for
  *   passed. See entity_access() for more details on the arguments and
  *   entity_metadata_no_hook_node_access() for an example.
