@@ -289,6 +289,13 @@ function entity_property_verbatim_get($data, array $options, $name) {
 }
 
 /**
+ * Date values are converted from ISO strings to timestamp, if needed.
+ */
+function entity_property_verbatim_date_get($data, array $options, $name) {
+  return is_numeric($data[$name]) ? $data[$name] : strtotime($data[$name], time());
+}
+
+/**
  * Sets the property to the given value. May be used as 'setter callback'.
  */
 function entity_property_verbatim_set(&$data, $name, $value) {
