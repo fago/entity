@@ -129,7 +129,7 @@ abstract class EntityMetadataWrapper {
    * Returns whether $value is a valid value to set.
    */
   public function validate($value) {
-    if (!entity_property_verify_data_type($value, $this->type)) {
+    if (isset($value) && !entity_property_verify_data_type($value, $this->type)) {
       return FALSE;
     }
     return !isset($this->info['validation callback']) || call_user_func($this->info['validation callback'], $value, $this->info);
@@ -946,7 +946,7 @@ class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggrega
    * list items.
    */
   public function validate($value) {
-    return entity_property_verify_data_type($value, $this->type);
+    return !isset($value) || entity_property_verify_data_type($value, $this->type);
   }
 
   /**
