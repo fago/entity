@@ -853,6 +853,11 @@ class EntityMetadataIntegrationTestCase extends DrupalWebTestCase {
     foreach ($wrapper as $key => $value) {
       $this->assertValue($wrapper, $key);
     }
+    // Test page request related properties.
+    foreach ($wrapper->current_page as $key => $value) {
+      $this->assertValue($wrapper->current_page, $key);
+    }
+
     // Test files.
     $file = $this->createFile();
 

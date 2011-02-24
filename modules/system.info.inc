@@ -61,6 +61,26 @@ function entity_metadata_system_entity_property_info() {
     'getter callback' => 'entity_metadata_system_get_properties',
     'type' => 'date',
   );
+  $properties['current_page'] = array(
+    'label' => t("Current page"),
+    'description' => t("Information related to the current page request."),
+    'getter callback' => 'entity_metadata_system_get_properties',
+    'type' => 'struct',
+    'property info' => array(
+      'path' => array(
+        'label' => t("Path"),
+        'description' => t("The internal Drupal path of the current page request."),
+        'getter callback' => 'current_path',
+        'type' => 'text',
+      ),
+      'url' => array(
+        'label' => t("URL"),
+        'description' => t("The full URL of the current page request."),
+        'getter callback' => 'entity_metadata_system_get_page_properties',
+        'type' => 'uri',
+      ),
+    ),
+  );
 
   // Files.
   $properties = &$info['file']['properties'];

@@ -207,8 +207,23 @@ function entity_metadata_system_get_properties($data = FALSE, array $options, $n
     case 'current_date':
       return time();
 
+    case 'current_page':
+      // Subsequent getters of the struct retrieve the actual values.
+      return array();
+
     default:
       return variable_get('site_' . $name, '');
+  }
+}
+
+/**
+ * Callback for getting properties for the current page request.
+ * @see entity_metadata_system_entity_info_alter()
+ */
+function entity_metadata_system_get_page_properties($data = array(), array $options, $name) {
+  switch ($name) {
+    case 'url':
+      return $GLOBALS['base_root'] . request_uri();
   }
 }
 
