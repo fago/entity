@@ -1,4 +1,3 @@
-$Id$
 
 Entity API module
 -----------------

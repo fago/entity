@@ -1,4 +1,3 @@
-; $Id$
 name = Entity Metadata
 description = (deprecated) Provides more metadata for entities and a useful API to allow modules making use of it.
 core = 7.x

@@ -1,4 +1,3 @@
-; $Id$
 name = Entity CRUD test module
 description = Provides entity types based upon the CRUD API.
 version = VERSION

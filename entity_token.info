@@ -1,4 +1,3 @@
-; $Id$
 name = Entity tokens
 description = Provides token replacements for all properties that have no tokens and are known to the entity API.
 core = 7.x
