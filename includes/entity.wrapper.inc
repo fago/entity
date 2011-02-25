@@ -750,7 +750,7 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
    * @return EntityDrupalWrapper
    */
   public function delete() {
-    if ($this->dataAvailable()) {
+    if ($this->dataAvailable() && $this->value()) {
       $return = entity_delete($this->type, $this->id);
       if ($return === FALSE) {
         throw new EntityMetadataWrapperException("There is no information about how to delete entities of type " . check_plain($this->type) . '.');
