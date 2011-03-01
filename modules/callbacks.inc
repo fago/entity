@@ -726,5 +726,5 @@ function entity_metadata_field_query($entity_type, $property, $value, $limit) {
         ->range(0, $limit);
 
   $result = $query->execute();
-  return array_keys($result[$entity_type]);
+  return !empty($result[$entity_type]) ? array_keys($result[$entity_type]) : array();
 }
