@@ -396,12 +396,16 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
    *   in their transaction object.
    */
   public function delete($ids, DatabaseTransaction $transaction = NULL) {
-    $entities = $this->load($ids);
+    $entities = $ids ? $this->load($ids) : FALSE;
+    if (!$entities) {
+      // Do nothing, in case invalid or no ids have been passed.
+      return;
+    }
     $transaction = isset($transaction) ? $transaction : db_transaction();
 
     try {
       db_delete($this->entityInfo['base table'])
-        ->condition($this->nameKey, $ids, 'IN')
+        ->condition($this->nameKey, array_keys($entities), 'IN')
         ->execute();
       // Reset the cache as soon as the changes have been applied.
       $this->resetCache($ids);
