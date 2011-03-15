@@ -362,7 +362,7 @@ function entity_metadata_language_list() {
 /**
  * Callback for getting field property values.
  */
-function entity_metadata_field_property_get($entity, array $options, $name, $entity_type) {
+function entity_metadata_field_property_get($entity, array $options, $name, $entity_type, $info) {
   $field = field_info_field($name);
   $columns = array_keys($field['columns']);
   $langcode = field_language($entity_type, $entity, $name, isset($options['language']) ? $options['language']->language : NULL);
@@ -370,6 +370,10 @@ function entity_metadata_field_property_get($entity, array $options, $name, $ent
   if (isset($entity->{$name}[$langcode])) {
     foreach ($entity->{$name}[$langcode] as $delta => $data) {
       $values[$delta] = $data[$columns[0]];
+      if ($info['type'] == 'boolean' || $info['type'] == 'list<boolean>') {
+        // Ensure that we have a clean boolean data type.
+        $values[$delta] = (boolean) $values[$delta];
+      }
     }
   }
   // For an empty single-valued field, we have to return NULL.
