@@ -28,18 +28,18 @@ function entity_test_entity_info() {
         'bundle' => 'name',
       ),
     ),
-  );
-  $return['entity_test_type'] = array(
-    'label' => t('Test entity type'),
-    'entity class' => 'Entity',
-    'controller class' => 'EntityAPIController',
-    'base table' => 'entity_test_type',
-    'fieldable' => FALSE,
-    'bundle of' => 'entity_test',
-    'exportable' => TRUE,
-    'entity keys' => array(
-      'id' => 'id',
-      'name' => 'name',
+    'entity_test_type' => array(
+      'label' => t('Test entity type'),
+      'entity class' => 'Entity',
+      'controller class' => 'EntityAPIController',
+      'base table' => 'entity_test_type',
+      'fieldable' => FALSE,
+      'bundle of' => 'entity_test',
+      'exportable' => TRUE,
+      'entity keys' => array(
+        'id' => 'id',
+        'name' => 'name',
+      ),
     ),
   );
   return $return;
