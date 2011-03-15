@@ -960,7 +960,7 @@ function entity_entity_info_alter(&$entity_info) {
     $entity_info['comment']['creation callback'] = 'entity_metadata_create_comment';
     $entity_info['comment']['save callback'] = 'comment_save';
     $entity_info['comment']['deletion callback'] = 'comment_delete';
-    $entity_info['comment']['view callback'] = 'entity_metadata_view_single';
+    $entity_info['comment']['view callback'] = 'entity_metadata_view_comment';
   }
   if (module_exists('taxonomy')) {
     $entity_info['taxonomy_term']['access callback'] = 'entity_metadata_taxonomy_access';

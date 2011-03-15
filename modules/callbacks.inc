@@ -690,6 +690,27 @@ function entity_metadata_view_node($entities, $view_mode = 'full', $langcode = N
 }
 
 /**
+ * Callback to view comments.
+ */
+function entity_metadata_view_comment($entities, $view_mode = 'full', $langcode = NULL) {
+  $build = array();
+  $nodes = array();
+  // The comments, indexed by nid and then by cid.
+  $nid_comments = array();
+  foreach ($entities as $cid => $comment) {
+    $nid = $comment->nid;
+    $nodes[$nid] = $nid;
+    $nid_comments[$nid][$cid] = $comment;
+  }
+  $nodes = node_load_multiple(array_keys($nodes));
+  foreach ($nid_comments as $nid => $comments) {
+    $node = isset($nodes[$nid]) ? $nodes[$nid] : NULL;
+    $build += comment_view_multiple($comments, $node, $view_mode, 0, $langcode);
+  }
+  return $build;
+}
+
+/**
  * Callback to view an entity, for which just ENTITYTYPE_view() is available.
  */
 function entity_metadata_view_single($entities, $view_mode = 'full', $langcode = NULL, $entity_type) {
