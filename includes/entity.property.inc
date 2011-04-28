@@ -389,6 +389,8 @@ function entity_property_text_formatted_info() {
       'label' => t('Text'),
       'sanitized' => TRUE,
       'getter callback' => 'entity_metadata_field_text_get',
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'administer nodes',
       'raw getter callback' => 'entity_property_verbatim_get',
     ),
     'summary' => array(
@@ -396,6 +398,8 @@ function entity_property_text_formatted_info() {
       'label' => t('Summary'),
       'sanitized' => TRUE,
       'getter callback' => 'entity_metadata_field_text_get',
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permission' => 'administer nodes',
       'raw getter callback' => 'entity_property_verbatim_get',
     ),
     'format' => array(
