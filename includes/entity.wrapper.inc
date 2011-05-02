@@ -25,9 +25,9 @@ abstract class EntityMetadataWrapper {
    * @param $info
    *   Optional. Used internally to pass info about properties down the tree.
    */
-  public function __construct($type, &$data = NULL, $info = array()) {
+  public function __construct($type, $data = NULL, $info = array()) {
     $this->type = $type;
-    $this->data = &$data;
+    $this->data = $data;
     $this->info = $info + array(
       'langcode' => NULL,
     );
@@ -278,7 +278,7 @@ class EntityStructureWrapper extends EntityMetadataWrapper implements IteratorAg
    *     data structure. It has to contain an array of property info in the same
    *     structure as used by hook_entity_property_info().
    */
-  public function __construct($type, &$data = NULL, $info = NULL) {
+  public function __construct($type, $data = NULL, $info = array()) {
     parent::__construct($type, $data, $info);
     $this->info += array('property defaults' => array());
     $info += array('property info' => array());
@@ -563,7 +563,7 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
    * @param $info
    *   Optional. Used internally to pass info about properties down the tree.
    */
-  public function __construct($type, $data = NULL, $info = NULL) {
+  public function __construct($type, $data = NULL, $info = array()) {
     parent::__construct($type, $data, $info);
     $this->setEntity($data);
     $this->setUp();
