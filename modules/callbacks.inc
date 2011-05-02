@@ -658,6 +658,10 @@ function entity_metadata_create_node($values = array()) {
   foreach (array('status', 'promote', 'sticky') as $key) {
     $node->$key = (int) in_array($key, $node_options);
   }
+  if (module_exists('comment') && !isset($node->comment)) {
+    $node->comment = variable_get("comment_$node->type", COMMENT_NODE_OPEN);
+  }
+  // Apply the given values.
   foreach ($values as $key => $value) {
     $node->$key = $value;
   }
