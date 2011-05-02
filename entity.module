@@ -118,21 +118,11 @@ function entity_save($entity_type, &$entity) {
  * @see entity_type_supports()
  */
 function entity_delete($entity_type, $id) {
-  $info = entity_get_info($entity_type);
-  if (isset($info['deletion callback'])) {
-    $info['deletion callback']($id);
-  }
-  elseif (in_array('EntityAPIControllerInterface', class_implements($info['controller class']))) {
-    entity_get_controller($entity_type)->delete(array($id));
-  }
-  else {
-    return FALSE;
-  }
+  return entity_delete_multiple($entity_type, array($id));
 }
 
 /**
  * Permanently delete multiple entities.
- * @todo: Add support for entity types not provided via the CRUD API.
  *
  * @param $entity_type
  *   The type of the entity.
@@ -143,7 +133,12 @@ function entity_delete($entity_type, $id) {
  */
 function entity_delete_multiple($entity_type, $ids) {
   $info = entity_get_info($entity_type);
-  if (in_array('EntityAPIControllerInterface', class_implements($info['controller class']))) {
+  if (isset($info['deletion callback'])) {
+    foreach ($ids as $id) {
+      $info['deletion callback']($id);
+    }
+  }
+  elseif (in_array('EntityAPIControllerInterface', class_implements($info['controller class']))) {
     entity_get_controller($entity_type)->delete($ids);
   }
   else {
@@ -978,4 +973,3 @@ function entity_entity_info_alter(&$entity_info) {
     $entity_info['taxonomy_vocabulary']['token type'] = 'vocabulary';
   }
 }
-
