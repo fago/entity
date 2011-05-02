@@ -116,7 +116,11 @@ function entity_metadata_field_term_reference_callback(&$info, $entity_type, $fi
     $settings = reset($field['settings']['allowed_values']);
     $property['bundle'] = $settings['vocabulary'];
   }
-  $property['options list'] = 'entity_metadata_field_options_list';
+  // Only add the options list callback for controlled vocabularies, thus
+  // vocabularies not using the autocomplete widget.
+  if ($instance['widget']['type'] != 'taxonomy_autocomplete') {
+    $property['options list'] = 'entity_metadata_field_options_list';
+  }
   unset($property['query callback']);
 }
 
