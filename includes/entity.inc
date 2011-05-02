@@ -98,7 +98,7 @@ class Entity {
     if (isset($this->entityInfo['label callback']) && $this->entityInfo['label callback'] == 'entity_class_label') {
       return $this->defaultLabel();
     }
-    return entity_label($entity_type, $entity);
+    return entity_label($this->entityType, $this);
   }
 
   /**
