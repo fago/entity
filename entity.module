@@ -590,14 +590,21 @@ function _entity_modules_get_default_types($modules) {
 
 /**
  * Defines schema fields required for exportable entities.
- * To be utilized by modules defining exportable entities.
+ *
+ * Warning: Do not call this function in your module's hook_schema()
+ * implementation or update functions. It is not safe to call functions of
+ * dependencies at this point. Instead of calling the function, just copy over
+ * the content.
+ * For more details see the issue http://drupal.org/node/1122812.
  */
 function entity_exportable_schema_fields($module_col = 'module', $status_col = 'status') {
   return array(
     $status_col => array(
       'type' => 'int',
       'not null' => TRUE,
-      'default' => ENTITY_CUSTOM,
+      // Set the default to ENTITY_CUSTOM without using the constant as it is
+      // not safe to use it at this point.
+      'default' => 0x01,
       'size' => 'tiny',
       'description' => 'The exportable status of the entity.',
     ),
