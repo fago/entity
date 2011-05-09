@@ -52,7 +52,8 @@ function entity_metadata_comment_get_properties($comment, array $options, $name)
       if (!empty($comment->pid)) {
         return $comment->pid;
       }
-      throw new EntityMetadataWrapperException('This comment has no parent comment.');
+      // There is no parent comment.
+      return NULL;
 
     case 'author':
       return $comment->uid;
@@ -152,7 +153,8 @@ function entity_metadata_poll_node_get_properties($node, array $options, $name) 
     return $total_votes;
   }
   elseif (!isset($winner)) {
-    throw new EntityMetadataWrapperException('There is no poll winner yet.');
+    // There is no poll winner yet.
+    return NULL;
   }
   switch ($name) {
     case 'poll_winner_votes':

@@ -757,7 +757,7 @@ class EntityMetadataIntegrationTestCase extends DrupalWebTestCase {
         $this->assertValue($wrapper, $key);
       }
     }
-    $this->assertException($wrapper, 'parent');
+    $this->assertEmpty($wrapper, 'parent');
   }
 
   /**
