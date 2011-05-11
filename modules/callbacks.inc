@@ -738,7 +738,7 @@ function entity_metadata_table_query($entity_type, $property, $value, $limit) {
 
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', $entity_type, '=')
-        ->propertyCondition($info['schema field'], $value, '=')
+        ->propertyCondition($info['schema field'], $value, is_array($value) ? 'IN' : '=')
         ->range(0, $limit);
 
   $result = $query->execute();
@@ -756,7 +756,7 @@ function entity_metadata_field_query($entity_type, $property, $value, $limit) {
   $columns = array_keys($field['columns']);
 
   $query->entityCondition('entity_type', $entity_type, '=')
-        ->fieldCondition($field, $columns[0], $value, '=')
+        ->fieldCondition($field, $columns[0], $value, is_array($value) ? 'IN' : '=')
         ->range(0, $limit);
 
   $result = $query->execute();

@@ -623,6 +623,9 @@ class EntityMetadataTestCase extends DrupalWebTestCase {
     $results = entity_property_query('node', $this->field_name, 'foo');
     $this->assertEqual($results, array($node->nid), 'Queried nodes with a given field value.');
 
+    $results = entity_property_query('node', $this->field_name, array('foo', 'bar'));
+    $this->assertEqual($results, array($node->nid), 'Queried nodes with a list of possible values.');
+
     $results = entity_property_query('node', 'author', $GLOBALS['user']);
     $this->assertEqual($results, array($node->nid), 'Queried nodes with a given auhtor.');
   }
