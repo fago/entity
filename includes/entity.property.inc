@@ -207,6 +207,7 @@ function entity_property_verify_data_type($data, $type) {
   }
 
   switch ($type) {
+    case 'site':
     case 'unknown':
       return TRUE;
     case 'date':

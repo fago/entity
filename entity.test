@@ -527,6 +527,25 @@ class EntityMetadataTestCase extends DrupalWebTestCase {
       $info[] = $item->info();
     }
     $this->assertTrue($info[0]['type'] == 'date', 'Iterated over empty list wrapper.');
+
+    // Test using a list of entities with a list of term objects.
+    $list = array();
+    $list[] = entity_property_values_create_entity('taxonomy_term', array(
+      'name' => 'term 1',
+      'vocabulary' => 1,
+    ))->save()->value();
+    $list[] = entity_property_values_create_entity('taxonomy_term', array(
+      'name' => 'term 2',
+      'vocabulary' => 1,
+    ))->save()->value();
+    $wrapper = entity_metadata_wrapper('list<taxonomy_term>', $list);
+    $this->assertTrue($wrapper[0]->name->value() == 'term 1', 'Used a list of entities.');
+    // Test getting a list of identifiers.
+    $ids = $wrapper->value(array('identifier' => TRUE));
+    $this->assertTrue(!is_object($ids[0]), 'Get a list of entity ids.');
+
+    $wrapper = entity_metadata_wrapper('list<taxonomy_term>', $ids);
+    $this->assertTrue($wrapper[0]->name->value() == 'term 1', 'Created a list of entities with ids.');
   }
 
   /**

@@ -27,11 +27,13 @@ abstract class EntityMetadataWrapper {
    */
   public function __construct($type, $data = NULL, $info = array()) {
     $this->type = $type;
-    $this->data = $data;
     $this->info = $info + array(
       'langcode' => NULL,
     );
     $this->info['type'] = $type;
+    if (isset($data)) {
+      $this->set($data);
+    }
   }
 
   /**
@@ -565,7 +567,6 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
    */
   public function __construct($type, $data = NULL, $info = array()) {
     parent::__construct($type, $data, $info);
-    $this->setEntity($data);
     $this->setUp();
   }
 
@@ -825,8 +826,6 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
  * ArrayAccess so it may be used like a usual numerically indexed array.
  */
 class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggregate, ArrayAccess, Countable {
-
-  protected $data = NULL;
 
   protected function itemType() {
     $type = entity_property_list_extract_type($this->type);
