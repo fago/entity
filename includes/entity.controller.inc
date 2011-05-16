@@ -22,7 +22,7 @@ interface EntityAPIControllerInterface extends DrupalEntityControllerInterface {
   public function delete($ids);
 
   /**
-   * Invokes a hook on behalf the entity. For hooks that have a respective
+   * Invokes a hook on behalf of the entity. For hooks that have a respective
    * field API attacher like insert/update/.. the attacher is called too.
    */
   public function invoke($hook, $entity);
@@ -173,8 +173,8 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
    * @see DrupalDefaultEntityController#load($ids, $conditions)
    *
    * In contrast to the parent implementation we factor out query execution, so
-   * fetching can be further customized easily. Also we add any in code defined
-   * objects.
+   * fetching can be further customized easily. Also we add any objects defined
+   * in code.
    */
   public function load($ids = array(), $conditions = array()) {
     $entities = array();
@@ -221,7 +221,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
           continue;
         }
 
-        // Care for serialized columns.
+        // Take care of serialized columns.
         $schema = drupal_get_schema($this->entityInfo['base table']);
 
         foreach ($schema['fields'] as $field => $info) {
