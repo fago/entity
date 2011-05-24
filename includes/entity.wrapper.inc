@@ -894,7 +894,10 @@ class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggrega
       $entities = entity_load($this->get(0)->type, $list);
       // Make sure to keep the array keys as present in the list.
       foreach ($list as $key => $id) {
-        $list[$key] = isset($entities[$id]) ? $entities[$id] : NULL;
+        if (!isset($entities[$id])) {
+          throw new EntityMetadataWrapperException('Unable to load the ' . check_plain($this->itemType()) . ' with the id ' . check_plain($id) . '.');
+        }
+        $list[$key] = $entities[$id];
       }
       return $list;
     }
