@@ -790,13 +790,14 @@ class EntityMetadataIntegrationTestCase extends DrupalWebTestCase {
     $node = $this->drupalCreateNode(array('title' => $title, 'type' => 'page'));
     $wrapper = entity_metadata_wrapper('node', $node);
     foreach ($wrapper as $key => $value) {
-      if ($key != 'book' && $key != 'source') {
+      if ($key != 'book' && $key != 'source' && $key != 'last_view') {
         $this->assertValue($wrapper, $key);
       }
     }
     $this->assertException($wrapper, 'book');
     $this->assertEmpty($wrapper, 'source');
     $this->assertException($wrapper->source, 'title');
+    $this->assertEmpty($wrapper, 'last_view');
   }
 
   /**
