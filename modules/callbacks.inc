@@ -173,14 +173,15 @@ function entity_metadata_poll_node_get_properties($node, array $options, $name) 
  * @see entity_metadata_statistics_entity_info_alter()
  */
 function entity_metadata_statistics_node_get_properties($node, array $options, $name) {
-  $statistics = statistics_get($node->nid);
+  $statistics = (array) statistics_get($node->nid);
+  $statistics += array('totalcount' => 0, 'daycount' => 0, 'timestamp' => NULL);
 
   switch ($name) {
     case 'views':
-      return $statistics['totalviews'];
+      return $statistics['totalcount'];
 
     case 'day_views':
-      return $statistics['dayviews'];
+      return $statistics['daycount'];
 
     case 'last_view':
       return $statistics['timestamp'];
