@@ -60,8 +60,7 @@
  * - admin ui: (optional) An array of optional information used for providing an
  *   administrative user interface. To enable the UI at least the path must be
  *   given. Apart from that, the 'access callback' (see below) is required for
- *   the entity, and at least a loader function ENTITY_TYPE_load() has to
- *   be defined, as well as the 'ENTITY_TYPE_form' for editing, adding and
+ *   the entity, as well as the 'ENTITY_TYPE_form' for editing, adding and
  *   cloning. The form gets the entity and the operation ('edit', 'add' or
  *   'clone') passed. See entity_ui_get_form() for more details.
  *   Known keys are:
@@ -76,8 +75,7 @@
  *     not set, it defaults to entity module's path, thus the entity types
  *     'module' key is required.
  *   - menu wildcard: The wildcard to use in paths of the hook_menu() items.
- *     Defaults to %ENTITY_TYPE, for which a respective loader function
- *     ENTITY_TYPE_load() has to be defined by the implementing module.
+ *     Defaults to %entity_object which is the loader provided by Entity API.
  * - rules controller class: (optional) A controller class for providing Rules
  *   integration. The given class has to inherit from the default class being
  *   EntityDefaultRulesController. Set it to FALSE to disable this feature.

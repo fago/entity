@@ -71,6 +71,33 @@ function entity_type_supports($entity_type, $op) {
 }
 
 /**
+ * Menu loader function: load an entity from its path.
+ *
+ * This can be used to load entities of all types in menu paths:
+ *
+ * @code
+ * $items['myentity/%entity_object'] = array(
+ *   'load arguments' => array('myentity'),
+ *   'title' => ...,
+ *   'page callback' => ...,
+ *   'page arguments' => array(...),
+ *   'access arguments' => array(...),
+ * );
+ * @endcode
+ *
+ * @param $entity_id
+ *   The ID of the entity to load, passed by the menu URL.
+ * @param $entity_type
+ *   The type of the entity to load.
+ * @return
+ *   A fully loaded entity object, or FALSE in case of error.
+ */
+function entity_object_load($entity_id, $entity_type) {
+  $entities = entity_load($entity_type, array($entity_id));
+  return reset($entities);
+}
+
+/**
  * Permanently save an entity.
  *
  * In case of failures, an exception is thrown.

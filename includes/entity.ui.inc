@@ -26,7 +26,7 @@ class EntityDefaultUIController {
   public function hook_menu() {
     $items = array();
     $id_count = count(explode('/', $this->path));
-    $wildcard = isset($this->entityInfo['admin ui']['menu wildcard']) ? $this->entityInfo['admin ui']['menu wildcard'] : '%' . $this->entityType;
+    $wildcard = isset($this->entityInfo['admin ui']['menu wildcard']) ? $this->entityInfo['admin ui']['menu wildcard'] : '%entity_object';
 
     $items[$this->path] = array(
       'title' => $this->entityInfo['label'] . 's',
