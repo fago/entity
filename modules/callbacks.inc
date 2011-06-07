@@ -674,11 +674,11 @@ function entity_metadata_create_node($values = array()) {
 /**
  * Callback to save a user account.
  */
-function entity_metadata_user_save(&$account) {
+function entity_metadata_user_save($account) {
   $edit = (array) $account;
   // Don't save the hashed password as password.
   unset($edit['pass']);
-  $account = user_save($account, $edit);
+  user_save($account, $edit);
 }
 
 /**
