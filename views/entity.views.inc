@@ -31,6 +31,32 @@ function entity_views_data() {
 }
 
 /**
+ * Implements hook_views_plugins().
+ */
+function entity_views_plugins() {
+  foreach (views_fetch_data() as $table => $data) {
+    if (!empty($data['table']['base']['entity type'])) {
+      $base_tables[] = $table;
+    }
+  }
+  if (!empty($base_tables)) {
+    return array(
+      'row' => array(
+        'entity' => array(
+          'title' => t('Entity'),
+          'help' => t('Displays a single entity in a specific view mode (e.g. teaser).'),
+          'handler' => 'entity_plugin_row_entity_view',
+          'uses fields' => FALSE,
+          'uses options' => TRUE,
+          'type' => 'normal',
+          'base' => $base_tables,
+        ),
+      ),
+    );
+  }
+}
+
+/**
  * Default controller for generating basic views integration.
  *
  * The controller tries to generate suiting views integration for the entity
@@ -67,6 +93,7 @@ class EntityDefaultViewsController {
         'title' => drupal_ucfirst($this->info['label']),
         // @todo: Support an entity info description key or such?
         'help' => '',
+        'entity type' => $this->type,
       );
       $data[$table] += $this->schema_fields();
 
