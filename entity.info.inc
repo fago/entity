@@ -14,7 +14,11 @@ function entity_entity_property_info() {
   $items = array();
   // Add in info about entities provided by the CRUD API.
   foreach (entity_crud_get_info() as $type => $info) {
-    $info += array('metadata controller class' => 'EntityDefaultMetadataController');
+    // Automatically enable the controller only if the module does not implement
+    // the hook itself.
+    if (!isset($info['metadata controller class']) && (!isset($info['module']) || !module_hook($info['module'], 'entity_property_info'))) {
+      $info['metadata controller class'] = 'EntityDefaultMetadataController';
+    }
     if ($info['metadata controller class']) {
       $controller = new $info['metadata controller class']($type);
       $items += $controller->entityPropertyInfo();
