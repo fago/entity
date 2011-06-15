@@ -964,9 +964,44 @@ function entity_metadata_site_wrapper() {
 }
 
 /**
+ * Implements hook_module_implements_alter().
+ *
+ * Moves the hook_entity_info_alter() implementation to the bottom so it is
+ * invoked after all modules relying on the entity API.
+ * That way we ensure to run last and clear the field-info cache after the
+ * others added in their bundle information.
+ *
+ * @see entity_entity_info_alter()
+ */
+function entity_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'entity_info_alter') {
+    // Move our hook implementation to the bottom.
+    $group = $implementations['entity'];
+    unset($implementations['entity']);
+    $implementations['entity'] = $group;
+  }
+}
+
+/**
  * Implements hook_entity_info_alter().
+ *
+ * @see entity_module_implements_alter()
  */
 function entity_entity_info_alter(&$entity_info) {
+  _entity_info_add_metadata_callbacks($entity_info);
+
+  // Modules are using entity_load() in hook_entity_info_alter() to add
+  // their bundle-info. This might trigger the field API cache to be built,
+  // which makes use of the bundle-info. In that case the field-info cache would
+  // have been built with in-complete bundle-info, thus we clear it so it is
+  // rebuilt with complete bundle-info the next time field-info is requested.
+  _field_info_collate_fields(TRUE);
+}
+
+/**
+ * Adds metadata callbacks for core entities to the entity info.
+ */
+function _entity_info_add_metadata_callbacks(&$entity_info) {
   // Set access callbacks.
   $entity_info['node']['access callback'] = 'entity_metadata_no_hook_node_access';
   $entity_info['user']['access callback'] = 'entity_metadata_user_access';
