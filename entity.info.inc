@@ -19,7 +19,7 @@ function entity_entity_property_info() {
     if (!isset($info['metadata controller class']) && (!isset($info['module']) || !module_hook($info['module'], 'entity_property_info'))) {
       $info['metadata controller class'] = 'EntityDefaultMetadataController';
     }
-    if ($info['metadata controller class']) {
+    if (!empty($info['metadata controller class'])) {
       $controller = new $info['metadata controller class']($type);
       $items += $controller->entityPropertyInfo();
     }

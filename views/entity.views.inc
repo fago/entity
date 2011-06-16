@@ -109,7 +109,7 @@ class EntityDefaultViewsController {
    */
   protected function schema_fields() {
     $schema = drupal_get_schema($this->info['base table']);
-    $properties = entity_get_property_info($this->type);
+    $properties = entity_get_property_info($this->type) + array('properties' => array());
     $data = array();
 
     foreach ($properties['properties'] as $name => $property_info) {
