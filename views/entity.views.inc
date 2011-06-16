@@ -113,15 +113,9 @@ class EntityDefaultViewsController {
     $data = array();
 
     foreach ($properties['properties'] as $name => $property_info) {
-      // For backward compatibility, also read from 'views field'.
-      $views_field_name = isset($property_info['schema field']) ? $property_info['schema field'] : (isset($property_info['views field']) ? $property_info['views field'] : $name);
-
-      if (isset($schema['fields'][$views_field_name])) {
-        if ($views_info = $this->map_from_schema_info($views_field_name, $schema['fields'][$views_field_name], $property_info)) {
-          $data[$name] = $views_info + array(
-            'title' => $property_info['label'],
-            'help' => $property_info['description'],
-          );
+      if (isset($property_info['schema field']) && isset($schema['fields'][$property_info['schema field']])) {
+        if ($views_info = $this->map_from_schema_info($name, $schema['fields'][$property_info['schema field']], $property_info)) {
+          $data[$name] = $views_info;
         }
       }
     }
@@ -132,10 +126,22 @@ class EntityDefaultViewsController {
    * Comes up with views information based on the given schema and property
    * info.
    */
-  protected function map_from_schema_info($views_field_name, $schema_field_info, $property_info) {
+  protected function map_from_schema_info($property_name, $schema_field_info, $property_info) {
     $type = isset($property_info['type']) ? $property_info['type'] : 'text';
+    $views_field_name = $property_info['schema field'];
 
-    // Add in relationships to related entities.
+    $return = array();
+
+    if (!empty($schema_field_info['serialize'])) {
+      return FALSE;
+    }
+
+    $description = array(
+      'title' => $property_info['label'],
+      'help' => $property_info['description'],
+    );
+
+      // Add in relationships to related entities.
     if (($info = entity_get_info($type)) && !empty($info['base table'])) {
 
       // Prepare reversed relationship data.
@@ -154,77 +160,90 @@ class EntityDefaultViewsController {
         ),
       );
 
-      return array(
-        'relationship' => array(
-          'label' => drupal_ucfirst($info['label']),
-          'handler' => 'views_handler_relationship',
-          'base' => $info['base table'],
-          'base field' => isset($info['entity keys']['name']) ? $info['entity keys']['name'] : $info['entity keys']['id'],
-          'relationship field' => $views_field_name,
-        ),
+      $return['relationship'] = array(
+        'label' => drupal_ucfirst($info['label']),
+        'handler' => 'views_handler_relationship',
+        'base' => $info['base table'],
+        'base field' => isset($info['entity keys']['name']) ? $info['entity keys']['name'] : $info['entity keys']['id'],
+        'relationship field' => $views_field_name,
       );
-    }
 
-    if (!empty($schema_field_info['serialize'])) {
-      return FALSE;
+      // Add in direct field/filters/sorts for the id itself too.
+      $type = isset($info['entity keys']['name']) ? 'token' : 'integer';
+      // Append the views-field-name to the title if it is different to the
+      // property name.
+      if ($property_name != $views_field_name) {
+        $description['title'] .= ' ' . $views_field_name;
+      }
     }
 
     switch ($type) {
       case 'token':
       case 'text':
-        return array(
+        $return += $description + array(
           'field' => array(
-            'field' => $views_field_name,
+            'real field' => $views_field_name,
             'handler' => 'views_handler_field',
             'click sortable' => TRUE,
            ),
           'sort' => array(
+            'real field' => $views_field_name,
             'handler' => 'views_handler_sort',
           ),
           'filter' => array(
+            'real field' => $views_field_name,
             'handler' => 'views_handler_filter_string',
           ),
           'argument' => array(
+            'real field' => $views_field_name,
             'handler' => 'views_handler_argument_string',
           ),
         );
 
       case 'decimal':
       case 'integer':
-        return array(
+        $return += $description + array(
           'field' => array(
-            'field' => $views_field_name,
+            'real field' => $views_field_name,
             'handler' => 'views_handler_field_numeric',
             'click sortable' => TRUE,
            ),
           'sort' => array(
+            'real field' => $views_field_name,
             'handler' => 'views_handler_sort',
           ),
           'filter' => array(
+            'real field' => $views_field_name,
             'handler' => 'views_handler_filter_numeric',
           ),
           'argument' => array(
+            'real field' => $views_field_name,
             'handler' => 'views_handler_argument_numeric',
           ),
         );
 
       case 'date':
-        return array(
+        $return += $description + array(
           'field' => array(
-            'field' => $views_field_name,
+            'real field' => $views_field_name,
             'handler' => 'views_handler_field_date',
             'click sortable' => TRUE,
            ),
           'sort' => array(
+            'real field' => $views_field_name,
             'handler' => 'views_handler_sort_date',
           ),
           'filter' => array(
+            'real field' => $views_field_name,
             'handler' => 'views_handler_filter_date',
           ),
           'argument' => array(
+            'real field' => $views_field_name,
             'handler' => 'views_handler_argument_date',
           ),
         );
     }
+
+    return $return;
   }
 }
