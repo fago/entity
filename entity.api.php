@@ -15,7 +15,11 @@
  *
  * This is a placeholder for describing further keys for hook_entity_info(),
  * which are introduced the entity API for providing a new entity type with the
- * entity CRUD API.
+ * entity CRUD API. For that the entity API provides two controllers:
+ *  - EntityAPIController: A regular CRUD controller.
+ *  - EntityAPIControllerExportable: Extends the regular controller to
+ *    additionally support exportable entities and/or entities making use of a
+ *    name key.
  * See entity_metadata_hook_entity_info() for the documentation of additional
  * keys for hook_entity_info() as introduced by the entity API and supported for
  * any entity type.
@@ -34,19 +38,30 @@
  *   If enabled, a name key should be specified and db columns for the module
  *   and status key as defined by entity_exportable_schema_fields() have to
  *   exist in the entity's base table. Also see 'entity keys' below.
+ *   This option requires the EntityAPIControllerExportable to work.
  * - entity keys: An array of keys as defined by Drupal core. The following
  *   additional keys are used by the entity CRUD API:
  *   - name: (optional) The key of the entity property containing the unique,
  *     machine readable name of the entity. If specified, this is used as
- *     uniform identifier of the entity, while the usual 'id' key is still
- *     required. If a name key is given, the name is used as identifier for all
- *     API functions like entity_load(), but the numeric id as specified by the
- *     'id' key is still used to refer to the entity internally, i.e. in the
- *     database.
- *     For exportable entities, it's strongly recommended to use a machine name
- *     here as those are more portable across systems.
+ *     identifier of the entity, while the usual 'id' key is still required and
+ *     may be used when modules deal with entities generically, or to refer to
+ *     the entity internally, i.e. in the database.
+ *     If a name key is given, the name is used as entity identifier for most
+ *     API functions and hooks. However note that for consistency all generic
+ *     entity hooks like hook_entity_load() are invoked with the entities keyed
+ *     by numeric id, while entity-type specific hooks like
+ *     hook_{entity_type}_load() are invoked with the entities keyed by name.
+ *     Also, just as entity_load_single() entity_load() may be called
+ *     with names passed as the $ids parameter, while the results of
+ *     entity_load() are always keyed by numeric id. Thus, it is suggested to
+ *     make use of entity_load_multiple_by_name() to implement entity-type
+ *     specific loading functions like {entity_type}_load_multiple(), as this
+ *     function returns the entities keyed by name.
+ *     For exportable entities, it is strongly recommended to make use of a
+ *     machine name as names are portable across systems.
+ *     This option requires the EntityAPIControllerExportable to work.
  *   - module: (optional) A key for the module property used by the entity CRUD
- *     API to save the source module name for exportable entities, which are
+ *     API to save the source module name for exportable entities that have been
  *     provided in code. Defaults to 'module'.
  *   - status: (optional) The name of the entity property used by the entity
  *     CRUD API to save the exportable entity status using defined bit flags.

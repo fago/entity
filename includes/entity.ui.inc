@@ -179,8 +179,8 @@ class EntityDefaultUIController {
     ksort($entities);
 
     $rows = array();
-    foreach ($entities as $id => $entity) {
-      $rows[] = $this->overviewTableRow($conditions, $id, $entity);
+    foreach ($entities as $entity) {
+      $rows[] = $this->overviewTableRow($conditions, entity_id($this->entityType, $entity), $entity);
     }
     // Assemble the right table header.
     $header = array(t('Label'));

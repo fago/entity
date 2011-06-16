@@ -55,21 +55,21 @@ class Entity {
   /**
    * Returns the internal, numeric identifier.
    *
-   * For exportable entities, this differs to the uniform identifier returned
-   * by Entity::identifier(). The internal identifier is supposed to be only
-   * used internally to refer to an entity, i.e. in the database. If unsure, use
-   * Entity:identifier().
+   * Returns the numeric identifier, even if the entity type has specified a
+   * name key. In the latter case, the numeric identifier is supposed to be used
+   * when dealing generically with entities or internally to refer to an entity,
+   * i.e. in a relational database. If unsure, use Entity:identifier().
    */
   public function internalIdentifier() {
     return isset($this->{$this->idKey}) ? $this->{$this->idKey} : NULL;
   }
 
   /**
-   * Returns the unified identifer.
+   * Returns the entity identifier, i.e. the entities name or numeric id.
    *
    * @return
-   *   The identifier of the entity. For exportable entities, this is their
-   *   machine readable name.
+   *   The identifier of the entity. If the entity type makes use of a name key,
+   *   the name is returned, else the numeric id.
    *
    * @see entity_id()
    */
@@ -195,7 +195,7 @@ class Entity {
    * @see entity_view()
    */
   public function view($view_mode = 'full', $langcode = NULL) {
-    return entity_get_controller($this->entityType)->view(array($this->identifier() => $this), $view_mode, $langcode);
+    return entity_get_controller($this->entityType)->view(array($this), $view_mode, $langcode);
   }
 
   /**
