@@ -244,6 +244,24 @@ class EntityDefaultViewsController {
         );
     }
 
+    // If there is an options list callback, add to the filter.
+    if (isset($return['filter']) && !empty($property_info['options list'])) {
+      $return['filter']['handler'] = 'views_handler_filter_in_operator';
+      $return['filter']['options callback'] = array('EntityDefaultViewsController', 'optionsListCallback');
+      $return['filter']['options arguments'] = array($this->type, $property_name, 'view');
+    }
     return $return;
+  }
+
+  /**
+   * A callback returning property options, suitable to be used as views options callback.
+   */
+  public static function optionsListCallback($type, $selector, $op = 'view') {
+    $wrapper = entity_metadata_wrapper($type, NULL);
+    $parts = explode(':', $selector);
+    foreach ($parts as $part) {
+      $wrapper = $wrapper->get($part);
+    }
+    return $wrapper->optionsList($op);
   }
 }
