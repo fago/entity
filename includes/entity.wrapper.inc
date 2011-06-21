@@ -723,6 +723,18 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
   }
 
   /**
+   * Overridden.
+   */
+  public function type() {
+    // In case of a generic entity wrapper, load the data first to determine
+    // the type of the concrete entity.
+    if ($this->info['type'] == 'entity') {
+      $this->value(array('identifier' => TRUE));
+    }
+    return $this->type;
+  }
+
+  /**
    * Checks whether the operation $op is allowed on the entity.
    *
    * @see entity_access()
