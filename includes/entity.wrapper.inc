@@ -604,6 +604,10 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
       $id = entity_id($this->type, $data);
       $this->id = isset($id) ? $id : FALSE;
     }
+    elseif (!isset($data)){
+      $this->id = FALSE;
+      $this->data = NULL;
+    }
   }
 
   /**
@@ -703,6 +707,12 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
     // wrapped. Else we just pass the id of the entity to the setter callback.
     if ($this->info['type'] == 'entity' && ($previous_id != $this->id || $previous_type != $this->type)) {
       $this->updateParent($this);
+    }
+    // In case the entity has been unset, we cannot properly detect changes as
+    // the previous id defaults to FALSE for unloaded entities too. So in that
+    // case we just always update the parent.
+    elseif ($this->id === FALSE) {
+      $this->updateParent(NULL);
     }
     elseif ($previous_id != $this->id) {
       $this->updateParent($this->id);
