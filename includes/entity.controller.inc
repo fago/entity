@@ -691,7 +691,7 @@ class EntityAPIControllerExportable extends EntityAPIController {
     if (entity_has_status($this->entityType, $entity, ENTITY_IN_CODE) && empty($entity->is_rebuild)) {
       $entity->{$this->statusKey} |= ENTITY_CUSTOM;
     }
-    parent::save($entity, $transaction);
+    return parent::save($entity, $transaction);
   }
 
   /**
