@@ -375,7 +375,7 @@ class EntityMetadataTestCase extends DrupalWebTestCase {
     $this->assertEqual('<b>Is it bold?<b>', $wrapper->title->value(), 'Getting a field value.');
     $this->assertEqual($node->title, $wrapper->title->raw(), 'Getting a raw property value.');
 
-    // Test chaining
+    // Test chaining.
     $this->assertEqual($account->mail, $wrapper->author->mail->value(), 'Testing chained usage.');
     $this->assertEqual($account->name, $wrapper->author->name->value(), 'Testing chained usage with callback and sanitizing.');
 
@@ -384,7 +384,7 @@ class EntityMetadataTestCase extends DrupalWebTestCase {
     $this->assertEqual(check_plain('<b>Is it bold?<b>'), $wrapper->title->value($options), 'Getting sanitized field.');
     $this->assertEqual(filter_xss($node->name), $wrapper->author->name->value($options), 'Getting sanitized property with getter callback.');
 
-    // Test getting an not existing property
+    // Test getting an not existing property.
     try {
       echo $wrapper->dummy;
       $this->fail('Getting an not existing property.');
@@ -412,6 +412,14 @@ class EntityMetadataTestCase extends DrupalWebTestCase {
     }
     catch (EntityMetadataWrapperException $e) {
       $this->pass('Setting an invalid mail address throws exception.');
+    }
+    // Test unsetting a required property.
+    try {
+      $wrapper->author = NULL;
+      $this->fail('The required node author has been unset.');
+    }
+    catch (EntityMetadataWrapperException $e) {
+      $this->pass('Unsetting the required node author throws an exception.');
     }
 
     // Test setting a referenced entity by id.
@@ -864,6 +872,10 @@ class EntityMetadataIntegrationTestCase extends DrupalWebTestCase {
     $wrapper->field_tags->set(array(2));
     $this->assertEqual($wrapper->field_tags[0]->tid->value(), 2, 'Specified tags by a list of term ids.');
 
+    // Test unsetting all tags.
+    $wrapper->field_tags = NULL;
+    $this->assertFalse($wrapper->field_tags->value(), 'Unset all tags from a node.');
+
     // Test setting entity references to NULL.
     // Create a taxonomy term field for that purpose.
     $field_name = drupal_strtolower($this->randomName() . '_field_name');
@@ -1120,6 +1132,10 @@ class EntityMetadataIntegrationTestCase extends DrupalWebTestCase {
     catch (EntityMetadataWrapperException $e) {
       $this->pass('Not valid file-field item has thrown an exception.');
     }
+
+    // Test remove all file-field items.
+    $wrapper->field_file = NULL;
+    $this->assertFalse($wrapper->field_file->value(), 'Removed multiple file-field items.');
   }
 
   /**

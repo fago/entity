@@ -133,6 +133,15 @@ abstract class EntityMetadataWrapper {
     if (isset($value) && !entity_property_verify_data_type($value, $this->type)) {
       return FALSE;
     }
+    // Only proceed with further checks if this is not a list item. If this is
+    // a list item, the checks are performed on the list property level.
+    if (isset($this->info['parent']) && $this->info['parent'] instanceof EntityListWrapper) {
+      return TRUE;
+    }
+    if (!isset($value) && !empty($this->info['required'])) {
+      // Do not allow NULL values if the property is required.
+      return FALSE;
+    }
     return !isset($this->info['validation callback']) || call_user_func($this->info['validation callback'], $value, $this->info);
   }
 
@@ -972,11 +981,14 @@ class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggrega
   }
 
   /**
-   * Overridden to not invoke any validation callback, as those are for the
-   * list items.
+   * Overridden.
    */
   public function validate($value) {
-    return !isset($value) || entity_property_verify_data_type($value, $this->type);
+    // Required lists may not be empty or unset.
+    if (!empty($this->info['required']) && empty($value)) {
+      return FALSE;
+    }
+    return parent::validate($value);
   }
 
   /**
