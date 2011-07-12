@@ -927,7 +927,7 @@ class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggrega
     // Generic entity-wrappers need to be handled separately though.
     if ($this->get(0) instanceof EntityDrupalWrapper && $this->itemType() != 'entity' && empty($options['identifier']) && $this->dataAvailable()) {
       $list = parent::value();
-      $entities = entity_load($this->get(0)->type, $list);
+      $entities = $list ? entity_load($this->get(0)->type, $list) : array();
       // Make sure to keep the array keys as present in the list.
       foreach ($list as $key => $id) {
         if (!isset($entities[$id])) {
