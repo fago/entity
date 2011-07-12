@@ -561,6 +561,14 @@ class EntityMetadataTestCase extends DrupalWebTestCase {
 
     $wrapper = entity_metadata_wrapper('list<taxonomy_term>', $ids);
     $this->assertTrue($wrapper[0]->name->value() == 'term 1', 'Created a list of entities with ids.');
+
+    // Test with a list of generic entities. The list is expected to be a list
+    // of entity wrappers, otherwise the entity type is unknown.
+    $node = $this->drupalCreateNode(array('title' => 'node 1'));
+    $list = array();
+    $list[] = entity_metadata_wrapper('node', $node);
+    $wrapper = entity_metadata_wrapper('list<entity>', $list);
+    $this->assertEqual($wrapper[0]->title->value(), 'node 1', 'Wrapped node was found in generic list of entities.');
   }
 
   /**

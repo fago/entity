@@ -599,12 +599,12 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
       $this->data = FALSE;
     }
     elseif (is_object($data) && $data instanceof EntityDrupalWrapper) {
-      // We got a wrapped entity passed.
-      $this->id = $data->getIdentifier();
+      // We got a wrapped entity passed, so take over its values.
+      $this->id = $data->id;
       $this->data = $data->data;
-      // For entity references, also update the entity type accordingly.
+      // For generic entity references, also update the entity type accordingly.
       if ($this->info['type'] == 'entity') {
-        $this->type = $data->type();
+        $this->type = $data->type;
       }
     }
     elseif (is_object($data)) {
@@ -715,7 +715,9 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
     // has changed. In case of a generic entity reference, we pass the entity
     // wrapped. Else we just pass the id of the entity to the setter callback.
     if ($this->info['type'] == 'entity' && ($previous_id != $this->id || $previous_type != $this->type)) {
-      $this->updateParent($this);
+      // We need to clone the wrapper we pass through as value, so it does not
+      // get cleared when the current wrapper instance gets cleared.
+      $this->updateParent(clone $this);
     }
     // In case the entity has been unset, we cannot properly detect changes as
     // the previous id defaults to FALSE for unloaded entities too. So in that
@@ -823,7 +825,9 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
    * @see entity_label()
    */
   public function label() {
-    return entity_label($this->type, $this->value());
+    if ($entity = $this->value()) {
+      return entity_label($this->type, $entity);
+    }
   }
 
   /**
@@ -920,7 +924,8 @@ class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggrega
    */
   public function value(array $options = array()) {
     // For lists of entities fetch full entity objects before returning.
-    if ($this->get(0) instanceof EntityDrupalWrapper && empty($options['identifier']) && $this->dataAvailable()) {
+    // Generic entity-wrappers need to be handled separately though.
+    if ($this->get(0) instanceof EntityDrupalWrapper && $this->itemType() != 'entity' && empty($options['identifier']) && $this->dataAvailable()) {
       $list = parent::value();
       $entities = entity_load($this->get(0)->type, $list);
       // Make sure to keep the array keys as present in the list.
@@ -937,7 +942,7 @@ class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggrega
 
   public function set($values) {
     // Support setting lists of fully loaded entities.
-    if ($this->get(0) instanceof EntityDrupalWrapper && $values && is_object(reset($values))) {
+    if ($this->get(0) instanceof EntityDrupalWrapper && $this->itemType() != 'entity' && $values && is_object(reset($values))) {
       foreach ($values as $key => $value) {
         list($id, $vid, $bundle) = entity_extract_ids($this->get(0)->type, $value);
         $values[$key] = $id;
@@ -997,7 +1002,7 @@ class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggrega
   public function label() {
     if ($options = $this->optionsList('view')) {
       $options = entity_property_options_flatten($options);
-      $labels = array_intersect_key($options, array_flip(parent::value()));
+      $labels = array_intersect_key($options, array_flip((array) parent::value()));
     }
     else {
       // Get each label on its own, e.g. to support getting labels of a list
