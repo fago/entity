@@ -383,7 +383,8 @@ class EntityStructureWrapper extends EntityMetadataWrapper implements IteratorAg
     // Look it up in the cache if possible.
     if (!array_key_exists($name, $this->cache)) {
       if ($info = $this->getPropertyInfo($name)) {
-        $info += array('parent' => $this, 'name' => $name, 'langcode' => $this->langcode);
+        $info += array('parent' => $this, 'name' => $name, 'langcode' => $this->langcode, 'property defaults' => array());
+        $info['property defaults'] += $this->info['property defaults'];
         $this->cache[$name] = entity_metadata_wrapper($info['type'], NULL, $info);
       }
       else {
