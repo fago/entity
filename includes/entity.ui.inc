@@ -175,7 +175,7 @@ class EntityDefaultUIController {
    *   A renderable array.
    */
   public function overviewTable($conditions = array()) {
-    $entities = entity_load($this->entityType);
+    $entities = entity_load($this->entityType, FALSE, $conditions);
     ksort($entities);
 
     $rows = array();
