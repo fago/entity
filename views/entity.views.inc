@@ -199,6 +199,7 @@ class EntityDefaultViewsController {
             'handler' => 'views_handler_argument_string',
           ),
         );
+      break;
 
       case 'decimal':
       case 'integer':
@@ -207,6 +208,7 @@ class EntityDefaultViewsController {
             'real field' => $views_field_name,
             'handler' => 'views_handler_field_numeric',
             'click sortable' => TRUE,
+            'float' => ($type == 'decimal'),
            ),
           'sort' => array(
             'real field' => $views_field_name,
@@ -221,6 +223,7 @@ class EntityDefaultViewsController {
             'handler' => 'views_handler_argument_numeric',
           ),
         );
+      break;
 
       case 'date':
         $return += $description + array(
@@ -242,6 +245,51 @@ class EntityDefaultViewsController {
             'handler' => 'views_handler_argument_date',
           ),
         );
+      break;
+
+      case 'uri':
+        $return += $description + array(
+          'field' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_field_url',
+            'click sortable' => TRUE,
+           ),
+          'sort' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_sort',
+          ),
+          'filter' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_filter_string',
+          ),
+          'argument' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_argument_string',
+          ),
+        );
+      break;
+
+      case 'boolean':
+        $return += $description + array(
+          'field' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_field_boolean',
+            'click sortable' => TRUE,
+           ),
+          'sort' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_sort',
+          ),
+          'filter' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_filter_boolean_operator',
+          ),
+          'argument' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_argument_string',
+          ),
+        );
+      break;
     }
 
     // If there is an options list callback, add to the filter.
