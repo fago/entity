@@ -69,7 +69,7 @@ class EntityDefaultMetadataController {
     $entity_label = drupal_strtolower($this->info['label']);
 
     // Provide defaults based on the schema.
-    $info['properties'] = entity_metadata_convert_schema($this->info['base table']);
+    $info['properties'] = $this->convertSchema();
     foreach ($info['properties'] as $name => &$property) {
       // Add a description.
       $property['description'] = t('@entity "@property" property.', array('@entity' => drupal_ucfirst($entity_label), '@property' => $name));
@@ -114,6 +114,13 @@ class EntityDefaultMetadataController {
       }
       return $options;
     }
+  }
+
+  /**
+   * Return a set of properties for an entity based on the schema definition
+   */
+  protected function convertSchema() {
+    return entity_metadata_convert_schema($this->info['base table']);
   }
 }
 
