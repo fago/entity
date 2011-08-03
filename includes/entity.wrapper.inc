@@ -255,7 +255,7 @@ class EntityValueWrapper extends EntityMetadataWrapper {
    */
   public function value(array $options = array()) {
     $data = parent::value();
-    if ($this->type == 'text') {
+    if ($this->type == 'text' && isset($data)) {
       $info = $this->info + array('sanitized' => FALSE, 'sanitize' => 'check_plain');
       $options += array('sanitize' => FALSE, 'decode' => FALSE);
       if ($options['sanitize'] && !$info['sanitized']) {
