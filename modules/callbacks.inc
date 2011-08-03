@@ -282,6 +282,9 @@ function entity_metadata_taxonomy_term_get_properties($term, array $options, $na
 function entity_metadata_taxonomy_term_setter($term, $name, $value) {
   switch ($name) {
     case 'vocabulary':
+      // Make sure to also update the taxonomy bundle key.
+      $vocabulary = taxonomy_vocabulary_load($value);
+      $term->vocabulary_machine_name = $vocabulary->machine_name;
       return $term->vid = $value;
     case 'parent':
       return $term->parent = $value;
