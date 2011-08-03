@@ -67,6 +67,16 @@ abstract class EntityMetadataWrapper {
    *     sanitized for display to a web browser. Defaults to FALSE.
    *   - decode: If set to TRUE and some textual data is already sanitized, it
    *     strips HTML tags and decodes HTML entities. Defaults to FALSE.
+   *
+   *  @return
+   *    The value of the wrapped data. If the data property is not set, NULL
+   *    is returned.
+   *
+   *  @throws EntityMetadataWrapperException
+   *    In case there are no data values available to the wrapper, an exception
+   *    is thrown. E.g. if the value for an entity property is to be retrieved
+   *    and there is no entity available, the exception is thrown. However, if
+   *    an entity is available but the property is not set, NULL is returned.
    */
   public function value(array $options = array()) {
     if (!$this->dataAvailable() && isset($this->info['parent'])) {
@@ -643,15 +653,23 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
    *   Whether the entity should be loaded to spot the info if necessary.
    */
   protected function spotBundleInfo($load = TRUE) {
-    // Detect the bundle if not set yet and add in properties from the bundle.
-    if (!$this->bundle && !empty($this->entityInfo['fieldable']) && $load && $this->dataAvailable() && $entity = $this->value()) {
-      list($id, $vid, $bundle) = entity_extract_ids($this->type, $entity);
-      $this->bundle = $bundle;
-    }
     // Like entity_extract_ids() assume the entity type if no key is given.
-    elseif (empty($this->entityInfo['entity keys']['bundle']) && $this->type != 'entity') {
+    if (empty($this->entityInfo['entity keys']['bundle']) && $this->type != 'entity') {
       $this->bundle = $this->type;
     }
+    // Detect the bundle if not set yet and add in properties from the bundle.
+    elseif (!$this->bundle && !empty($this->entityInfo['fieldable']) && $load && $this->dataAvailable()) {
+      try {
+        if ($entity = $this->value()) {
+          list($id, $vid, $bundle) = entity_extract_ids($this->type, $entity);
+          $this->bundle = $bundle;
+        }
+      }
+      catch (EntityMetadataWrapperException $e) {
+        // Loading data failed, so we cannot derive the used bundle.
+      }
+    }
+
     if ($this->bundle && isset($this->propertyInfo['bundles'][$this->bundle])) {
       $bundle_info = (array) $this->propertyInfo['bundles'][$this->bundle] + array('properties' => array());
       $this->propertyInfo['properties'] += $bundle_info['properties'];
@@ -751,7 +769,12 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
     // In case of a generic entity wrapper, load the data first to determine
     // the type of the concrete entity.
     if ($this->dataAvailable() && $this->info['type'] == 'entity') {
-      $this->value(array('identifier' => TRUE));
+      try {
+        $this->value(array('identifier' => TRUE));
+      }
+      catch (EntityMetadataWrapper $e) {
+        // If loading data fails, we cannot determine the concrete entity type.
+      }
     }
     return $this->type;
   }
