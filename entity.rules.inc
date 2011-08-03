@@ -48,6 +48,19 @@ class EntityDefaultRulesController {
       'label' => t('After deleting a @entity', array('@entity' => drupal_strtolower($label))),
       'variables' => entity_rules_events_variables($type, t('deleted @entity', array('@entity' => drupal_strtolower($label)))),
     );
+    $items[$type . '_view'] = $defaults + array(
+      'label' => t('@entity is viewed', array('@entity' => $label)),
+      'variables' => entity_rules_events_variables($type, t('viewed @entity', array('@entity' => drupal_strtolower($label)))),
+    );
+    if (count($info['view modes'])) {
+      $items[$type . '_view']['variables']['view_mode'] = array(
+        'type' => 'text',
+        'label' => t('view mode'),
+        'options list' => 'rules_get_entity_view_modes',
+        // Add the entity-type for the options list callback.
+        'options list entity type' => $type,
+      );
+    }
     // Specify that on presave the entity is saved anyway.
     $items[$type . '_presave']['variables'][$type]['skip save'] = TRUE;
     return $items;
