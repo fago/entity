@@ -227,7 +227,10 @@ function entity_metadata_hook_entity_info() {
  *        - uri: An absolute URI or URL.
  *        - entities - You may use the type of each entity known by
  *          hook_entity_info(), e.g. 'node' or 'user'. Internally entities are
- *          represented by their identifieres.
+ *          represented by their identifieres. In case of single-valued
+ *          properties getter callbacks may return full entity objects as well,
+ *          while a value of FALSE is interpreted like a NULL value as "property
+ *          is not set".
  *        - entity: A special type to be used generically for entities where the
  *          entity type is not known beforehand. The entity has to be
  *          represented using an EntityMetadataWrapper.

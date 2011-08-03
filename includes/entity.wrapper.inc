@@ -605,6 +605,8 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
    * Sets the entity internally accepting both the entity id and object.
    */
   protected function setEntity($data) {
+    // For entities we allow getter callbacks to return FALSE, which we
+    // interpret like NULL values as unset properties.
     if (isset($data) && $data !== FALSE && !is_object($data)) {
       $this->id = $data;
       $this->data = FALSE;
@@ -624,7 +626,7 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
       $id = entity_id($this->type, $data);
       $this->id = isset($id) ? $id : FALSE;
     }
-    elseif (!isset($data)){
+    else {
       $this->id = FALSE;
       $this->data = NULL;
     }
@@ -703,7 +705,10 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
    *   - identifier: If set to TRUE, the entity identifier is returned.
    */
   public function value(array $options = array()) {
-    $this->setEntity(parent::value());
+    // Try loading the data via the getter callback if there is none yet.
+    if (!isset($this->data)) {
+      $this->setEntity(parent::value());
+    }
     if (!empty($options['identifier'])) {
       return $this->id;
     }
