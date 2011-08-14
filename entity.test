@@ -283,6 +283,8 @@ class EntityAPIRulesIntegrationTestCase extends DrupalWebTestCase {
 
   function setUp() {
     parent::setUp('entity', 'entity_test', 'rules');
+    // Make sure the logger is enabled so the debug log is saved.
+    variable_set('rules_debug_log', 1);
   }
 
   /**
