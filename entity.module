@@ -614,7 +614,9 @@ function _entity_defaults_rebuild($entity_type) {
     foreach ($existing_entities as $name => $entity) {
       $entity->{$keys['status']} |= ENTITY_OVERRIDDEN;
       $entity->{$keys['module']} = $entities[$name]->{$keys['module']};
+      $entity->is_rebuild = TRUE;
       entity_save($entity_type, $entity);
+      unset($entity->is_rebuild);
     }
 
     // Save the defaults being not overridden to the db, possible over-writing
