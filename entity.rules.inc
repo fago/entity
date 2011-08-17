@@ -94,7 +94,9 @@ function entity_rules_events_variables($type, $label, $update = FALSE) {
 function entity_rules_event_info() {
   $items = array();
   foreach (entity_crud_get_info() as $type => $info) {
-    $info += array('rules controller class' => 'EntityDefaultRulesController');
+    // By default we enable the controller only for non-configuration.
+    $configuration = !empty($info['configuration']) || !empty($info['exportable']);
+    $info += array('rules controller class' => $configuration ? FALSE : 'EntityDefaultRulesController');
     if ($info['rules controller class']) {
       $controller = new $info['rules controller class']($type);
       $items += $controller->eventInfo();
