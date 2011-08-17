@@ -1105,6 +1105,13 @@ function entity_entity_info_alter(&$entity_info) {
   _field_info_collate_fields(TRUE);
   // To be sure, also clear the property info cache as it depends on field info.
   entity_property_info_cache_clear();
+
+  // Populate a default value for the 'configuration' key of all entity types.
+  foreach ($entity_info as $type => $info) {
+    if (!isset($info['configuration'])) {
+      $entity_info[$type]['configuration'] = !empty($info['exportable']);
+    }
+  }
 }
 
 /**

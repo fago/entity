@@ -175,6 +175,11 @@ function entity_crud_hook_entity_info() {
  *   See entity_metadata_view_node() as example.
  * - token type: (optional) A type name to use for token replacements. Set it
  *   to FALSE if there aren't any token replacements for this entity type.
+ * - configuration: (optional) A boolean value that specifies whether the entity
+ *   type should be considered as configuration. Modules working with entities
+ *   may use this value to decide whether they should deal with a certain entity
+ *   type. Defaults to TRUE to for entity types that are exportable, else to
+ *   FALSE.
  *
  * @see hook_entity_info()
  * @see entity_crud_hook_entity_info()
