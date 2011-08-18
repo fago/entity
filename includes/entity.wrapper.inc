@@ -747,7 +747,7 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
     // In case the entity has been unset, we cannot properly detect changes as
     // the previous id defaults to FALSE for unloaded entities too. So in that
     // case we just always update the parent.
-    elseif ($this->id === FALSE) {
+    elseif ($this->id === FALSE && !$this->data) {
       $this->updateParent(NULL);
     }
     elseif ($previous_id != $this->id) {
