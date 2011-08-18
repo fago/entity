@@ -738,6 +738,76 @@ function entity_metadata_view_single($entities, $view_mode = 'full', $langcode =
 }
 
 /**
+ * Callback to get the form of a node.
+ */
+function entity_metadata_form_node($node) {
+  // Pre-populate the form-state with the right form include.
+  $form_state['build_info']['args'] = array($node);
+  form_load_include($form_state, 'inc', 'node', 'node.pages');
+  return drupal_build_form($node->type . '_node_form', $form_state);
+}
+
+/**
+ * Callback to get the form of a comment.
+ */
+function entity_metadata_form_comment($comment) {
+  if (!isset($comment->node_type)) {
+    $node = node_load($comment->nid);
+    $comment->node_type = 'comment_node_' . $node->type;
+  }
+  return drupal_get_form($comment->node_type . '_form', $comment);
+}
+
+/**
+ * Callback to get the form of a user account.
+ */
+function entity_metadata_form_user($account) {
+  // Pre-populate the form-state with the right form include.
+  $form_state['build_info']['args'] = array($account);
+  form_load_include($form_state, 'inc', 'user', 'user.pages');
+  return drupal_build_form('user_profile_form', $form_state);
+}
+
+/**
+ * Callback to get the form of a term.
+ */
+function entity_metadata_form_taxonomy_term($term) {
+  // Pre-populate the form-state with the right form include.
+  $form_state['build_info']['args'] = array($term);
+  form_load_include($form_state, 'inc', 'taxonomy', 'taxonomy.admin');
+  return drupal_build_form('taxonomy_form_term', $form_state);
+}
+
+/**
+ * Callback to get the form of a vocabulary.
+ */
+function entity_metadata_form_taxonomy_vocabulary($term) {
+  // Pre-populate the form-state with the right form include.
+  $form_state['build_info']['args'] = array($term);
+  form_load_include($form_state, 'inc', 'taxonomy', 'taxonomy.admin');
+  return drupal_build_form('taxonomy_form_term', $form_state);
+}
+
+/**
+ * Callback to get the form for entities using the entity API admin ui.
+ */
+function entity_metadata_form_entity_ui($entity, $entity_type) {
+  $info = entity_get_info($entity_type);
+  $form_state = array();
+  // Add in the include file as the form API does else with the include file
+  // specified for the active menu item.
+  if (!empty($info['admin ui']['file'])) {
+    $path = isset($info['admin ui']['file path']) ? $info['admin ui']['file path'] : drupal_get_path('module', $info['module']);
+    $form_state['build_info']['files']['entity_ui'] = $path . '/' . $info['admin ui']['file'];
+    // Also load the include file.
+    if (file_exists($form_state['build_info']['files']['entity_ui'])) {
+      require_once DRUPAL_ROOT . '/' . $form_state['build_info']['files']['entity_ui'];
+    }
+  }
+  return entity_ui_get_form($entity_type, $entity, $op = 'edit', $form_state);
+}
+
+/**
  * Callback for querying entity properties having their values stored in the
  * entities main db table.
  */

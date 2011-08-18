@@ -120,6 +120,9 @@
  *   entity_metadata_no_hook_node_access() for an example.
  *   This is optional, but suggested for the Rules integration, and required for
  *   the admin ui (see above).
+ * - form callback: (optional) Specfiy a callback that returns a fully built
+ *   edit form for your entity type. See entity_form().
+ *   In case the 'admin ui' is used, no callback needs to be specified.
  *
  * @see hook_entity_info()
  * @see entity_metadata_hook_entity_info()
@@ -173,6 +176,8 @@ function entity_crud_hook_entity_info() {
  *   entity of this type.
  * - view callback: (optional) A callback to render a list of entities.
  *   See entity_metadata_view_node() as example.
+ * - form callback: (optional) A callback that returns a fully built edit form
+ *   for the entity type.
  * - token type: (optional) A type name to use for token replacements. Set it
  *   to FALSE if there aren't any token replacements for this entity type.
  * - configuration: (optional) A boolean value that specifies whether the entity
@@ -187,6 +192,8 @@ function entity_crud_hook_entity_info() {
  * @see entity_create()
  * @see entity_save()
  * @see entity_delete()
+ * @see entity_view()
+ * @see entity_form()
  */
 function entity_metadata_hook_entity_info() {
   return array(

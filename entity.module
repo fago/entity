@@ -54,7 +54,7 @@ define('ENTITY_FIXED', 0x04 | 0x02);
  * @param $entity_type
  *   The type of the entity.
  * @param $op
- *   One of 'create', 'view', 'save', 'delete' or 'access.
+ *   One of 'create', 'view', 'save', 'delete', 'access' or 'form'.
  */
 function entity_type_supports($entity_type, $op) {
   $info = entity_get_info($entity_type);
@@ -64,8 +64,15 @@ function entity_type_supports($entity_type, $op) {
     'delete' => 'deletion callback',
     'save' => 'save callback',
     'access' => 'access callback',
+    'form' => 'form callback'
   );
-  if (isset($info[$keys[$op]]) || ($op != 'access' && in_array('EntityAPIControllerInterface', class_implements($info['controller class'])))) {
+  if (isset($info[$keys[$op]])) {
+    return TRUE;
+  }
+  if ($op != 'access' && in_array('EntityAPIControllerInterface', class_implements($info['controller class']))) {
+    return TRUE;
+  }
+  if ($op == 'form' && entity_ui_controller($entity_type)) {
     return TRUE;
   }
 }
@@ -417,6 +424,38 @@ function entity_access($op, $entity_type, $entity = NULL, $account = NULL) {
   if (($info = entity_get_info()) && isset($info[$entity_type]['access callback'])) {
     return $info[$entity_type]['access callback']($op, $entity, $account, $entity_type);
   }
+}
+
+/**
+ * Gets the edit form for any entity.
+ *
+ * This helper makes use of drupal_get_form() and the regular form builder
+ * function of the entity type to retrieve and process the form as usual.
+ *
+ * In order to use this helper to show an entity add form, the new entity object
+ * can be created via entity_create() or entity_property_values_create_entity().
+ *
+ * @param $entity_type
+ *   The type of the entity.
+ * @param $entity
+ *   The entity to show the edit form for.
+ * @return
+ *   The renderable array of the form. If there is no entity form or missing
+ *   metadata, FALSE is returned.
+ *
+ * @see entity_type_supports()
+ */
+function entity_form($entity_type, $entity) {
+  $info = entity_get_info($entity_type);
+  if (isset($info['form callback'])) {
+    return $info['form callback']($entity, $entity_type);
+  }
+  // If there is an UI controller, the providing module has to implement the
+  // entity form using entity_ui_get_form().
+  elseif (entity_ui_controller($entity_type)) {
+    return entity_metadata_form_entity_ui($entity, $entity_type);
+  }
+  return FALSE;
 }
 
 /**
@@ -942,7 +981,7 @@ function entity_forms($form_id, $args) {
 }
 
 /**
- * Gets an entity form.
+ * A wrapper around drupal_get_form() that helps building entity forms.
  *
  * This function may be used by entities to build their entity form. It has to
  * be used instead of calling drupal_get_form().
@@ -963,7 +1002,10 @@ function entity_forms($form_id, $args) {
  *   initialized with empty values using entity_create(). Thus entities, for
  *   which this is problematic have to care to pass in an initialized entity.
  * @param $op
- *   One of 'edit', 'add' or 'clone'. Defaults to edit.
+ *   (optional) One of 'edit', 'add' or 'clone'. Defaults to edit.
+ * @param $form_state
+ *   (optional) A pre-populated form state, e.g. to add in form include files.
+ *   See entity_metadata_form_entity_ui().
  *
  * @return
  *   The fully built and processed form, ready to be rendered.
@@ -971,7 +1013,7 @@ function entity_forms($form_id, $args) {
  * @see EntityDefaultUIController::hook_forms()
  * @see entity_ui_form_submit_build_entity()
  */
-function entity_ui_get_form($entity_type, $entity, $op = 'edit') {
+function entity_ui_get_form($entity_type, $entity, $op = 'edit', $form_state = array()) {
   if (isset($entity)) {
     list(, , $bundle) = entity_extract_ids($entity_type, $entity);
   }
@@ -991,7 +1033,7 @@ function entity_ui_get_form($entity_type, $entity, $op = 'edit') {
   // which the module implementing the form constructor may safely ignore.
   // @see entity_forms()
   $form_state['build_info']['args'] = array($entity, $op, $entity_type);
-  module_load_include('inc', 'entity', 'includes/entity.ui');
+  form_load_include($form_state, 'inc', 'entity', 'includes/entity.ui');
   return drupal_build_form($form_id, $form_state);
 }
 
@@ -1132,6 +1174,10 @@ function _entity_info_add_metadata_callbacks(&$entity_info) {
   $entity_info['file']['save callback'] = 'file_save';
   $entity_info['file']['deletion callback'] = 'entity_metadata_delete_file';
 
+  // Form callbacks.
+  $entity_info['node']['form callback'] = 'entity_metadata_form_node';
+  $entity_info['user']['form callback'] = 'entity_metadata_form_user';
+
   // View callbacks.
   $entity_info['node']['view callback'] = 'entity_metadata_view_node';
   $entity_info['user']['view callback'] = 'entity_metadata_view_single';
@@ -1142,6 +1188,7 @@ function _entity_info_add_metadata_callbacks(&$entity_info) {
     $entity_info['comment']['save callback'] = 'comment_save';
     $entity_info['comment']['deletion callback'] = 'comment_delete';
     $entity_info['comment']['view callback'] = 'entity_metadata_view_comment';
+    $entity_info['comment']['form callback'] = 'entity_metadata_form_comment';
   }
   if (module_exists('taxonomy')) {
     $entity_info['taxonomy_term']['access callback'] = 'entity_metadata_taxonomy_access';
@@ -1149,11 +1196,13 @@ function _entity_info_add_metadata_callbacks(&$entity_info) {
     $entity_info['taxonomy_term']['save callback'] = 'taxonomy_term_save';
     $entity_info['taxonomy_term']['deletion callback'] = 'taxonomy_term_delete';
     $entity_info['taxonomy_term']['view callback'] = 'entity_metadata_view_single';
+    $entity_info['taxonomy_term']['form callback'] = 'entity_metadata_form_taxonomy_term';
 
     $entity_info['taxonomy_vocabulary']['access callback'] = 'entity_metadata_taxonomy_access';
     $entity_info['taxonomy_vocabulary']['creation callback'] = 'entity_metadata_create_object';
     $entity_info['taxonomy_vocabulary']['save callback'] = 'taxonomy_vocabulary_save';
     $entity_info['taxonomy_vocabulary']['deletion callback'] = 'taxonomy_vocabulary_delete';
+    $entity_info['taxonomy_vocabulary']['form callback'] = 'entity_metadata_form_taxonomy_vocabulary';
     // Token type mapping.
     $entity_info['taxonomy_term']['token type'] = 'term';
     $entity_info['taxonomy_vocabulary']['token type'] = 'vocabulary';
