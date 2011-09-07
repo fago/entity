@@ -688,6 +688,35 @@ class EntityAPIControllerExportable extends EntityAPIController {
   }
 
   /**
+   * Overridden to care about reverted bundle entities.
+   */
+  public function invoke($hook, $entity) {
+    if ($hook == 'delete') {
+      // Figure out whether this is a revert.
+      if (entity_has_status($this->entityType, $entity, ENTITY_IN_CODE) && !module_exists($entity->{$this->moduleKey})) {
+        // Module has been disabled, thus entity is not in code anymore.
+        $entity->{$this->statusKey} = ENTITY_CUSTOM;
+      }
+      $revert = entity_has_status($this->entityType, $entity, ENTITY_IN_CODE);
+
+      if (!empty($this->entityInfo['fieldable']) && function_exists($function = 'field_attach_' . $hook)) {
+        $function($this->entityType, $entity);
+      }
+      if (isset($this->entityInfo['bundle of']) && ($type = $this->entityInfo['bundle of']) && !$revert) {
+        // Call field API bundle attachers for the entity we are a bundle of.
+        field_attach_delete_bundle($type, $entity->{$this->bundleKey});
+      }
+      // Invoke the hook.
+      module_invoke_all($this->entityType . '_delete', $entity);
+      // Invoke the respective entity level hook.
+      module_invoke_all('entity_delete', $entity, $this->entityType);
+    }
+    else {
+      parent::invoke($hook, $entity);
+    }
+  }
+
+  /**
    * Overridden to care exportables that are overridden.
    */
   public function save($entity, DatabaseTransaction $transaction = NULL) {
