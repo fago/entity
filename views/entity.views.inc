@@ -6,13 +6,21 @@
  */
 
 /**
- * Implements hook_views_data()
+ * Implements hook_views_data().
+ *
+ * Provides Views integration for entities if they satisfy one of these
+ * conditions:
+ *  - hook_entity_info() specifies a 'views controller class' key.
+ *  - hook_entity_info() specifies a 'module' key, and the module does not
+ *    implement hook_views_data().
+ *
+ * @see entity_crud_hook_entity_info().
  */
 function entity_views_data() {
   $data = array();
   foreach (entity_crud_get_info() as $type => $info) {
-    // Only enable the integration by default, it we know the module providing
-    // the entity and it does not provide views integration yet.
+    // Provide default integration with the basic controller class if we know
+    // the module providing the entity and it does not provide views integration.
     if (!isset($info['views controller class'])) {
       $info['views controller class'] = isset($info['module']) && !module_hook($info['module'], 'views_data') ? 'EntityDefaultViewsController' : FALSE;
     }

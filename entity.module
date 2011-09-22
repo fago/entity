@@ -480,7 +480,11 @@ function entity_key_array_by_property(array $entities, $property) {
 }
 
 /**
- * Returns an array of entity info for the entity types provided via the entity CRUD API.
+ * Get the entity info for the entity types provided via the entity CRUD API.
+ *
+ * @return
+ *  An array in the same format as entity_get_info(), containing the entities
+ *  whose controller class implements the EntityAPIControllerInterface.
  */
 function entity_crud_get_info() {
   $types = array();
