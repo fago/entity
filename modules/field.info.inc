@@ -53,7 +53,7 @@ function entity_metadata_field_default_property_callback(&$info, $entity_type, $
     $property = $instance['property info'] + array(
       'label' => $instance['label'],
       'type' => $field_type['property_type'],
-      'description' => t('Field %name', array('%name' => $name)),
+      'description' => t('Field "@name"', array('@name' => $name)),
       'getter callback' => 'entity_metadata_field_property_get',
       'setter callback' => 'entity_metadata_field_property_set',
       'access callback' => 'entity_metadata_field_access_callback',
