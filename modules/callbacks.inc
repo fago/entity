@@ -722,7 +722,7 @@ function entity_metadata_view_comment($entities, $view_mode = 'full', $langcode 
     $node = isset($nodes[$nid]) ? $nodes[$nid] : NULL;
     $build += comment_view_multiple($comments, $node, $view_mode, 0, $langcode);
   }
-  return $build;
+  return array('comment' => $build);
 }
 
 /**
@@ -732,7 +732,7 @@ function entity_metadata_view_single($entities, $view_mode = 'full', $langcode =
   $function = $entity_type . '_view';
   $build = array();
   foreach ($entities as $key => $entity) {
-    $build[$key] = $function($entity, $view_mode, $langcode);
+    $build[$entity_type][$key] = $function($entity, $view_mode, $langcode);
   }
   return $build;
 }
