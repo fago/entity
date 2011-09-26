@@ -43,7 +43,7 @@ function entity_views_data() {
  */
 function entity_views_plugins() {
   foreach (views_fetch_data() as $table => $data) {
-    if (!empty($data['table']['base']['entity type'])) {
+    if (!empty($data['table']['entity type'])) {
       $base_tables[] = $table;
     }
   }
@@ -95,13 +95,13 @@ class EntityDefaultViewsController {
       // Define the base group of this table. Fields that don't
       // have a group defined will go into this field by default.
       $data[$table]['table']['group']  = drupal_ucfirst($this->info['label']);
+      $data[$table]['table']['entity type'] = $this->type;
 
       $data[$table]['table']['base'] = array(
         'field' => $this->info['entity keys']['id'],
         'title' => drupal_ucfirst($this->info['label']),
         // @todo: Support an entity info description key or such?
         'help' => '',
-        'entity type' => $this->type,
       );
       $data[$table] += $this->schema_fields();
 
