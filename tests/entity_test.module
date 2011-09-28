@@ -12,6 +12,8 @@ function entity_test_entity_info() {
   $return = array(
     'entity_test' => array(
       'label' => t('Test Entity'),
+      'plural label' => t('Test Entities'),
+      'description' => t('An entity type used by the entity API tests.'),
       'entity class' => 'EntityClass',
       'controller class' => 'EntityAPIController',
       'base table' => 'entity_test',

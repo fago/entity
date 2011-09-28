@@ -163,6 +163,9 @@ function entity_crud_hook_entity_info() {
  * entity types with the entity CRUD API.
  *
  * Additional keys are:
+ * - plural label: (optional) The human-readable, plural name of the entity
+ *   type. As 'label' it should start capitalized.
+ * - description: (optional) A human-readable description of the entity type.
  * - access callback: (optional) Specify a callback that returns access
  *   permissions for the operations 'create', 'update', 'delete' and 'view'.
  *   The callback gets optionally the entity and the user account to check for

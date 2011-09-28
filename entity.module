@@ -1143,7 +1143,7 @@ function entity_module_implements_alter(&$implementations, $hook) {
  * @see entity_module_implements_alter()
  */
 function entity_entity_info_alter(&$entity_info) {
-  _entity_info_add_metadata_callbacks($entity_info);
+  _entity_info_add_metadata($entity_info);
 
   // Modules are using entity_load() in hook_entity_info_alter() to add
   // their bundle-info. This might trigger the field API cache to be built,
@@ -1163,9 +1163,19 @@ function entity_entity_info_alter(&$entity_info) {
 }
 
 /**
- * Adds metadata callbacks for core entities to the entity info.
+ * Adds metadata and callbacks for core entities to the entity info.
  */
-function _entity_info_add_metadata_callbacks(&$entity_info) {
+function _entity_info_add_metadata(&$entity_info) {
+  // Set plural labels.
+  $entity_info['node']['plural label'] = t('Nodes');
+  $entity_info['user']['plural label'] = t('Users');
+  $entity_info['file']['plural label'] = t('Files');
+
+  // Set descriptions.
+  $entity_info['node']['description'] = t('Nodes represent the main site content items.');
+  $entity_info['user']['description'] = t('Users who have created accounts on your site.');
+  $entity_info['file']['description'] = t('Uploaded file.');
+
   // Set access callbacks.
   $entity_info['node']['access callback'] = 'entity_metadata_no_hook_node_access';
   $entity_info['user']['access callback'] = 'entity_metadata_user_access';
@@ -1189,6 +1199,8 @@ function _entity_info_add_metadata_callbacks(&$entity_info) {
   $entity_info['user']['view callback'] = 'entity_metadata_view_single';
 
   if (module_exists('comment')) {
+    $entity_info['comment']['plural label'] = t('Comments');
+    $entity_info['comment']['description'] = t('Remark or note that refers to a node.');
     $entity_info['comment']['access callback'] = 'entity_metadata_comment_access';
     $entity_info['comment']['creation callback'] = 'entity_metadata_create_comment';
     $entity_info['comment']['save callback'] = 'comment_save';
@@ -1197,6 +1209,8 @@ function _entity_info_add_metadata_callbacks(&$entity_info) {
     $entity_info['comment']['form callback'] = 'entity_metadata_form_comment';
   }
   if (module_exists('taxonomy')) {
+    $entity_info['taxonomy_term']['plural label'] = t('Taxonomy terms');
+    $entity_info['taxonomy_term']['description'] = t('Taxonomy terms are used for classifying content.');
     $entity_info['taxonomy_term']['access callback'] = 'entity_metadata_taxonomy_access';
     $entity_info['taxonomy_term']['creation callback'] = 'entity_metadata_create_object';
     $entity_info['taxonomy_term']['save callback'] = 'taxonomy_term_save';
@@ -1204,6 +1218,8 @@ function _entity_info_add_metadata_callbacks(&$entity_info) {
     $entity_info['taxonomy_term']['view callback'] = 'entity_metadata_view_single';
     $entity_info['taxonomy_term']['form callback'] = 'entity_metadata_form_taxonomy_term';
 
+    $entity_info['taxonomy_vocabulary']['plural label'] = t('Taxonomy vocabularies');
+    $entity_info['taxonomy_vocabulary']['description'] = t('Vocabularies contain related taxonomy terms, which are used for classifying content.');
     $entity_info['taxonomy_vocabulary']['access callback'] = 'entity_metadata_taxonomy_access';
     $entity_info['taxonomy_vocabulary']['creation callback'] = 'entity_metadata_create_object';
     $entity_info['taxonomy_vocabulary']['save callback'] = 'taxonomy_vocabulary_save';
