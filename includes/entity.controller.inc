@@ -522,10 +522,6 @@ class EntityAPIControllerExportable extends EntityAPIController {
    */
   public function load($ids = array(), $conditions = array()) {
     $entities = array();
-    // For exportable entities, make sure the defaults have been built.
-    if (!empty($this->entityInfo['exportable']) && empty($GLOBALS['conf']['entity_defaults_built'][$this->entityType])) {
-      _entity_defaults_rebuild($this->entityType);
-    }
 
     // Only do something if loaded by names.
     if (!$ids || $this->nameKey == $this->idKey || is_numeric(reset($ids))) {
