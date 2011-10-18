@@ -141,7 +141,7 @@ function _entity_token_get_token($wrapper, $options) {
 
   switch ($wrapper->type()) {
     case 'integer':
-      return number_format($wrapper->value());
+      return $wrapper->value();
     case 'decimal':
       return number_format($wrapper->value(), 2);
     case 'date':
