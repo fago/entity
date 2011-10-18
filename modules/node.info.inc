@@ -7,6 +7,7 @@
 
 /**
  * Implements hook_entity_property_info() on top of node module.
+ *
  * @see entity_entity_property_info()
  */
 function entity_metadata_node_entity_property_info() {
@@ -114,8 +115,7 @@ function entity_metadata_node_entity_property_info() {
     'label' => t("Author"),
     'type' => 'user',
     'description' => t("The author of the node."),
-    'getter callback' => 'entity_metadata_node_get_properties',
-    'setter callback' => 'entity_metadata_node_set_properties',
+    'setter callback' => 'entity_property_verbatim_set',
     'setter permission' => 'administer nodes',
     'required' => TRUE,
     'schema field' => 'uid',

@@ -45,18 +45,12 @@ function entity_metadata_comment_get_properties($comment, array $options, $name)
     case 'edit_url':
       return url('comment/edit/' . $comment->cid, $options);
 
-    case 'node':
-      return node_load($comment->nid);
-
     case 'parent':
       if (!empty($comment->pid)) {
         return $comment->pid;
       }
       // There is no parent comment.
       return NULL;
-
-    case 'author':
-      return $comment->uid;
   }
 }
 
@@ -72,9 +66,6 @@ function entity_metadata_comment_setter($comment, $name, $value) {
       $node = node_load($value);
       $comment->node_type = 'comment_node_' . $node->type;
       break;
-
-    case 'author':
-      return $comment->uid = $value;
   }
 }
 
@@ -104,6 +95,7 @@ function entity_metadata_status_options_list() {
 
 /**
  * Callback for getting node properties.
+ *
  * @see entity_metadata_node_entity_info_alter()
  */
 function entity_metadata_node_get_properties($node, array $options, $name, $entity_type) {
@@ -119,19 +111,6 @@ function entity_metadata_node_get_properties($node, array $options, $name, $enti
 
     case 'edit_url':
       return url('node/' . $node->nid . '/edit', $options);
-
-    case 'author':
-      return $node->uid;
-  }
-}
-
-/**
- * Callback for setting node properties.
- * @see entity_metadata_node_entity_info_alter()
- */
-function entity_metadata_node_set_properties($node, $name, $value) {
-  if ($name == 'author') {
-    $node->uid = $value;
   }
 }
 
@@ -264,6 +243,7 @@ function entity_metadata_system_get_file_properties($file, array $options, $name
 
 /**
  * Callback for getting term properties.
+ *
  * @see entity_metadata_taxonomy_entity_info_alter()
  */
 function entity_metadata_taxonomy_term_get_properties($term, array $options, $name) {
@@ -273,9 +253,6 @@ function entity_metadata_taxonomy_term_get_properties($term, array $options, $na
 
     case 'description':
       return check_markup($term->description, isset($term->format) ? $term->format : NULL, '', TRUE);
-
-    case 'vocabulary':
-      return $term->vid;
 
     case 'parent':
       if (isset($term->parent[0]) && !is_array(isset($term->parent[0]))) {
@@ -287,6 +264,7 @@ function entity_metadata_taxonomy_term_get_properties($term, array $options, $na
 
 /**
  * Callback for setting term properties.
+ *
  * @see entity_metadata_taxonomy_entity_info_alter()
  */
 function entity_metadata_taxonomy_term_setter($term, $name, $value) {

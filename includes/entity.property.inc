@@ -313,7 +313,8 @@ function entity_property_list_extract_type($type) {
 /**
  * Gets the property just as it is set in the data.
  */
-function entity_property_verbatim_get($data, array $options, $name) {
+function entity_property_verbatim_get($data, array $options, $name, $type, $info) {
+  $name = isset($info['schema field']) ? $info['schema field'] : $name;
   if ((is_array($data) || (is_object($data) && $data instanceof ArrayAccess)) && isset($data[$name])) {
     return $data[$name];
   }
@@ -324,16 +325,18 @@ function entity_property_verbatim_get($data, array $options, $name) {
 }
 
 /**
- * Date values are converted from ISO strings to timestamp, if needed.
+ * Date values are converted from ISO strings to timestamp if needed.
  */
-function entity_property_verbatim_date_get($data, array $options, $name) {
+function entity_property_verbatim_date_get($data, array $options, $name, $type, $info) {
+  $name = isset($info['schema field']) ? $info['schema field'] : $name;
   return is_numeric($data[$name]) ? $data[$name] : strtotime($data[$name], time());
 }
 
 /**
  * Sets the property to the given value. May be used as 'setter callback'.
  */
-function entity_property_verbatim_set(&$data, $name, $value) {
+function entity_property_verbatim_set(&$data, $name, $value, $langcode, $type, $info) {
+  $name = isset($info['schema field']) ? $info['schema field'] : $name;
   if (is_array($data) || (is_object($data) && $data instanceof ArrayAccess)) {
     $data[$name] = $value;
   }

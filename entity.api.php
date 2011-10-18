@@ -261,7 +261,7 @@ function entity_metadata_hook_entity_info() {
  *     - sanitize: For textual properties, that aren't sanitized yet, specify
  *       a function for sanitizing the value. Defaults to check_plain().
  *     - 'getter callback': A callback used to retrieve the value of the
- *       property. Defaults to entity_metadata_verbatim_get().
+ *       property. Defaults to entity_property_verbatim_get().
  *       It is important that your data is represented, as documented for your
  *       data type, e.g. a date has to be a timestamp. Thus if necessary, the
  *       getter callback has to do the necessary conversion. In case of an empty
@@ -269,7 +269,7 @@ function entity_metadata_hook_entity_info() {
  *       not existing for the given data item, the callback should throw the
  *       EntityMetadataWrapperException.
  *     - 'setter callback': A callback used to set the value of the property.
- *       This is optional, however entity_metadata_verbatim_set() can be used.
+ *       This is optional, however entity_property_verbatim_set() can be used.
  *     - 'validation callback': An optional callback that returns whether the
  *       passed data value is valid for the property. May be used to implement
  *       additional checks, such as to ensure the value is a valid mail address.
