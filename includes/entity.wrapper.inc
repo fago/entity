@@ -716,10 +716,9 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
     elseif (!$this->data && !empty($this->id)) {
       // Lazy load the entity if necessary.
       $return = entity_load($this->type, array($this->id));
-      $this->data = reset($return);
-      if (!$this->data) {
-        throw new EntityMetadataWrapperException('Unable to load the ' . check_plain($this->type) . ' with the id ' . check_plain($this->id) . '.');
-      }
+      // In case the entity cannot be loaded, we return NULL just as for empty
+      // properties.
+      $this->data = $return ? reset($return) : NULL;
     }
     return $this->data;
   }
@@ -947,10 +946,19 @@ class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggrega
   }
 
   /**
+   * Returns the list as numerically indexed array.
+   *
+   * Note that a list of entities might contain stale entity references. In
+   * that case the wrapper and the identifier of a stale reference would be
+   * still accessible, however the entity object value would be NULL. That way,
+   * there may be NULL values in lists of entity objects due to stale entity
+   * references.
+   *
    * @param $options
    *   An array of options. Known keys:
    *   - identifier: If set to TRUE for a list of entities, it won't be returned
    *     as list of fully loaded entity objects, but as a list of entity ids.
+   *     Note that this list may contain ids of stale entity references.
    */
   public function value(array $options = array()) {
     // For lists of entities fetch full entity objects before returning.
@@ -960,10 +968,9 @@ class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggrega
       $entities = $list ? entity_load($this->get(0)->type, $list) : array();
       // Make sure to keep the array keys as present in the list.
       foreach ($list as $key => $id) {
-        if (!isset($entities[$id])) {
-          throw new EntityMetadataWrapperException('Unable to load the ' . check_plain($this->itemType()) . ' with the id ' . check_plain($id) . '.');
-        }
-        $list[$key] = $entities[$id];
+        // In case the entity cannot be loaded, we return NULL just as for empty
+        // properties.
+        $list[$key] = isset($entities[$id]) ? $entities[$id] : NULL;
       }
       return $list;
     }
