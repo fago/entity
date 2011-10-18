@@ -756,9 +756,15 @@ class EntityAPIControllerExportable extends EntityAPIController {
   public function view($entities, $view_mode = 'full', $langcode = NULL, $page = NULL) {
     $view = parent::view($entities, $view_mode, $langcode, $page);
 
-    // Re-key the view array to be keyed by name.
-    $key = isset($entity->{$this->nameKey}) ? $entity->{$this->nameKey} : NULL;
-    $view[$this->entityType][$key] = reset($view[$this->entityType]);
+    if ($this->nameKey != $this->idKey) {
+      // Re-key the view array to be keyed by name.
+      $return = array();
+      foreach ($view[$this->entityType] as $id => $content) {
+        $key = isset($content['#entity']->{$this->nameKey}) ? $content['#entity']->{$this->nameKey} : NULL;
+        $return[$this->entityType][$key] = $content;
+      }
+      $view = $return;
+    }
     return $view;
   }
 }
