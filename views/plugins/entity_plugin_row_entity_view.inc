@@ -102,7 +102,7 @@ class entity_plugin_row_entity_view extends views_plugin_row {
     else {
       $id = (is_object($result->entity) ? entity_id($this->entity_type, $result->entity) : $result->entity);
     }
-    if (isset($id)) {
+    if (isset($id) && isset($this->entities[$id])) {
       $content = entity_view($this->entity_type, array($id => $this->entities[$id]), $this->options['view_mode']);
       return drupal_render($content);
     }
