@@ -317,6 +317,9 @@ function entity_metadata_hook_entity_info() {
  *       an example.
  *     - translatable: (optional) Whether the property is translatable, defaults
  *       to FALSE.
+ *     - 'entity token': (optional) If Entity tokens module is enabled, the
+ *       module provides a token for the property if one does not exist yet.
+ *       Specify FALSE to disable this functionality for the property.
  *   - bundles: An array keyed by bundle name containing further metadata
  *     related to the bundles only. This array may contain the key 'properties'
  *     with an array of info about the bundle specific properties, structured in

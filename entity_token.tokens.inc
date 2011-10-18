@@ -49,7 +49,7 @@ function entity_token_token_info_alter(&$info) {
     foreach (entity_get_all_property_info($type) as $name => $property) {
       $name = str_replace('_', '-', $name);
 
-      if (!isset($info['tokens'][$token_type][$name]) && (!isset($property['type']) || in_array($property['type'], $valid_types))) {
+      if (!isset($info['tokens'][$token_type][$name]) && (!isset($property['type']) || in_array($property['type'], $valid_types)) && (!isset($property['entity token']) || $property['entity token'])) {
         $info['tokens'][$token_type][$name] = array(
           'name' => $property['label'],
           'type' => isset($property['type']) ? array_search($property['type'], $valid_types) : 'text',
