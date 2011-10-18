@@ -107,6 +107,17 @@ function entity_metadata_comment_entity_property_info() {
     'required' => TRUE,
     'schema field' => 'uid',
   );
+  $properties['status'] = array(
+    'label' => t("Status"),
+    'description' => t("Whether the comment is published or unpublished."),
+    'setter callback' => 'entity_property_verbatim_set',
+    // Although the status is expected to be boolean, its schema suggests
+    // it is an integer, so we follow the schema definition.
+    'type' => 'integer',
+    'options list' => 'entity_metadata_status_options_list',
+    'setter permission' => 'administer comments',
+    'schema field' => 'status',
+  );
   return $info;
 }
 

@@ -93,6 +93,16 @@ function entity_metadata_comment_get_node_properties($node, array $options, $nam
 }
 
 /**
+ * Return the options lists for the node and comment status property.
+ */
+function entity_metadata_status_options_list() {
+  return array(
+    0 => t('Published'),
+    1 => t('Unpublished'),
+  );
+}
+
+/**
  * Callback for getting node properties.
  * @see entity_metadata_node_entity_info_alter()
  */
@@ -351,6 +361,16 @@ function entity_metadata_user_roles($property_name = 'roles', $info = array(), $
     unset($roles[DRUPAL_AUTHENTICATED_RID], $roles[DRUPAL_ANONYMOUS_RID]);
   }
   return $roles;
+}
+
+/**
+ * Return the options lists for user status property.
+ */
+function entity_metadata_user_status_options_list() {
+  return array(
+    0 => t('Blocked'),
+    1 => t('Active'),
+  );
 }
 
 /**

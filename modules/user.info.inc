@@ -74,6 +74,17 @@ function entity_metadata_user_entity_property_info() {
     'options list' => 'entity_metadata_user_roles',
     'access callback' => 'entity_metadata_user_properties_access',
   );
+  $properties['status'] = array(
+    'label' => t("Status"),
+    'description' => t("Whether the user is active or blocked."),
+    'setter callback' => 'entity_property_verbatim_set',
+    // Although the status is expected to be boolean, its schema suggests
+    // it is an integer, so we follow the schema definition.
+    'type' => 'integer',
+    'options list' => 'entity_metadata_user_status_options_list',
+    'setter permission' => 'administer users',
+    'schema field' => 'status',
+  );
   return $info;
 }
 
