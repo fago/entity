@@ -10,4 +10,3 @@ files[] = entity.features.inc
 files[] = entity.info.inc
 files[] = entity.rules.inc
 files[] = entity.test
-files[] = views/handlers/entity_views_handler_relationship_by_bundle.inc
