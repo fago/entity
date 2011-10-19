@@ -160,7 +160,7 @@ class EntityDefaultViewsController {
         'help' => t("Associated @label via the @label's @property.", array('@label' => $label_lowercase, '@property' => $property_label_lowercase)),
         'relationship' => array(
           'label' => $this->info['label'],
-          'handler' => 'views_handler_relationship',
+          'handler' => $this->getRelationshipHandlerClass($this->type, $type),
           'base' => $this->info['base table'],
           'base field' => $views_field_name,
           'relationship field' => isset($info['entity keys']['name']) ? $info['entity keys']['name'] : $info['entity keys']['id'],
@@ -169,7 +169,7 @@ class EntityDefaultViewsController {
 
       $return['relationship'] = array(
         'label' => drupal_ucfirst($info['label']),
-        'handler' => 'views_handler_relationship',
+        'handler' => $this->getRelationshipHandlerClass($type, $this->type),
         'base' => $info['base table'],
         'base field' => isset($info['entity keys']['name']) ? $info['entity keys']['name'] : $info['entity keys']['id'],
         'relationship field' => $views_field_name,
@@ -306,6 +306,28 @@ class EntityDefaultViewsController {
       $return['filter']['options arguments'] = array($this->type, $property_name, 'view');
     }
     return $return;
+  }
+
+  /**
+   * Determines the handler to use for a relationship to an entity type.
+   *
+   * @param $entity_type
+   *   The entity type to join to.
+   * @param $left_type
+   *   The data type from which to join.
+   */
+  function getRelationshipHandlerClass($entity_type, $left_type) {
+    // Look for an entity type which is used as bundle for the given entity
+    // type. If there is one, allow filtering the relation by bundle by using
+    // our own handler.
+    foreach (entity_get_info() as $type => $info) {
+      // In case we already join from the bundle entity we do not need to filter
+      // by bundle entity any more, so we stay with the general handler.
+      if (!empty($info['bundle of']) && $info['bundle of'] == $entity_type && $type != $left_type) {
+        return 'entity_views_handler_relationship_by_bundle';
+      }
+    }
+    return 'views_handler_relationship';
   }
 
   /**
