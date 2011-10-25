@@ -699,7 +699,9 @@ function entity_metadata_delete_file($fid) {
  * Callback to view nodes.
  */
 function entity_metadata_view_node($entities, $view_mode = 'full', $langcode = NULL) {
-  return node_view_multiple($entities, $view_mode, 0, $langcode);
+  $result = node_view_multiple($entities, $view_mode, 0, $langcode);
+  // Make sure to key the result with 'node' instead of 'nodes'.
+  return array('node' => reset($result));
 }
 
 /**
