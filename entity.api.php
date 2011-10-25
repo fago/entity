@@ -33,7 +33,8 @@
  *   specify the name of the fieldable entity type. But note, that the usual
  *   information about the bundles is still required for the fieldable entity
  *   type, as described by the documentation of hook_entity_info().
- * - module: The module providing the entity type. Optionally, but suggested.
+ * - module: (optional) The module providing the entity type. This is optional,
+ *   but strongly suggested.
  * - exportable: (optional) Whether the entity is exportable. Defaults to FALSE.
  *   If enabled, a name key should be specified and db columns for the module
  *   and status key as defined by entity_exportable_schema_fields() have to
