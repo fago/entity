@@ -155,7 +155,11 @@ class EntityDefaultViewsController {
       $label_lowercase = drupal_strtolower($this->info['label'][0]) . drupal_substr($this->info['label'], 1);
       $property_label_lowercase = drupal_strtolower($property_info['label'][0]) . drupal_substr($property_info['label'], 1);
 
-      $this->relationships[$info['base table']][$this->info['base table'] . '_' . $views_field_name] = array(
+      // We name the field of the first reverse-relationship just with the
+      // base table to be backward compatible, for subsequents relationships we
+      // append the views field name in order to get a unique name.
+      $name = !isset($this->relationships[$info['base table']][$this->info['base table']]) ? $this->info['base table'] : $this->info['base table'] . '_' . $views_field_name;
+      $this->relationships[$info['base table']][$name] = array(
         'title' => $this->info['label'],
         'help' => t("Associated @label via the @label's @property.", array('@label' => $label_lowercase, '@property' => $property_label_lowercase)),
         'relationship' => array(
