@@ -131,6 +131,11 @@
  * - form callback: (optional) Specfiy a callback that returns a fully built
  *   edit form for your entity type. See entity_form().
  *   In case the 'admin ui' is used, no callback needs to be specified.
+ * - entity cache: (optional) Whether entities should be cached using the cache
+ *   system. Requires the entitycache module to be installed and enabled. As
+ *   cached entities are only retrieved by id key, the cache would not apply to
+ *   exportable entities retrieved by name key. If enabled, 'field cache' is
+ *   obsolete and should be disabled. Defaults to FALSE.
  *
  * @see hook_entity_info()
  * @see entity_metadata_hook_entity_info()
