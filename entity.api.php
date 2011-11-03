@@ -402,5 +402,27 @@ function entity_hook_field_info() {
 }
 
 /**
+ * Alter the handlers used by the data selection tables provided by this module.
+ *
+ * @param array $field_handlers
+ *   An array of the field handler classes to use for specific types. The keys
+ *   are the types, mapped to their respective classes. Contained types are:
+ *   - All primitive types known by the entity API (see
+ *     hook_entity_property_info()).
+ *   - options: Special type for fields having an options list.
+ *   - field: Special type for Field API fields.
+ *   - entity: Special type for entity-valued fields.
+ *   - relationship: Views relationship handler to use for relationships.
+ *   Values for all specific entity types can be additionally added.
+ *
+ * @see entity_views_field_definition()
+ * @see entity_views_get_field_handlers()
+ */
+function hook_entity_views_field_handlers_alter(array &$field_handlers) {
+  $field_handlers['duration'] = 'example_duration_handler';
+  $field_handlers['node'] = 'example_node_handler';
+}
+
+/**
  * @} End of "addtogroup hooks".
  */
