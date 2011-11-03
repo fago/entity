@@ -265,6 +265,64 @@ class EntityAPITestCase extends DrupalWebTestCase {
     // The entity class adds the user name to the output. Verify it is there.
     $this->assertTrue(strpos($output, format_username($user1)) !== FALSE, 'Entity has been rendered');
   }
+
+  /**
+   * Test uninstall of the entity_test module.
+   */
+  function testUninstall() {
+    // Add a test type and add a field instance, uninstall, then re-install and
+    // make sure the field instance can be re-created.
+    $test_type = entity_create('entity_test_type', array(
+      'name' => 'test',
+      'label' => 'label',
+      'weight' => 0,
+    ));
+    $test_type->save();
+
+    $field = array(
+      'field_name' => 'field_test_fullname',
+      'type' => 'text',
+      'cardinality' => 1,
+      'translatable' => FALSE,
+    );
+    field_create_field($field);
+
+    $instance = array(
+      'entity_type' => 'entity_test',
+      'field_name' => 'field_test_fullname',
+      'bundle' => 'test',
+      'label' => 'Full name',
+      'description' => 'Specify your first and last name.',
+      'widget' => array(
+        'type' => 'text_textfield',
+        'weight' => 0,
+      ),
+    );
+    field_create_instance($instance);
+
+    // Uninstallation has to remove all bundles, thus also field instances.
+    module_disable(array('entity_test'));
+    require_once DRUPAL_ROOT . '/includes/install.inc';
+    drupal_uninstall_modules(array('entity_test'));
+
+    // Make sure the instance has been deleted.
+    $instance_read = field_read_instance('entity_test', 'field_test_fullname', 'test', array('include_inactive' => 1));
+    $this->assertFalse((bool) $instance_read, 'Field instance has been deleted.');
+
+    // Ensure re-creating the same instance now works.
+    module_enable(array('entity_test'));
+    $test_type = entity_create('entity_test_type', array(
+      'name' => 'test',
+      'label' => 'label',
+      'weight' => 0,
+    ));
+    $test_type->save();
+    field_create_field($field);
+    field_create_instance($instance);
+
+    $instance_read = field_info_instance('entity_test', 'field_test_fullname', 'test');
+    $this->assertTrue((bool) $instance_read, 'Field instance has been re-created.');
+  }
 }
 
 /**

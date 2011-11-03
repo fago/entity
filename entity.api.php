@@ -33,8 +33,10 @@
  *   invoking the field API bundle attachers. To enable this functionality,
  *   specify the name of the fieldable entity type. But note, that the usual
  *   information about the bundles is still required for the fieldable entity
- *   type, as described by the documentation of hook_entity_info(). See
- *   entity_test_entity_info() for an example.
+ *   type, as described by the documentation of hook_entity_info(). Also,
+ *   field_attach_delete_bundle() has to be invoked manually upon module
+ *   uninstallation. See entity_test_entity_info() and entity_test_uninstall()
+ *   for examples.
  * - module: (optional) The module providing the entity type. This is optional,
  *   but strongly suggested.
  * - exportable: (optional) Whether the entity is exportable. Defaults to FALSE.
