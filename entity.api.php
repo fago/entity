@@ -299,10 +299,14 @@ function entity_metadata_hook_entity_info() {
  *       is only be taken into account, if no 'access callback' is given.
  *     - schema field: (optional) In case the property is directly based upon
  *       a field specified in the entity's hook_schema(), the name of the field.
- *     - query callback: (optional) A callback for querying for entities having
- *       the given property value. See entity_property_query().
- *       In case a 'schema field' has been specified, it is not necessary to
- *       specify a callback as it will default to 'entity_metadata_table_query'.
+ *     - queryable: (optional) Whether a property is queryable with
+ *       EntityFieldQuery. Defaults to TRUE if a 'schema field' is specified, or
+ *       if the deprecated 'query callback' is set to
+ *       'entity_metadata_field_query'. Otherwise it defaults to FALSE.
+ *     - query callback: (deprecated) A callback for querying for entities
+ *       having the given property value. See entity_property_query().
+ *       Generally, properties should be queryable via EntityFieldQuery. If
+ *       that is the case, just set 'queryable' to TRUE.
  *     - required: (optional) Whether this property is required for the creation
  *       of a new instance of its entity. See
  *       entity_property_values_create_entity().

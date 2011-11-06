@@ -108,7 +108,13 @@ function entity_get_all_property_info($entity_type = NULL) {
  */
 function entity_property_query($entity_type, $property, $value, $limit = 30) {
   $properties = entity_get_all_property_info($entity_type);
-  $info = $properties[$property] + array('type' => 'text', 'query callback' => isset($properties[$property]['schema field']) ? 'entity_metadata_table_query' : FALSE);
+  $info = $properties[$property] + array('type' => 'text', 'queryable' => !empty($properties[$property]['schema field']));
+
+  // We still support the deprecated query callback, so just add in EFQ-based
+  // callbacks in case 'queryable' is set to TRUE and make use of the callback.
+  if ($info['queryable'] && empty($info['query callback'])) {
+    $info['query callback'] = !empty($info['field']) ? 'entity_metadata_field_query' : 'entity_metadata_table_query';
+  }
 
   $type = $info['type'];
   // Make sure an entity or a list of entities are passed on as identifiers
