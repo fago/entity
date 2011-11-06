@@ -259,6 +259,14 @@ function entity_metadata_taxonomy_term_get_properties($term, array $options, $na
         return $term->parent;
       }
       return array_keys(taxonomy_get_parents($term->tid));
+
+    case 'parents_all':
+      // We have to return an array of ids.
+      $tids = array();
+      foreach (taxonomy_get_parents_all($term->tid) as $parent) {
+        $tids[] = $parent->tid;
+      }
+      return $tids;
   }
 }
 

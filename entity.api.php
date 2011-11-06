@@ -308,6 +308,10 @@ function entity_metadata_hook_entity_info() {
  *       entity_property_values_create_entity().
  *     - field: (optional) A boolean indicating whether a property is stemming
  *       from a field.
+ *     - computed: (optional) A boolean indiciating whether a property is
+ *       computed, i.e. the property value is not stored or loaded by the
+ *       entity's controller but determined on the fly by the getter callback.
+ *       Defaults to FALSE.
  *     - sanitized: (optional) For textual properties only, whether the text is
  *       already sanitized. In this case you might want to also specify a raw
  *       getter callback. Defaults to FALSE.
