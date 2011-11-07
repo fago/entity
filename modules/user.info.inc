@@ -54,6 +54,13 @@ function entity_metadata_user_entity_property_info() {
     'type' => 'uri',
     'computed' => TRUE,
   );
+  $properties['last_access'] = array(
+    'label' => t("Last access"),
+    'description' => t("The date the user last accessed the site."),
+    'getter callback' => 'entity_metadata_user_get_properties',
+    'type' => 'date',
+    'schema field' => 'access',
+  );
   $properties['last_login'] = array(
     'label' => t("Last login"),
     'description' => t("The date the user last logged in to the site."),

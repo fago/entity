@@ -305,6 +305,9 @@ function entity_metadata_taxonomy_vocabulary_get_properties($vocabulary, array $
  */
 function entity_metadata_user_get_properties($account, array $options, $name, $entity_type) {
   switch ($name) {
+    case 'last_access':
+      return empty($account->access) ? NULL : $account->access;
+
     case 'last_login':
       return empty($account->login) ? NULL : $account->login;
 
