@@ -93,6 +93,13 @@ function entity_views_table_definition($type) {
   $tables = &drupal_static(__FUNCTION__, array());
 
   if (!isset($tables[$type])) {
+    // Work-a-round to fix updating, see http://drupal.org/node/1330874.
+    // Views data might be rebuilt on update.php before the registry is rebuilt,
+    // thus the class cannot be auto-loaded.
+    if (!class_exists('EntityFieldHandlerHelper')) {
+      module_load_include('inc', 'entity', 'views/handlers/entity_views_field_handler_helper');
+    }
+
     $info = entity_get_info($type);
     $tables[$type]['table'] = array(
       'group' => $info['label'],
