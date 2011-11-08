@@ -279,6 +279,9 @@ class EntityFieldHandlerHelper {
     $field = isset($field) ? $field : $handler->base_field;
     $selector = self::construct_property_selector($handler);
     $selector = $selector ? "$selector:$field" : $field;
+    if (!isset($values->_entity_properties)) {
+      $values->_entity_properties = array();
+    }
     if (!array_key_exists($selector, $values->_entity_properties)) {
       if (!isset($handler->wrappers[$handler->view->row_index])) {
         $values->_entity_properties[$selector] = $default;

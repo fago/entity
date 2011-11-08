@@ -21,6 +21,7 @@ class entity_views_handler_field_entity extends views_handler_field_entity {
    * Overridden to add the field for the entity ID (if necessary).
    */
   public function query() {
+    parent::query();
     EntityFieldHandlerHelper::query($this);
   }
 
@@ -82,8 +83,8 @@ class entity_views_handler_field_entity extends views_handler_field_entity {
       '#dependency' => array('edit-options-display' => array('label', 'id')),
     );
 
-    // Stolen from entity_plugin_row_entity_view.
-    $entity_info = entity_get_info($this->definition['entity type']);
+    // Stolen from entity_views_plugin_row_entity_view.
+    $entity_info = entity_get_info($this->entity_type);
     $options = array();
     if (!empty($entity_info['view modes'])) {
       foreach ($entity_info['view modes'] as $mode => $settings) {
@@ -122,7 +123,7 @@ class entity_views_handler_field_entity extends views_handler_field_entity {
    *   object.
    */
   public function render_entity_link($entity, $values) {
-    $type = $this->definition['entity type'];
+    $type = $this->entity_type;
     if (!is_object($entity) && isset($entity) && $entity !== FALSE) {
       $entity = entity_load_single($type, $entity);
     }
@@ -143,7 +144,7 @@ class entity_views_handler_field_entity extends views_handler_field_entity {
    * Render a single field value.
    */
   public function render_single_value($entity, $values) {
-    $type = $this->definition['entity type'];
+    $type = $this->entity_type;
     if (!is_object($entity) && isset($entity) && $entity !== FALSE) {
       $entity = entity_load_single($type, $entity);
     }

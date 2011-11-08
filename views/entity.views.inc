@@ -45,6 +45,24 @@ function entity_views_data() {
     }
   }
 
+  // Expose generally usable entity-related fields.
+  foreach (entity_get_info() as $entity_type => $info) {
+    if (entity_type_supports($entity_type, 'view')) {
+      // Expose a field allowing to display the rendered entity.
+      $data['views_entity_' . $entity_type]['rendered_entity'] = array(
+        'title' => t('Rendered @entity-type', array('@entity-type' => $info['label'])),
+        'help' => t('The @entity-type of the current relationship rendered using a view mode.', array('@entity-type' => $info['label'])),
+        'field' => array(
+          'handler' => 'entity_views_handler_field_entity',
+          'type' => $entity_type,
+          // The EntityFieldHandlerHelper class treats the 'entity object' field
+          // as special case for loading the base entity.
+          'real field' => 'entity object',
+        ),
+      );
+    }
+  }
+
   return $data;
 }
 
@@ -267,17 +285,18 @@ function _entity_views_field_identifier($field, array $table) {
  */
 function entity_views_plugins() {
   foreach (views_fetch_data() as $table => $data) {
-    if (!empty($data['table']['entity type'])) {
+    if (!empty($data['table']['entity type']) && !empty($data['table']['base'])) {
       $base_tables[] = $table;
     }
   }
   if (!empty($base_tables)) {
     return array(
+      'module' => 'entity',
       'row' => array(
         'entity' => array(
-          'title' => t('Entity'),
-          'help' => t('Displays a single entity in a specific view mode (e.g. teaser).'),
-          'handler' => 'entity_plugin_row_entity_view',
+          'title' => t('Rendered entity'),
+          'help' => t('Renders a single entity in a specific view mode (e.g. teaser).'),
+          'handler' => 'entity_views_plugin_row_entity_view',
           'uses fields' => FALSE,
           'uses options' => TRUE,
           'type' => 'normal',
