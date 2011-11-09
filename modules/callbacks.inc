@@ -193,7 +193,7 @@ function entity_metadata_system_get_properties($data = FALSE, array $options, $n
       return url('user', $options);
 
     case 'current_user':
-      return $GLOBALS['user']->uid;
+      return $GLOBALS['user']->uid ? $GLOBALS['user']->uid : drupal_anonymous_user();
 
     case 'current_date':
       return time();
