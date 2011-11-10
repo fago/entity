@@ -15,13 +15,40 @@
  * @see entity_views_field_definition()
  * @ingroup views_field_handlers
  */
-class entity_views_handler_field_entity extends views_handler_field_entity {
+class entity_views_handler_field_entity extends views_handler_field {
+
+  /**
+   * Stores the entity type of the result entities.
+   */
+  public $entity_type;
+
+  /**
+   * Stores the result entities' metadata wrappers.
+   */
+  public $wrappers = array();
+
+  /**
+   * The entity type of the entity displayed by this field.
+   */
+  public $field_entity_type;
+
+  /**
+   * Stores the current value when rendering list fields.
+   */
+  public $current_value;
+
+  /**
+   * Initialize the entity type with the field's entity type.
+   */
+  public function init(&$view, &$options) {
+    parent::init($view, $options);
+    $this->field_entity_type = entity_property_extract_innermost_type($this->definition['type']);
+  }
 
   /**
    * Overridden to add the field for the entity ID (if necessary).
    */
   public function query() {
-    parent::query();
     EntityFieldHandlerHelper::query($this);
   }
 
@@ -84,7 +111,7 @@ class entity_views_handler_field_entity extends views_handler_field_entity {
     );
 
     // Stolen from entity_views_plugin_row_entity_view.
-    $entity_info = entity_get_info($this->entity_type);
+    $entity_info = entity_get_info($this->field_entity_type);
     $options = array();
     if (!empty($entity_info['view modes'])) {
       foreach ($entity_info['view modes'] as $mode => $settings) {
@@ -123,7 +150,7 @@ class entity_views_handler_field_entity extends views_handler_field_entity {
    *   object.
    */
   public function render_entity_link($entity, $values) {
-    $type = $this->entity_type;
+    $type = $this->field_entity_type;
     if (!is_object($entity) && isset($entity) && $entity !== FALSE) {
       $entity = entity_load_single($type, $entity);
     }
@@ -144,7 +171,7 @@ class entity_views_handler_field_entity extends views_handler_field_entity {
    * Render a single field value.
    */
   public function render_single_value($entity, $values) {
-    $type = $this->entity_type;
+    $type = $this->field_entity_type;
     if (!is_object($entity) && isset($entity) && $entity !== FALSE) {
       $entity = entity_load_single($type, $entity);
     }

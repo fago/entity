@@ -61,9 +61,33 @@ class EntityFieldHandlerHelper {
    * Add the field for the entity ID (if necessary).
    */
   public static function query($handler) {
-    // Some of the parent handlers might require this.
-    $handler->field_alias = $handler->real_field;
-    $handler->base_field = self::get_selector_field_name($handler->real_field);
+    // Copied over from views_handler_field_entity::query().
+    // Sets table_alias (entity table), base_field (entity id field) and
+    // field_alias (the field's alias).
+    $handler->table_alias = $base_table = $handler->view->base_table;
+    $handler->base_field = $handler->view->base_field;
+
+    if (!empty($handler->relationship)) {
+      foreach ($handler->view->relationship as $relationship) {
+        if ($relationship->alias == $handler->relationship) {
+          $base_table = $relationship->definition['base'];
+          $handler->table_alias = $relationship->alias;
+
+          $table_data = views_fetch_data($base_table);
+          $handler->base_field = empty($relationship->definition['base field']) ? $table_data['table']['base']['field'] : $relationship->definition['base field'];
+        }
+      }
+    }
+
+    // Add the field if the query back-end implements an add_field() method,
+    // just like the default back-end.
+    if (method_exists($handler->query, 'add_field')) {
+      $handler->field_alias = $handler->query->add_field($handler->table_alias, $handler->base_field, '');
+    }
+    else {
+      // To ensure there is an alias just set the field alias to the real field.
+      $handler->field_alias = $handler->real_field;
+    }
   }
 
   /**
@@ -98,7 +122,8 @@ class EntityFieldHandlerHelper {
    * Load the entities for all rows that are about to be displayed.
    *
    * Automatically takes care of relationships, including data selection
-   * relationships.
+   * relationships. Results are written into @code $handler->wrappers @endcode
+   * and @code $handler->entity_type @endcode is set.
    */
   public static function pre_render($handler, &$values, $load_always = FALSE) {
     if (empty($values)) {
@@ -276,7 +301,7 @@ class EntityFieldHandlerHelper {
     if (!isset($field) && isset($handler->current_value)) {
       return $handler->current_value;
     }
-    $field = isset($field) ? $field : $handler->base_field;
+    $field = isset($field) ? $field : self::get_selector_field_name($handler->real_field);
     $selector = self::construct_property_selector($handler);
     $selector = $selector ? "$selector:$field" : $field;
     if (!isset($values->_entity_properties)) {

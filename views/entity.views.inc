@@ -55,8 +55,8 @@ function entity_views_data() {
         'field' => array(
           'handler' => 'entity_views_handler_field_entity',
           'type' => $entity_type,
-          // The EntityFieldHandlerHelper class treats the 'entity object' field
-          // as special case for loading the base entity.
+          // The EntityFieldHandlerHelper treats the 'entity object' data
+          // selector as special case for loading the base entity.
           'real field' => 'entity object',
         ),
       );
@@ -164,7 +164,6 @@ function entity_views_field_definition($field, array $property_info, array &$tab
   $type = entity_property_extract_innermost_type($property_info['type']);
   $title = $title_prefix . $property_info['label'];
   if ($info = entity_get_info($type)) {
-    $additional_field['entity type'] = $type;
     $additional['relationship'] = array(
       'handler' => $field_handlers['relationship'],
       'base' => 'entity_' . $type,

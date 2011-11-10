@@ -21,7 +21,7 @@
 class entity_views_handler_field_text extends views_handler_field {
 
   /**
-   * Stores the entity type which is loaded by this field.
+   * Stores the entity type of the result entities.
    */
   public $entity_type;
 
@@ -29,11 +29,6 @@ class entity_views_handler_field_text extends views_handler_field {
    * Stores the result entities' metadata wrappers.
    */
   public $wrappers = array();
-
-  /**
-   * The base name of the field, without data selector.
-   */
-  public $base_field;
 
   /**
    * Stores the current value when rendering list fields.
