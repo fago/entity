@@ -452,6 +452,10 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
 
     // Add in fields.
     if (!empty($this->entityInfo['fieldable'])) {
+      // Perform the preparation tasks if they have not been performed yet.
+      // An internal flag prevents the operation from running twice.
+      $key = isset($entity->{$this->idKey}) ? $entity->{$this->idKey} : NULL;
+      field_attach_prepare_view($this->entityType, array($key => $entity), $view_mode);
       $entity->content += field_attach_view($this->entityType, $entity, $view_mode, $langcode);
     }
     // Invoke hook_ENTITY_view() to allow modules to add their additions.
