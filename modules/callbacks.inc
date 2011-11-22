@@ -88,8 +88,8 @@ function entity_metadata_comment_get_node_properties($node, array $options, $nam
  */
 function entity_metadata_status_options_list() {
   return array(
-    0 => t('Published'),
-    1 => t('Unpublished'),
+    NODE_PUBLISHED => t('Published'),
+    NODE_NOT_PUBLISHED => t('Unpublished'),
   );
 }
 
