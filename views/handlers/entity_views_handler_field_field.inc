@@ -79,7 +79,7 @@ class entity_views_handler_field_field extends views_handler_field_field {
     // We need special handling for lists of entities as the base.
     $entities = EntityFieldHandlerHelper::get_value($this, $values, 'entity object');
     if (!is_array($entities)) {
-      $entities = array($entities);
+      $entities = $entities ? array($entities) : array();
     }
     foreach ($entities as $entity) {
       // Only try to render the field if it is even present on this bundle.
