@@ -6,9 +6,45 @@
  */
 
 /**
+ * Common parent class containing common helpers.
+ */
+abstract class EntityWebTestCase extends DrupalWebTestCase {
+
+  /**
+   * Creates a new vocabulary.
+   */
+  protected function createVocabulary() {
+    $vocab = entity_create('taxonomy_vocabulary', array(
+      'name' => $this->randomName(),
+      'machine_name' => drupal_strtolower($this->randomName()),
+      'description' => $this->randomName(),
+    ));
+    entity_save('taxonomy_vocabulary', $vocab);
+    return $vocab;
+  }
+
+  /**
+   * Creates a random file of the given type.
+   */
+  protected function createFile($file_type = 'text') {
+    // Create a managed file.
+    $file = current($this->drupalGetTestFiles($file_type));
+
+    // Set additional file properties and save it.
+    $file->filemime = file_get_mimetype($file->filename);
+    $file->uid = 1;
+    $file->timestamp = REQUEST_TIME;
+    $file->filesize = filesize($file->uri);
+    $file->status = 0;
+    file_save($file);
+    return $file;
+  }
+}
+
+/**
  * Test basic API.
  */
-class EntityAPITestCase extends DrupalWebTestCase {
+class EntityAPITestCase extends EntityWebTestCase {
 
   public static function getInfo() {
     return array(
@@ -328,7 +364,7 @@ class EntityAPITestCase extends DrupalWebTestCase {
 /**
  * Test the generated Rules integration.
  */
-class EntityAPIRulesIntegrationTestCase extends DrupalWebTestCase {
+class EntityAPIRulesIntegrationTestCase extends EntityWebTestCase {
 
   public static function getInfo() {
     return array(
@@ -380,7 +416,7 @@ class EntityAPIRulesIntegrationTestCase extends DrupalWebTestCase {
 /**
  * Tests metadata wrappers.
  */
-class EntityMetadataTestCase extends DrupalWebTestCase {
+class EntityMetadataTestCase extends EntityWebTestCase {
 
   public static function getInfo() {
     return array(
@@ -746,7 +782,7 @@ class EntityMetadataTestCase extends DrupalWebTestCase {
 /**
  * Tests provided entity property info of the core modules.
  */
-class EntityTokenTestCase extends DrupalWebTestCase {
+class EntityTokenTestCase extends EntityWebTestCase {
 
   public static function getInfo() {
     return array(
@@ -764,6 +800,7 @@ class EntityTokenTestCase extends DrupalWebTestCase {
    * Tests whether token support is basically working.
    */
   function testTokenSupport() {
+    // Test basic tokens.
     $node = $this->drupalCreateNode(array('sticky' => TRUE, 'promote' => FALSE));
     $text = "Sticky: [node:sticky] Promote: [node:promote] User: [site:current-user:name]";
     $true = t('true');
@@ -772,13 +809,47 @@ class EntityTokenTestCase extends DrupalWebTestCase {
     $target = "Sticky: $true Promote: $false User: $user_name";
     $replace = token_replace($text, array('node' => $node));
     $this->assertEqual($replace, $target, 'Provided tokens basically work.');
+
+    // Test multiple-value tokens using the tags field of articles.
+    for ($i = 0; $i < 4; $i++) {
+      $tags[$i] = entity_property_values_create_entity('taxonomy_term', array(
+        'name' => $this->randomName(),
+        'vocabulary' => 1,
+      ))->save();
+      $field_value[LANGUAGE_NONE][$i]['tid'] = $tags[$i]->getIdentifier();
+      $labels[$i] = $tags[$i]->label();
+    }
+    $node = $this->drupalCreateNode(array('title' => 'foo', 'type' => 'article', 'field_tags' => $field_value));
+
+    $text = "Tags: [node:field-tags] First: [node:field-tags:0] 2nd name: [node:field-tags:1:name] 1st vocab [node:field-tags:0:vocabulary]";
+    $tag_labels = implode(', ', $labels);
+    $target = "Tags: $tag_labels First: $labels[0] 2nd name: $labels[1] 1st vocab {$tags[0]->vocabulary->label()}";
+    $replace = token_replace($text, array('node' => $node));
+    $this->assertEqual($replace, $target, 'Multiple-value token replacements have been replaced.');
+
+    // Make sure not existing values are not handled.
+    $replace = token_replace("[node:field-tags:43]", array('node' => $node));
+    $this->assertEqual($replace, "[node:field-tags:43]", 'Not existing values are not replaced.');
+
+    // Test data-structure tokens like [site:current-page:url].
+    $replace = token_replace("[site:current-page:url]", array());
+    $this->assertEqual($replace, $GLOBALS['base_root'] . request_uri(), 'Token replacements of data structure properties replaced.');
+
+    // Test chaining of data-structure tokens using an image-field.
+    $file = $this->createFile('image');
+    $node = $this->drupalCreateNode(array('type' => 'article'));
+    $wrapper = entity_metadata_wrapper('node', $node);
+
+    $wrapper->field_image = array('fid' => $file->fid);
+    $replace = token_replace("[node:field-image:file:name]", array('node' => $node));
+    $this->assertEqual($replace, $wrapper->field_image->file->name->value(), 'Token replacements of an image field have been replaced.');
   }
 }
 
 /**
  * Tests provided entity property info of the core modules.
  */
-class EntityMetadataIntegrationTestCase extends DrupalWebTestCase {
+class EntityMetadataIntegrationTestCase extends EntityWebTestCase {
 
   public static function getInfo() {
     return array(
@@ -887,7 +958,7 @@ class EntityMetadataIntegrationTestCase extends DrupalWebTestCase {
    * Tests properties provided by the taxonomy module.
    */
   function testTaxonomyProperties() {
-    $vocab = $this->createVocab();
+    $vocab = $this->createVocabulary();
     $term_parent = entity_property_values_create_entity('taxonomy_term', array(
       'name' => $this->randomName(),
       'vocabulary' => $vocab,
@@ -1254,7 +1325,7 @@ class EntityMetadataIntegrationTestCase extends DrupalWebTestCase {
     if (!isset($this->node)) {
       $this->node = $this->drupalCreateNode(array('type' => 'page'));
       $this->user = $this->drupalCreateUser();
-      $this->taxonomy_vocabulary = $this->createVocab();
+      $this->taxonomy_vocabulary = $this->createVocabulary();
     }
 
     if ($options = $wrapper->optionsList()) {
@@ -1290,29 +1361,4 @@ class EntityMetadataIntegrationTestCase extends DrupalWebTestCase {
         return $this->{$wrapper->type()};
     }
   }
-
-  protected function createVocab() {
-    $vocab = entity_create('taxonomy_vocabulary', array(
-      'name' => $this->randomName(),
-      'machine_name' => drupal_strtolower($this->randomName()),
-      'description' => $this->randomName(),
-    ));
-    entity_save('taxonomy_vocabulary', $vocab);
-    return $vocab;
-  }
-
-  protected function createFile($file_type = 'text') {
-    // Create a managed file.
-    $file = current($this->drupalGetTestFiles($file_type));
-
-    // Set additional file properties and save it.
-    $file->filemime = file_get_mimetype($file->filename);
-    $file->uid = 1;
-    $file->timestamp = REQUEST_TIME;
-    $file->filesize = filesize($file->uri);
-    $file->status = 0;
-    file_save($file);
-    return $file;
-  }
 }
-

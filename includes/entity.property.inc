@@ -536,12 +536,12 @@ function entity_property_field_item_image_info() {
   );
   $properties['alt'] = array(
     'type' => 'text',
-    'label' => t('The <em>Alt</em> attribute text'),
+    'label' => t('The "Alt" attribute text'),
     'setter callback' => 'entity_property_verbatim_set',
   );
   $properties['title'] = array(
     'type' => 'text',
-    'label' => t('The <em>Title</em> attribute text'),
+    'label' => t('The "Title" attribute text'),
     'setter callback' => 'entity_property_verbatim_set',
   );
   return $properties;
