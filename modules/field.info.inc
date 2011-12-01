@@ -122,7 +122,6 @@ function entity_metadata_field_term_reference_callback(&$info, $entity_type, $fi
   if ($instance['widget']['type'] != 'taxonomy_autocomplete') {
     $property['options list'] = 'entity_metadata_field_options_list';
   }
-  unset($property['query callback']);
 }
 
 /**

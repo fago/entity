@@ -736,6 +736,7 @@ class EntityMetadataTestCase extends EntityWebTestCase {
    * Tests using entity_property_query().
    */
   function testEntityQuery() {
+    // Creat a test node.
     $title = '<b>Is it bold?<b>';
     $values[LANGUAGE_NONE][0] = array('value' => 'foo');
     $node = $this->drupalCreateNode(array($this->field_name => $values, 'title' => $title, 'uid' => $GLOBALS['user']->uid));
@@ -751,6 +752,25 @@ class EntityMetadataTestCase extends EntityWebTestCase {
 
     $results = entity_property_query('node', 'author', $GLOBALS['user']);
     $this->assertEqual($results, array($node->nid), 'Queried nodes with a given auhtor.');
+
+    // Create another test node and try querying for tags.
+    $tag = entity_property_values_create_entity('taxonomy_term', array(
+          'name' => $this->randomName(),
+          'vocabulary' => 1,
+    ))->save();
+    $field_tag_value[LANGUAGE_NONE][0]['tid'] = $tag->getIdentifier();
+    $node = $this->drupalCreateNode(array('type' => 'article', 'field_tags' => $field_tag_value));
+
+    // Try query-ing with a single value.
+    $results = entity_property_query('node', 'field_tags', $tag->getIdentifier());
+    $this->assertEqual($results, array($node->nid), 'Queried nodes with a given term id.');
+
+    $results = entity_property_query('node', 'field_tags', $tag->value());
+    $this->assertEqual($results, array($node->nid), 'Queried nodes with a given term object.');
+
+    // Try query-ing with a list of possible values.
+    $results = entity_property_query('node', 'field_tags', array($tag->getIdentifier()));
+    $this->assertEqual($results, array($node->nid), 'Queried nodes with a list of term ids.');
   }
 
   /**
