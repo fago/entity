@@ -25,21 +25,32 @@ function entity_token_types() {
  *   entity_token_token_types().
  */
 function entity_token_types_chained($type = NULL) {
-  // Add entities.
-  foreach (entity_get_info() as $entity_type => $info) {
-    if ($token_type = isset($info['token type']) ? $info['token type'] : $entity_type) {
-      $return[$token_type] = $entity_type;
+  // This functions gets called rather often when replacing tokens, thus
+  // we statically cache $types using the advanced drupal static pattern.
+  static $drupal_static_fast;
+  if (!isset($drupal_static_fast)) {
+    $drupal_static_fast['types'] = &drupal_static(__FUNCTION__, array());
+  }
+  $types = &$drupal_static_fast['types'];
+
+  if (!$types) {
+    // Add entities.
+    foreach (entity_get_info() as $entity_type => $info) {
+      if ($token_type = isset($info['token type']) ? $info['token type'] : $entity_type) {
+        $types[$token_type] = $entity_type;
+      }
     }
+    // Add 'date' and 'site' tokens.
+    $types['date'] = 'date';
+    $types['site'] = 'site';
+    // Add a 'struct' type.
+    $types['struct'] = 'struct';
   }
-  // Add 'date' and 'site' tokens.
-  $return['date'] = 'date';
-  $return['site'] = 'site';
-  // Add a 'struct' type.
-  $return['struct'] = 'struct';
+
   if (isset($type)) {
-    return (entity_property_list_extract_type($type)) ? TRUE : isset($return[$type]);
+    return isset($types[$type]) || entity_property_list_extract_type($type);
   }
-  return $return;
+  return $types;
 }
 
 /**
@@ -70,10 +81,11 @@ function _entity_token_map_to_token_type($property_info) {
  */
 function entity_token_token_info_alter(&$info) {
   $entity_info = entity_get_info();
+  $token_types = entity_token_types_chained();
 
   // Loop over all chain-able token types, as those may contain further tokens,
   // e.g. entity types or 'site'.
-  foreach (entity_token_types_chained() as $token_type => $type) {
+  foreach ($token_types as $token_type => $type) {
     // Just add all properties regardless whether it's in a bundle, but only if
     // there is no token of the property yet.
     foreach (entity_get_all_property_info($type) as $name => $property) {
@@ -105,7 +117,7 @@ function entity_token_token_info_alter(&$info) {
   }
 
   // Make sure all chain-able token types we support are registered.
-  foreach (entity_token_types_chained() as $token_type => $type) {
+  foreach ($token_types as $token_type => $type) {
 
     if (!empty($info['tokens'][$token_type]) && !isset($info['types'][$token_type])) {
       if (isset($entity_info[$type])) {
