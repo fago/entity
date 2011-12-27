@@ -13,6 +13,11 @@ class EntityDefaultUIController {
   protected $entityType;
   protected $entityInfo, $path;
 
+  /**
+   * Defines the number of entries to show per page in overview table.
+   */
+  public $overviewPagerLimit = 25;
+
   public function __construct($entity_type, $entity_info) {
     $this->entityType = $entity_type;
     $this->entityInfo = $entity_info;
@@ -151,6 +156,7 @@ class EntityDefaultUIController {
   public function overviewForm($form, &$form_state) {
     // By default just show a simple overview for all entities.
     $form['table'] = $this->overviewTable();
+    $form['pager'] = array('#theme' => 'pager');
     return $form;
   }
 
@@ -176,7 +182,23 @@ class EntityDefaultUIController {
    *   A renderable array.
    */
   public function overviewTable($conditions = array()) {
-    $entities = entity_load($this->entityType, FALSE, $conditions);
+
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', $this->entityType);
+
+    // Add all conditions to query.
+    foreach ($conditions as $key => $value) {
+      $query->propertyCondition($key, $value);
+    }
+
+    if ($this->overviewPagerLimit) {
+      $query->pager($this->overviewPagerLimit);
+    }
+
+    $results = $query->execute();
+
+    $ids = isset($results[$this->entityType]) ? array_keys($results[$this->entityType]) : array();
+    $entities = $ids ? entity_load($this->entityType, $ids) : array();
     ksort($entities);
 
     $rows = array();
