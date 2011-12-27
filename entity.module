@@ -1084,6 +1084,11 @@ function entity_views_api() {
  */
 function entity_metadata_wrapper($type, $data = NULL, array $info = array()) {
   if ($type == 'entity' || (($entity_info = entity_get_info()) && isset($entity_info[$type]))) {
+    // If the passed entity is the global $user, we load the user object by only
+    // passing on the user id. The global user is not a fully loaded entity.
+    if ($type == 'user' && is_object($data) && $data == $GLOBALS['user']) {
+      $data = $data->uid;
+    }
     return new EntityDrupalWrapper($type, $data, $info);
   }
   elseif ($type == 'list' || entity_property_list_extract_type($type)) {
