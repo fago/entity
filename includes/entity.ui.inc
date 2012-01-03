@@ -480,19 +480,34 @@ function entity_ui_operation_form($form, &$form_state, $entity_type, $entity, $o
  * @see entity_ui_form_defaults()
  */
 function entity_ui_main_form_defaults($form, &$form_state, $entity = NULL, $op = NULL) {
-  if ($op == 'clone') {
-    // Clone the entity and make sure it will get saved as a new entity.
-    $entity = clone $entity;
-    $entity_info = entity_get_info($form_state['entity_type']);
-    $entity->{$entity_info['entity keys']['id']} = FALSE;
-    $entity->is_new = TRUE;
-    // Make sure the status of a cloned exportable is custom.
-    if (!empty($entity_info['exportable'])) {
-      $status_key = isset($entity_info['entity keys']['status']) ? $entity_info['entity keys']['status'] : 'status';
-      $entity->$status_key = ENTITY_CUSTOM;
-    }
-  }
+  // Now equals entity_ui_form_defaults() but is still here to keep backward
+  // compatability.
   return entity_ui_form_defaults($form, $form_state, $form_state['entity_type'], $entity, $op);
+}
+
+/**
+ * Clones the entity object and makes sure it will get saved as new entity.
+ *
+ * @return
+ *   The cloned entity object.
+ */
+function entity_ui_clone_entity($entity_type, $entity) {
+  // Clone the entity and make sure it will get saved as a new entity.
+  $entity = clone $entity;
+
+  $entity_info = entity_get_info($entity_type);
+  $entity->{$entity_info['entity keys']['id']} = FALSE;
+  if (!empty($entity_info['entity keys']['name'])) {
+    $entity->{$entity_info['entity keys']['name']} = FALSE;
+  }
+  $entity->is_new = TRUE;
+
+  // Make sure the status of a cloned exportable is custom.
+  if (!empty($entity_info['exportable'])) {
+    $status_key = isset($entity_info['entity keys']['status']) ? $entity_info['entity keys']['status'] : 'status';
+    $entity->$status_key = ENTITY_CUSTOM;
+  }
+  return $entity;
 }
 
 /**

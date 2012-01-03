@@ -1030,13 +1030,20 @@ function entity_ui_get_form($entity_type, $entity, $op = 'edit', $form_state = a
   // we can prepulate the form state.
   $form_state['wrapper_callback'] = 'entity_ui_main_form_defaults';
   $form_state['entity_type'] = $entity_type;
+  form_load_include($form_state, 'inc', 'entity', 'includes/entity.ui');
+
+  // Handle cloning. We cannot do that in the wrapper callback as it is too late
+  // for changing arguments.
+  if ($op == 'clone') {
+    $entity = entity_ui_clone_entity($entity_type, $entity);
+  }
+
   // We don't pass the entity type as first parameter, as the implementing
   // module knows the type anyway. However, in order to allow for efficient
   // hook_forms() implementiations we append the entity type as last argument,
   // which the module implementing the form constructor may safely ignore.
   // @see entity_forms()
   $form_state['build_info']['args'] = array($entity, $op, $entity_type);
-  form_load_include($form_state, 'inc', 'entity', 'includes/entity.ui');
   return drupal_build_form($form_id, $form_state);
 }
 
