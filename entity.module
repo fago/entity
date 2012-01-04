@@ -1238,3 +1238,12 @@ function _entity_info_add_metadata(&$entity_info) {
     $entity_info['taxonomy_vocabulary']['token type'] = 'vocabulary';
   }
 }
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function entity_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && $plugin == 'content_types') {
+    return 'ctools/content_types';
+  }
+}
