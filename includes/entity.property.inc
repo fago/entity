@@ -153,6 +153,9 @@ function entity_hook_info() {
   $hook_info['entity_property_info'] = array(
     'group' => 'info',
   );
+  $hook_info['entity_property_info_alter'] = array(
+    'group' => 'info',
+  );
   return $hook_info;
 }
 
