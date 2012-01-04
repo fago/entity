@@ -929,24 +929,23 @@ function entity_file_download_access($field, $entity_type, $entity) {
  */
 function entity_ui_controller($type = NULL) {
   $static = &drupal_static(__FUNCTION__);
-  $all = &drupal_static(__FUNCTION__);
 
-  if (isset($type) && !isset($static[$type])) {
+  if (!isset($type)) {
+    // Invoke the function for each type to ensure we have fully populated the
+    // static variable.
+    foreach (entity_get_info() as $entity_type => $info) {
+      entity_ui_controller($entity_type);
+    }
+    return array_filter($static);
+  }
+
+  if (!isset($static[$type])) {
     $info = entity_get_info($type);
     $class = isset($info['admin ui']['controller class']) ? $info['admin ui']['controller class'] : 'EntityDefaultUIController';
     $static[$type] = (isset($info['admin ui']['path']) && $class) ? new $class($type, $info) : FALSE;
   }
-  if (!isset($type) && !isset($all)) {
-    // Invoke the function for each type to ensure we have fully populated the
-    // static variable $static.
-    foreach (entity_get_info() as $entity_type => $info) {
-      $all[$entity_type] = entity_ui_controller($entity_type);
-    }
-  }
-  if ($type) {
-    return isset($static[$type]) ? $static[$type] : FALSE;
-  }
-  return array_filter($static);
+
+  return $static[$type];
 }
 
 /**
