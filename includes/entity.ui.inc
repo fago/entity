@@ -450,12 +450,17 @@ class EntityDefaultUIController {
    * @see entity_ui_form_submit_build_entity()
    */
   public function entityFormSubmitBuildEntity($form, &$form_state) {
+    // Add the bundle property to the entity if the entity type supports bundles
+    // and the form provides a value for the bundle key. Especially new entities
+    // need to have their bundle property pre-populated before we invoke
+    // entity_form_submit_build_entity().
+    if (!empty($this->entityInfo['entity keys']['bundle']) && isset($form_state['values'][$this->entityInfo['entity keys']['bundle']])) {
+      $form_state[$this->entityType]->{$this->entityInfo['entity keys']['bundle']} = $form_state['values'][$this->entityInfo['entity keys']['bundle']];
+    }
     entity_form_submit_build_entity($this->entityType, $form_state[$this->entityType], $form, $form_state);
     return $form_state[$this->entityType];
   }
 }
-
-
 
 /**
  * Form builder function for the overview form.
