@@ -197,6 +197,22 @@ class EntityAPITestCase extends EntityWebTestCase {
     $import = entity_import('entity_test_type', $serialized_string);
     $this->assertTrue(get_class($import) == get_class($types['test']) && $types['test']->label == $import->label, 'Successfully exported entity to code.');
     $this->assertTrue(!isset($import->status), 'Exportable status has not been exported to code.');
+
+    // Test disabling the module providing the defaults in code.
+    $types = entity_load_multiple_by_name('entity_test_type', array('test', 'test2'));
+    $types['test']->label = 'modified';
+    $types['test']->save();
+
+    module_disable(array('entity_feature'));
+
+    // Make sure the overridden entity stays and the other one is deleted.
+    entity_get_controller('entity_test_type')->resetCache();
+    $test = entity_load_single('entity_test_type', 'test');
+    $this->assertTrue(!empty($test) && $test->label == 'modified', 'Overidden entity is still available.');
+    $this->assertTrue(!empty($test) && !entity_has_status('entity_test_type', $test, ENTITY_IN_CODE) && entity_has_status('entity_test_type', $test, ENTITY_CUSTOM), 'Overidden entity is now marked as custom.');
+
+    $test2 = entity_load_single('entity_test_type', 'test2');
+    $this->assertFalse($test2, 'Default entity has disappeared.');
   }
 
   /**

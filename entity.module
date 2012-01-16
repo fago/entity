@@ -650,29 +650,53 @@ function _entity_defaults_rebuild($entity_type) {
     }
     drupal_alter($hook, $entities);
 
-    // Remove defaults which are already overridden.
-    $overridden_entities = entity_load_multiple_by_name($entity_type, array_keys($entities), array($keys['status'] => ENTITY_OVERRIDDEN));
-    $entities = array_diff_key($entities, $overridden_entities);
+    // Check for defaults that disappeared.
+    $existing_defaults = entity_load_multiple_by_name($entity_type, FALSE, array($keys['status'] => array(ENTITY_OVERRIDDEN, ENTITY_IN_CODE, ENTITY_FIXED)));
 
-    // Determine already existing, custom entities and mark them as overridden.
-    $existing_entities = entity_load_multiple_by_name($entity_type, array_keys($entities), array($keys['status'] => ENTITY_CUSTOM));
-    foreach ($existing_entities as $name => $entity) {
-      $entity->{$keys['status']} |= ENTITY_OVERRIDDEN;
-      $entity->{$keys['module']} = $entities[$name]->{$keys['module']};
-      $entity->is_rebuild = TRUE;
-      entity_save($entity_type, $entity);
-      unset($entity->is_rebuild);
+    foreach ($existing_defaults as $name => $entity) {
+      if (empty($entities[$name])) {
+        if (entity_has_status($entity_type, $entity, ENTITY_OVERRIDDEN)) {
+          $entity->{$keys['status']} = ENTITY_CUSTOM;
+          entity_save($entity_type, $entity);
+        }
+        else {
+          entity_delete($entity_type, $name);
+        }
+      }
     }
 
-    // Save the defaults being not overridden to the db, possible over-writing
-    // previous defaults already saved in the db.
-    foreach (array_diff_key($entities, $existing_entities) as $name => $entity) {
-      $entity->{$keys['status']} |= ENTITY_IN_CODE;
-      // For updating the numeric db identifier has to be set.
-      if ($entity->original = entity_load_unchanged($entity_type, $name)) {
-        $entity->{$keys['id']} = $entity->original->{$keys['id']};
+    // Load all existing entities.
+    $existing_entities = entity_load_multiple_by_name($entity_type, array_keys($entities));
+
+    foreach ($existing_entities as $name => $entity) {
+      if (entity_has_status($entity_type, $entity, ENTITY_CUSTOM)) {
+        // If the entity is overridden, we do not need to save the default.
+        unset($entities[$name]);
+
+        // If the entity already exists but is not yet marked as overridden, we
+        // have to update the status.
+        if (!entity_has_status($entity_type, $entity, ENTITY_OVERRIDDEN)) {
+          $entity->{$keys['status']} |= ENTITY_OVERRIDDEN;
+          $entity->{$keys['module']} = $entities[$name]->{$keys['module']};
+          $entity->is_rebuild = TRUE;
+          entity_save($entity_type, $entity);
+          unset($entity->is_rebuild);
+        }
+      }
+    }
+
+    // Save defaults.
+    foreach ($entities as $name => $entity) {
+      if (!empty($existing_entities[$name])) {
+        // Make sure we are updating the existing default.
+        $entity->{$keys['id']} = $existing_entities[$name]->{$keys['id']};
         unset($entity->is_new);
       }
+      // Pre-populate $entity->original as we already have it. So we avoid
+      // loading it again.
+      $entity->original = !empty($existing_entities[$name]) ? $existing_entities[$name] : FALSE;
+
+      $entity->{$keys['status']} |= ENTITY_IN_CODE;
       $entity->is_rebuild = TRUE;
       entity_save($entity_type, $entity);
     }
