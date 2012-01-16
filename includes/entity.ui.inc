@@ -277,7 +277,9 @@ class EntityDefaultUIController {
         $row[] = l(t('manage display'), $this->path . '/manage/' . $id . '/display');
       }
 
-      $row[] = l(t('clone'), $this->path . '/manage/' . $id . '/clone');
+      if ($exportable) {
+        $row[] = l(t('clone'), $this->path . '/manage/' . $id . '/clone');
+      }
       if (empty($this->entityInfo['exportable']) || !entity_has_status($this->entityType, $entity, ENTITY_IN_CODE)) {
         $row[] = l(t('delete'), $this->path . '/manage/' . $id . '/delete', array('query' => drupal_get_destination()));
       }
