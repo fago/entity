@@ -568,7 +568,7 @@ function entity_metadata_user_access($op, $entity = NULL, $account = NULL, $enti
   if (isset($entity) && $op != 'delete' && (($entity->uid == $account->uid && $entity->uid) || (!$entity->uid && $op == 'view'))) {
     return TRUE;
   }
-  if (user_access('administer users', $account) || user_access('access user profiles', $account) && $op == 'view') {
+  if (user_access('administer users', $account) || user_access('access user profiles', $account) && $op == 'view' && $entity->status) {
     return TRUE;
   }
   return FALSE;
