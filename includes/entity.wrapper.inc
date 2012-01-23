@@ -675,7 +675,10 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
 
     if ($this->bundle && isset($this->propertyInfo['bundles'][$this->bundle])) {
       $bundle_info = (array) $this->propertyInfo['bundles'][$this->bundle] + array('properties' => array());
-      $this->propertyInfo['properties'] += $bundle_info['properties'];
+      // Allow bundles to re-define existing properties, such that the bundle
+      // can add in more bundle-specific details like the bundle of a referenced
+      // entity.
+      $this->propertyInfo['properties'] = $bundle_info['properties'] + $this->propertyInfo['properties'];
     }
   }
 
