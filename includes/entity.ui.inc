@@ -43,6 +43,11 @@ class EntityDefaultUIController {
       'access arguments' => array('view', $this->entityType),
       'file' => 'includes/entity.ui.inc',
     );
+    $items[$this->path . '/list'] = array(
+      'title' => 'List',
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+      'weight' => -10,
+    );
     $items[$this->path . '/add'] = array(
       'title callback' => 'entity_ui_get_action_title',
       'title arguments' => array('add', $this->entityType),
