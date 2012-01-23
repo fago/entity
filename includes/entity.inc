@@ -100,6 +100,17 @@ class Entity {
   }
 
   /**
+   * Returns the bundle of the entity.
+   *
+   * @return
+   *   The bundle of the entity. Defaults to the entity type if the entity type
+   *   does not make use of different bundles.
+   */
+  public function bundle() {
+    return !empty($this->entityInfo['entity keys']['bundle']) ? $this->{$this->entityInfo['entity keys']['bundle']} : $this->entityType;
+  }
+
+  /**
    * Returns the label of the entity.
    *
    * Modules may alter the label by specifying another 'label callback' using
