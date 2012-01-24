@@ -63,6 +63,19 @@ function entity_views_data() {
     }
   }
 
+  $data['entity__global']['table']['group'] = t('Entity');
+  $data['entity__global']['table']['join'] = array(
+    // #global let's it appear all the time.
+    '#global' => array(),
+  );
+  $data['entity__global']['entity'] = array(
+    'title' => t('Rendered entity'),
+    'help' => t('Displays a single chosen entity.'),
+    'area' => array(
+      'handler' => 'entity_views_handler_area_entity',
+    ),
+  );
+
   return $data;
 }
 

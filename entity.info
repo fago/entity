@@ -11,6 +11,7 @@ files[] = includes/entity.ui.inc
 files[] = includes/entity.wrapper.inc
 files[] = views/entity.views.inc
 files[] = views/handlers/entity_views_field_handler_helper.inc
+files[] = views/handlers/entity_views_handler_area_entity.inc
 files[] = views/handlers/entity_views_handler_field_boolean.inc
 files[] = views/handlers/entity_views_handler_field_date.inc
 files[] = views/handlers/entity_views_handler_field_duration.inc
