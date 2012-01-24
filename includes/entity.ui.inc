@@ -167,13 +167,23 @@ class EntityDefaultUIController {
 
   /**
    * Overview form validation callback.
+   *
+   * @param $form
+   *   The form array of the overview form.
+   * @param $form_state
+   *   The overview form state which will be used for validating.
    */
-  public function overviewFormValidate() {}
+  public function overviewFormValidate($form, &$form_state) {}
 
   /**
    * Overview form submit callback.
+   *
+   * @param $form
+   *   The form array of the overview form.
+   * @param $form_state
+   *   The overview form state which will be used for submitting.
    */
-  public function overviewFormSubmit() {}
+  public function overviewFormSubmit($form, &$form_state) {}
 
 
   /**
