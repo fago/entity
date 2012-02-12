@@ -813,7 +813,7 @@ function entity_metadata_form_taxonomy_vocabulary($term) {
  */
 function entity_metadata_form_entity_ui($entity, $entity_type) {
   $info = entity_get_info($entity_type);
-  $form_state = array();
+  $form_state = form_state_defaults();
   // Add in the include file as the form API does else with the include file
   // specified for the active menu item.
   if (!empty($info['admin ui']['file'])) {
