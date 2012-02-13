@@ -50,7 +50,7 @@ function entity_entity_property_info_alter(&$entity_info) {
 }
 
 function _entity_metadata_core_modules() {
-  return array_filter(array('book', 'comment', 'field', 'node', 'taxonomy', 'user', 'system', 'statistics'), 'module_exists');
+  return array_filter(array('book', 'comment', 'field', 'locale', 'node', 'taxonomy', 'user', 'system', 'statistics'), 'module_exists');
 }
 
 /**

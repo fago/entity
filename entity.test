@@ -896,7 +896,7 @@ class EntityMetadataIntegrationTestCase extends EntityWebTestCase {
   }
 
   function setUp() {
-    parent::setUp('entity', 'book', 'statistics');
+    parent::setUp('entity', 'book', 'statistics', 'locale');
   }
 
   protected function assertException($wrapper, $name, $text = NULL) {

@@ -84,6 +84,20 @@ function entity_metadata_comment_get_node_properties($node, array $options, $nam
 }
 
 /**
+ * Getter callback for getting global languages.
+ */
+function entity_metadata_locale_get_languages($data, array $options, $name) {
+  return isset($GLOBALS[$name]) ? $GLOBALS[$name]->language : NULL;
+}
+
+/**
+ * Getter callback for getting the preferred user language.
+ */
+function entity_metadata_locale_get_user_language($account, array $options, $name) {
+  return user_preferred_language($account)->language;
+}
+
+/**
  * Return the options lists for the node and comment status property.
  */
 function entity_metadata_status_options_list() {
