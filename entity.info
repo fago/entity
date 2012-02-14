@@ -2,6 +2,7 @@ name = Entity API
 description = Enables modules to work with any entity type and to provide entities.
 core = 7.x
 files[] = entity.features.inc
+files[] = entity.i18n.inc
 files[] = entity.info.inc
 files[] = entity.rules.inc
 files[] = entity.test

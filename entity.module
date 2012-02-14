@@ -1071,6 +1071,23 @@ function entity_ui_get_form($entity_type, $entity, $op = 'edit', $form_state = a
 }
 
 /**
+ * Helper for using i18n_string().
+ *
+ * @param $name
+ *   Textgroup and context glued with ':'.
+ * @param $default
+ *   String in default language. Default language may or may not be English.
+ * @param $langcode
+ *   (optional) The code of a certain language to translate the string into.
+ *   Defaults to the i18n_string() default, i.e. the current language.
+ *
+ * @see i18n_string()
+ */
+function entity_i18n_string($name, $default, $langcode = NULL) {
+  return function_exists('i18n_string') ? i18n_string($name, $default, array('langcode' => $langcode)) : $default;
+}
+
+/**
  * Implements hook_views_api().
  */
 function entity_views_api() {

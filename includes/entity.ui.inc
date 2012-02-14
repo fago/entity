@@ -220,26 +220,39 @@ class EntityDefaultUIController {
     foreach ($entities as $entity) {
       $rows[] = $this->overviewTableRow($conditions, entity_id($this->entityType, $entity), $entity);
     }
-    // Assemble the right table header.
-    $header = array(t('Label'));
-    if (!empty($this->entityInfo['exportable'])) {
-      $header[] = t('Status');
-    }
-    // Add operations with the right colspan.
-    $field_ui = !empty($this->entityInfo['bundle of']) && module_exists('field_ui');
-    $exportable = !empty($this->entityInfo['exportable']);
-    $colspan = 3;
-    $colspan = $field_ui ? $colspan + 2 : $colspan;
-    $colspan = $exportable ? $colspan + 1 : $colspan;
-    $header[] = array('data' => t('Operations'), 'colspan' => $colspan);
 
     $render = array(
       '#theme' => 'table',
-      '#header' => $header,
+      '#header' => $this->overviewTableHeaders($conditions, $rows),
       '#rows' => $rows,
       '#empty' => t('None.'),
     );
     return $render;
+  }
+
+  /**
+   * Generates the table headers for the overview table.
+   */
+  protected function overviewTableHeaders($conditions, $rows, $additional_header = array()) {
+    $header = $additional_header;
+    array_unshift($header, t('Label'));
+    if (!empty($this->entityInfo['exportable'])) {
+      $header[] = t('Status');
+    }
+    // Add operations with the right colspan.
+    $header[] = array('data' => t('Operations'), 'colspan' => $this->operationCount());
+    return $header;
+  }
+
+  /**
+   * Returns the operation count for calculating colspans.
+   */
+  protected function operationCount() {
+    $count = 3;
+    $count += !empty($this->entityInfo['bundle of']) && module_exists('field_ui') ? 2 : 0;
+    $count += !empty($this->entityInfo['exportable']) ? 1 : 0;
+    $count += !empty($this->entityInfo['i18n controller class']) ? 1 : 0;
+    return $count;
   }
 
   /**
@@ -276,13 +289,12 @@ class EntityDefaultUIController {
     $field_ui = !empty($this->entityInfo['bundle of']) && module_exists('field_ui');
     // For exportable entities we add an export link.
     $exportable = !empty($this->entityInfo['exportable']);
-    $colspan = 3;
-    $colspan = $field_ui ? $colspan + 2 : $colspan;
-    $colspan = $exportable ? $colspan + 1 : $colspan;
+    // If i18n integration is enabled, add a link to the translate tab.
+    $i18n = !empty($this->entityInfo['i18n controller class']);
 
     // Add operations depending on the status.
     if (entity_has_status($this->entityType, $entity, ENTITY_FIXED)) {
-      $row[] = array('data' => l(t('clone'), $this->path . '/manage/' . $id . '/clone'), 'colspan' => $colspan);
+      $row[] = array('data' => l(t('clone'), $this->path . '/manage/' . $id . '/clone'), 'colspan' => $this->operationCount());
     }
     else {
       $row[] = l(t('edit'), $this->path . '/manage/' . $id);
@@ -291,10 +303,13 @@ class EntityDefaultUIController {
         $row[] = l(t('manage fields'), $this->path . '/manage/' . $id . '/fields');
         $row[] = l(t('manage display'), $this->path . '/manage/' . $id . '/display');
       }
-
+      if ($i18n) {
+        $row[] = l(t('translate'), $this->path . '/manage/' . $id . '/translate');
+      }
       if ($exportable) {
         $row[] = l(t('clone'), $this->path . '/manage/' . $id . '/clone');
       }
+
       if (empty($this->entityInfo['exportable']) || !entity_has_status($this->entityType, $entity, ENTITY_IN_CODE)) {
         $row[] = l(t('delete'), $this->path . '/manage/' . $id . '/delete', array('query' => drupal_get_destination()));
       }

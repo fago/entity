@@ -117,6 +117,11 @@
  *   Features module integration for exportable entities. The given class has to
  *   inherit from the default class being EntityDefaultFeaturesController. Set
  *   it to FALSE to disable this feature.
+ * - i18n controller class: (optional) A controller class for providing
+ *   i18n module integration for (exportable) entities. The given class has to
+ *   inherit from the class EntityDefaultI18nStringController. Defaults to
+ *   FALSE (disabled). See EntityDefaultI18nStringController for more
+ *   information.
  * - views controller class: (optional) A controller class for providing views
  *   integration. The given class has to inherit from the class
  *   EntityDefaultViewsController, which is set as default in case the providing

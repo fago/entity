@@ -225,6 +225,46 @@ class Entity {
   }
 
   /**
+   * Gets the raw, translated value of a property or field.
+   *
+   * Supports retrieving field translations as well as i18n string translations.
+   *
+   * Note that this returns raw data values, which might not reflect what
+   * has been declared for hook_entity_property_info() as no 'getter callbacks'
+   * are invoked or no referenced entities are loaded. For retrieving values
+   * reflecting the property info make use of entity metadata wrappers, see
+   * entity_metadata_wrapper().
+   *
+   * @param $property_name
+   *   The name of the property to return; e.g., 'title'.
+   * @param $langcode
+   *   (optional) The language code of the language to which the value should
+   *   be translated. If set to NULL, the default display language is being
+   *   used.
+   *
+   * @return
+   *   The raw, translated property value; or the raw, un-translated value if no
+   *   translation is available.
+   *
+   * @todo Implement an analogous setTranslation() method for updating.
+   */
+  public function getTranslation($property, $langcode = NULL) {
+    $all_info = entity_get_all_property_info($this->entityType);
+    $property_info = $all_info[$property];
+
+    if (!empty($property_info['translatable'])) {
+      if (!empty($property_info['field'])) {
+        return field_get_items($this->entityType, $this, $property, $langcode);
+      }
+      elseif (!empty($property_info['i18n string'])) {
+        $name = $this->entityInfo['module'] . ':' . $this->entityType . ':' . $this->identifier() . ':' . $property;
+        return entity_i18n_string($name, $this->$property, $langcode);
+      }
+    }
+    return $this->$property;
+  }
+
+  /**
    * Magic method to only serialize what's necessary.
    */
   public function __sleep() {

@@ -370,7 +370,14 @@ function entity_property_verbatim_get($data, array $options, $name, $type, $info
     return $data[$name];
   }
   elseif (is_object($data) && isset($data->$name)) {
-    return $data->$name;
+    // Incorporate i18n_string translations. We may rely on the entity class
+    // here as its usage is required by the i18n integration.
+    if (isset($options['language']) && !empty($info['i18n string'])) {
+      return $data->getTranslation($name, $options['language']->language);
+    }
+    else {
+      return $data->$name;
+    }
   }
   return NULL;
 }
