@@ -538,6 +538,11 @@ function entity_metadata_field_file_create_item($property_name, $context) {
  * Callback for validating file field $items.
  */
 function entity_metadata_field_file_validate_item($items, $context) {
+  // Allow NULL values.
+  if (!isset($items)) {
+    return TRUE;
+  }
+
   // Stream-line $items for multiple vs non-multiple fields.
   $items = !entity_property_list_extract_type($context['type']) ? array($items) : (array) $items;
 
