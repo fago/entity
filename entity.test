@@ -691,6 +691,9 @@ class EntityMetadataTestCase extends EntityWebTestCase {
     // Test making use of a generic 'entity' reference property the
     // 'entity_test' module provides. The property defaults to the node author.
     $this->assertEqual($wrapper->reference->uid->value(), $wrapper->author->getIdentifier(), 'Used generic entity reference property.');
+    // Test updating a property of the generic entity reference.
+    $wrapper->reference->name->set('foo');
+    $this->assertEqual($wrapper->reference->name->value(), 'foo', 'Updated property of generic entity reference');
     // For testing, just point the reference to the node itself now.
     $wrapper->reference->set($wrapper);
     $this->assertEqual($wrapper->reference->nid->value(), $wrapper->getIdentifier(), 'Correctly updated the generic entity referenced property.');

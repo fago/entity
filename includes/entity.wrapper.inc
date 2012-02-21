@@ -483,6 +483,7 @@ class EntityStructureWrapper extends EntityMetadataWrapper implements IteratorAg
 
       // If the setter has not thrown any exceptions, proceed and apply the
       // update to the current and any parent wrappers as necessary.
+      $data = $this->info['type'] == 'entity' ? $this : $data;
       $this->set($data);
 
       // Clear the cache of properties dependent on this value.
@@ -732,6 +733,10 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
   public function set($value) {
     if (!$this->validate($value)) {
       throw new EntityMetadataWrapperException('Invalid data value given. Be sure it matches the required data type and format.');
+    }
+    if ($this->info['type'] == 'entity' && $value === $this) {
+      // Nothing to do.
+      return $this;
     }
     $previous_id = $this->id;
     $previous_type = $this->type;
