@@ -43,6 +43,13 @@ function entity_views_data() {
     if ($table) {
       $data['entity_' . $type] = $table;
     }
+    // Generally expose properties marked as 'entity views field'.
+    $data['views_entity_' . $type] = array();
+    foreach (entity_get_all_property_info($type) as $key => $property) {
+      if (!empty($property['entity views field'])) {
+        entity_views_field_definition($key, $property, $data['views_entity_' . $type]);
+      }
+    }
   }
 
   // Expose generally usable entity-related fields.
@@ -111,6 +118,10 @@ function entity_views_data() {
  *
  * @param $type
  *   The entity type whose table definition should be returned.
+ * @param $exclude
+ *   Whether properties already exposed as 'entity views field' should be
+ *   excluded. Defaults to TRUE, as they are available for all views tables for
+ *   the entity type anyways.
  *
  * @return
  *   An array containing the data selection Views table definition for the
@@ -118,7 +129,7 @@ function entity_views_data() {
  *
  * @see entity_views_field_definition()
  */
-function entity_views_table_definition($type) {
+function entity_views_table_definition($type, $exclude = TRUE) {
   // As other modules might want to copy these tables as a base for their own
   // Views integration, we statically cache the tables to save some time.
   $tables = &drupal_static(__FUNCTION__, array());
@@ -137,7 +148,9 @@ function entity_views_table_definition($type) {
       'entity type' => $type,
     );
     foreach (entity_get_all_property_info($type) as $key => $property) {
-      entity_views_field_definition($key, $property, $tables[$type]);
+      if (!$exclude || empty($property['entity views field'])) {
+        entity_views_field_definition($key, $property, $tables[$type]);
+      }
     }
   }
 

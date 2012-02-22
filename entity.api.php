@@ -321,6 +321,11 @@ function entity_metadata_hook_entity_info() {
  *       computed, i.e. the property value is not stored or loaded by the
  *       entity's controller but determined on the fly by the getter callback.
  *       Defaults to FALSE.
+ *     - entity views field: (optional) If enabled, the property is
+ *       automatically exposed as views field available to all views query
+ *       backends listing this entity-type. As the property value will always be
+ *       generated from a loaded entity object, this is particularly useful for
+ *       'computed' properties. Defaults to FALSE.
  *     - sanitized: (optional) For textual properties only, whether the text is
  *       already sanitized. In this case you might want to also specify a raw
  *       getter callback. Defaults to FALSE.

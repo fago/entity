@@ -99,6 +99,19 @@ class EntityDefaultMetadataController {
       $info['properties'][$key]['label'] = t('Label');
       $info['properties'][$key]['description'] = t('The human readable label.');
     }
+
+    // Add a computed property for the entity URL and expose it to views.
+    if (empty($info['properties']['url']) && !empty($this->info['uri callback'])) {
+      $info['properties']['url'] = array(
+        'label' => t('URL'),
+        'description' => t('The URL of the entity.'),
+        'getter callback' => 'entity_metadata_entity_get_properties',
+        'type' => 'uri',
+        'computed' => TRUE,
+        'entity views field' => TRUE,
+      );
+    }
+
     return array($this->type => $info);
   }
 
