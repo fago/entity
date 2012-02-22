@@ -569,6 +569,12 @@ class EntityMetadataTestCase extends EntityWebTestCase {
       )
     );
     field_create_instance($this->instance);
+
+    // Make the body field and the node type 'page' translatable.
+    $field = field_info_field('body');
+    $field['translatable'] = TRUE;
+    field_update_field($field);
+    variable_set('language_content_type_page', 1);
   }
 
   /**
@@ -658,20 +664,24 @@ class EntityMetadataTestCase extends EntityWebTestCase {
     $this->assertEqual($node->body[LANGUAGE_NONE][0]['value'], "<b>The second body.</b>", 'Update appears in the wrapped entity.');
     $this->assert(isset($node->body[LANGUAGE_NONE][0]['safe_value']), 'Formatted text has been processed.');
 
-    // Test translating the body.
+    // Test translating the body on an English node.
     locale_add_language('de');
+    $body['en'][0] = array('value' => '<b>English body.</b>', 'summary' => '<b>The body.</b>');
+    $node = $this->drupalCreateNode(array('body' => $body, 'language' => 'en', 'type' => 'page'));
+    $wrapper = entity_metadata_wrapper('node', $node);
+
     $wrapper->language('de');
 
     $languages = language_list();
     $this->assertEqual($wrapper->getPropertyLanguage(), $languages['de'], 'Wrapper language has been set to German');
-    $this->assertEqual($wrapper->body->value->value(), "<p>The second body.</p>\n", 'Language fallback on neutral language.');
+    $this->assertEqual($wrapper->body->value->value(), "<p>English body.</p>\n", 'Language fallback on default language.');
 
     // Set a German text using the wrapper.
     $wrapper->body->set(array('value' => "<b>Der zweite Text.</b>"));
-
     $this->assertEqual($wrapper->body->value->value(), "<p>Der zweite Text.</p>\n", 'German body set and retrieved.');
-    $wrapper->language(NULL);
-    $this->assertEqual($wrapper->body->value->value(), "<p>The second body.</p>\n", 'Language neutral text is still there.');
+
+    $wrapper->language(LANGUAGE_NONE);
+    $this->assertEqual($wrapper->body->value->value(), "<p>English body.</p>\n", 'Default language text is still there.');
 
     // Test iterator.
     $type_info = entity_get_property_info('node');
