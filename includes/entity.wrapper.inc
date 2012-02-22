@@ -1039,7 +1039,7 @@ class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggrega
   }
 
   public function offsetExists($delta) {
-    return $this->dataAvailable() && ($data = $this->value()) && isset($data[$delta]);
+    return $this->dataAvailable() && ($data = $this->value()) && array_key_exists($delta, $data);
   }
 
   public function offsetSet($delta, $value) {
@@ -1164,7 +1164,7 @@ class EntityMetadataArrayObject implements ArrayAccess, Countable, IteratorAggre
   }
 
   public function offsetExists($delta) {
-    return isset($this->data[$delta]);
+    return array_key_exists($delta, $this->data);
   }
 
   public function offsetSet($delta, $value) {
