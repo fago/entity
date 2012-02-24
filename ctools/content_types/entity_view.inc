@@ -35,7 +35,7 @@ function entity_entity_view_content_type_content_types() {
     if (entity_type_supports($entity_type, 'view')) {
       $types[$entity_type] = array(
         'title' => t('Rendered @entity_type', array('@entity_type' => $info['label'])),
-        'category' => array('Entity'),
+        'category' => t('Entity'),
         'required context' => new ctools_context_required(t('Entity'), $entity_type),
       );
     }
