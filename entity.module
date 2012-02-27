@@ -655,6 +655,7 @@ function _entity_defaults_rebuild($entity_type) {
 
     foreach ($existing_defaults as $name => $entity) {
       if (empty($entities[$name])) {
+        $entity->is_rebuild = TRUE;
         if (entity_has_status($entity_type, $entity, ENTITY_OVERRIDDEN)) {
           $entity->{$keys['status']} = ENTITY_CUSTOM;
           entity_save($entity_type, $entity);
@@ -662,6 +663,7 @@ function _entity_defaults_rebuild($entity_type) {
         else {
           entity_delete($entity_type, $name);
         }
+        unset($entity->is_rebuild);
       }
     }
 
@@ -686,6 +688,7 @@ function _entity_defaults_rebuild($entity_type) {
     }
 
     // Save defaults.
+    $originals = array();
     foreach ($entities as $name => $entity) {
       if (!empty($existing_entities[$name])) {
         // Make sure we are updating the existing default.
@@ -695,11 +698,19 @@ function _entity_defaults_rebuild($entity_type) {
       // Pre-populate $entity->original as we already have it. So we avoid
       // loading it again.
       $entity->original = !empty($existing_entities[$name]) ? $existing_entities[$name] : FALSE;
+      // Keep original entities for hook_{entity_type}_defaults_rebuild()
+      // implementations.
+      $originals[$name] = $entity->original;
 
       $entity->{$keys['status']} |= ENTITY_IN_CODE;
       $entity->is_rebuild = TRUE;
       entity_save($entity_type, $entity);
+      unset($entity->is_rebuild);
     }
+
+    // Invoke an entity type-specific hook so modules may apply changes, e.g.
+    // efficiently rebuild caches.
+    module_invoke_all($entity_type . '_defaults_rebuild', $entities, $originals);
 
     lock_release('entity_rebuild_' . $entity_type);
   }
