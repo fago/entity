@@ -672,9 +672,6 @@ function _entity_defaults_rebuild($entity_type) {
 
     foreach ($existing_entities as $name => $entity) {
       if (entity_has_status($entity_type, $entity, ENTITY_CUSTOM)) {
-        // If the entity is overridden, we do not need to save the default.
-        unset($entities[$name]);
-
         // If the entity already exists but is not yet marked as overridden, we
         // have to update the status.
         if (!entity_has_status($entity_type, $entity, ENTITY_OVERRIDDEN)) {
@@ -684,6 +681,9 @@ function _entity_defaults_rebuild($entity_type) {
           entity_save($entity_type, $entity);
           unset($entity->is_rebuild);
         }
+
+        // The entity is overridden, so we do not need to save the default.
+        unset($entities[$name]);
       }
     }
 
