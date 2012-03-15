@@ -16,7 +16,7 @@ function entity_entity_property_info() {
   foreach (entity_crud_get_info() as $type => $info) {
     // Automatically enable the controller only if the module does not implement
     // the hook itself.
-    if (!isset($info['metadata controller class']) && (!isset($info['module']) || !module_hook($info['module'], 'entity_property_info'))) {
+    if (!isset($info['metadata controller class']) && !empty($info['base table']) && (!isset($info['module']) || !module_hook($info['module'], 'entity_property_info'))) {
       $info['metadata controller class'] = 'EntityDefaultMetadataController';
     }
     if (!empty($info['metadata controller class'])) {

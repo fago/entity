@@ -217,18 +217,20 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
           continue;
         }
 
-        // Take care of serialized columns.
-        $schema = drupal_get_schema($this->entityInfo['base table']);
+        // For DB-based entities take care of serialized columns.
+        if (!empty($this->entityInfo['base table'])) {
+          $schema = drupal_get_schema($this->entityInfo['base table']);
 
-        foreach ($schema['fields'] as $field => $info) {
-          if (!empty($info['serialize']) && isset($record->$field)) {
-            $record->$field = unserialize($record->$field);
-            // Support automatic merging of 'data' fields into the entity.
-            if (!empty($info['merge']) && is_array($record->$field)) {
-              foreach ($record->$field as $key => $value) {
-                $record->$key = $value;
+          foreach ($schema['fields'] as $field => $info) {
+            if (!empty($info['serialize']) && isset($record->$field)) {
+              $record->$field = unserialize($record->$field);
+              // Support automatic merging of 'data' fields into the entity.
+              if (!empty($info['merge']) && is_array($record->$field)) {
+                foreach ($record->$field as $key => $value) {
+                  $record->$key = $value;
+                }
+                unset($record->$field);
               }
-              unset($record->$field);
             }
           }
         }
