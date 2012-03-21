@@ -247,8 +247,13 @@ function entity_property_verify_data_type($data, $type) {
 
   // First off check for entities, which may be represented by their ids too.
   if (isset($info[$type])) {
-    $nameKey = isset($info[$type]['entity keys']['name']);
-    return is_object($data) || ($nameKey && entity_property_verify_data_type($data, 'token')) || (!$nameKey  && entity_property_verify_data_type($data, 'integer'));
+    if (is_object($data)) {
+      return TRUE;
+    }
+    elseif (isset($info[$type]['entity keys']['name'])) {
+      return entity_property_verify_data_type($data, 'token');
+    }
+    return entity_property_verify_data_type($data, empty($info[$type]['fieldable']) ? 'text' : 'integer');
   }
 
   switch ($type) {
