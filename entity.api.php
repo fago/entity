@@ -235,7 +235,7 @@ function entity_metadata_hook_entity_info() {
  * can implement this hook to provide metadata about this properties.
  * For making use of the metadata have a look at the provided wrappers returned
  * by entity_metadata_wrapper().
- * For providing property information for fields see entity_field_info().
+ * For providing property information for fields see entity_hook_field_info().
  *
  * @return
  *   An array whose keys are entity type names and whose values are arrays
