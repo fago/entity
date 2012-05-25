@@ -365,9 +365,11 @@ class EntityDefaultViewsController {
       $data[$table]['table']['group']  = drupal_ucfirst($this->info['label']);
       $data[$table]['table']['entity type'] = $this->type;
 
+      // If the plural label isn't available, use the regular label.
+      $label = isset($this->info['plural label']) ? $this->info['plural label'] : $this->info['label'];
       $data[$table]['table']['base'] = array(
         'field' => $this->info['entity keys']['id'],
-        'title' => drupal_ucfirst($this->info['label']),
+        'title' => drupal_ucfirst($label),
         'help' => isset($this->info['description']) ? $this->info['description'] : '',
       );
       $data[$table]['table']['entity type'] = $this->type;
