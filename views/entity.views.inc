@@ -309,10 +309,19 @@ function _entity_views_field_identifier($field, array $table) {
  * Implements hook_views_plugins().
  */
 function entity_views_plugins() {
-  foreach (views_fetch_data() as $table => $data) {
-    if (!empty($data['table']['entity type']) && !empty($data['table']['base'])) {
-      $base_tables[] = $table;
+  // Have views cache the table list for us so it gets
+  // cleared at the appropriate times.
+  $data = views_cache_get('entity_base_tables', TRUE);
+  if (!empty($data->data)) {
+    $base_tables = $data->data;
+  }
+  else {
+    foreach (views_fetch_data() as $table => $data) {
+      if (!empty($data['table']['entity type']) && !empty($data['table']['base'])) {
+        $base_tables[] = $table;
+      }
     }
+    views_cache_set('entity_base_tables', $base_tables, TRUE);
   }
   if (!empty($base_tables)) {
     return array(
