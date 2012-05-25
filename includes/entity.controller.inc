@@ -292,7 +292,8 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       $function($this->entityType, $entity);
     }
 
-    if (isset($this->entityInfo['bundle of']) && $type = $this->entityInfo['bundle of']) {
+    if (!empty($this->entityInfo['bundle of']) && entity_type_is_fieldable($this->entityInfo['bundle of'])) {
+      $type = $this->entityInfo['bundle of'];
       // Call field API bundle attachers for the entity we are a bundle of.
       if ($hook == 'insert') {
         field_attach_create_bundle($type, $entity->{$this->bundleKey});

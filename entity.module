@@ -307,6 +307,20 @@ function entity_import($entity_type, $export) {
 }
 
 /**
+ * Checks whether an entity type is fieldable.
+ *
+ * @param $entity_type
+ *   The type of the entity.
+ *
+ * @return
+ *   TRUE if the entity type is fieldable, FALSE otherwise.
+ */
+function entity_type_is_fieldable($entity_type) {
+  $info = entity_get_info($entity_type);
+  return !empty($info['fieldable']);
+}
+
+/**
  * Builds a structured array representing the entity's content.
  *
  * The content built for the entity will vary depending on the $view_mode
