@@ -300,10 +300,8 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       elseif ($hook == 'delete') {
         field_attach_delete_bundle($type, $entity->{$this->bundleKey});
       }
-      elseif ($hook == 'update' && $id = $entity->{$this->nameKey}) {
-        if ($entity->original->{$this->bundleKey} != $entity->{$this->bundleKey}) {
-          field_attach_rename_bundle($type, $entity->original->{$this->bundleKey}, $entity->{$this->bundleKey});
-        }
+      elseif ($hook == 'update' && $entity->original->{$this->bundleKey} != $entity->{$this->bundleKey}) {
+        field_attach_rename_bundle($type, $entity->original->{$this->bundleKey}, $entity->{$this->bundleKey});
       }
     }
     // Invoke the hook.
