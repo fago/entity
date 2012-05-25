@@ -356,7 +356,7 @@ class EntityFieldHandlerHelper {
           if ($field == 'entity object') {
             $return[] = $wrapper->value();
           }
-          elseif(isset($wrapper->$field)) {
+          elseif (isset($wrapper->$field)) {
             $return[] = $wrapper->$field->value(array('identifier' => TRUE));
           }
         }

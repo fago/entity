@@ -210,7 +210,7 @@ function entity_metadata_system_get_properties($data = FALSE, array $options, $n
       return $GLOBALS['user']->uid ? $GLOBALS['user']->uid : drupal_anonymous_user();
 
     case 'current_date':
-      return time();
+      return REQUEST_TIME;
 
     case 'current_page':
       // Subsequent getters of the struct retrieve the actual values.

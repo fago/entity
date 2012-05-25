@@ -31,7 +31,7 @@ function entity_entity_view_content_type_content_types() {
   $types = array();
   $entities = entity_get_info();
 
-  foreach($entities as $entity_type => $info) {
+  foreach ($entities as $entity_type => $info) {
     if (entity_type_supports($entity_type, 'view')) {
       $types[$entity_type] = array(
         'title' => t('Rendered @entity_type', array('@entity_type' => $info['label'])),
