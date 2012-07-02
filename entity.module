@@ -1253,6 +1253,7 @@ function _entity_info_add_metadata(&$entity_info) {
   // Set access callbacks.
   $entity_info['node']['access callback'] = 'entity_metadata_no_hook_node_access';
   $entity_info['user']['access callback'] = 'entity_metadata_user_access';
+  $entity_info['file']['access callback'] = 'entity_metadata_file_access';
 
   // CRUD function callbacks.
   $entity_info['node']['creation callback'] = 'entity_metadata_create_node';

@@ -690,6 +690,26 @@ function entity_metadata_taxonomy_access($op, $entity = NULL, $account = NULL, $
 }
 
 /**
+ * Access callback for file entities.
+ */
+function entity_metadata_file_access($op, $file = NULL, $account = NULL, $entity_type) {
+  // We can only check access for the current user, so return FALSE on other accounts.
+  global $user;
+  if ($op == 'view' && isset($file) && (!isset($account) || $user->uid == $account->uid)) {
+    // Invoke hook_file_download() to obtain access information.
+    foreach (module_implements('file_download') as $module) {
+      $result = module_invoke($module, 'file_download', $file->uri);
+      if ($result == -1) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  }
+  return FALSE;
+}
+
+
+/**
  * Callback to determine access for properties which are fields.
  */
 function entity_metadata_field_access_callback($op, $name, $entity = NULL, $account = NULL, $entity_type) {
