@@ -33,7 +33,7 @@ function entity_metadata_book_get_properties($node, array $options, $name, $enti
 function entity_metadata_comment_get_properties($comment, array $options, $name) {
   switch ($name) {
     case 'name':
-      return $name = ($comment->uid == 0) ? variable_get('anonymous', t('Anonymous')) : $comment->name;
+      return $comment->name;
 
     case 'mail':
       if ($comment->uid != 0) {
