@@ -509,7 +509,7 @@ function entity_metadata_field_verbatim_set($entity, $name, $items, $langcode, $
 function entity_metadata_field_get_language($entity_type, $entity, $field, $langcode = LANGUAGE_NONE, $fallback = FALSE) {
   // Try to figure out the default language used by the entity.
   // @todo: Update once http://drupal.org/node/1260640 has been fixed.
-  $default_langcode = isset($entity->language) ? $entity->language : LANGUAGE_NONE;
+  $default_langcode = !empty($entity->language) ? $entity->language : LANGUAGE_NONE;
 
   // Determine the right language to use.
   if ($default_langcode != LANGUAGE_NONE && field_is_translatable($entity_type, $field)) {
