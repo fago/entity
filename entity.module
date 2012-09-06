@@ -288,9 +288,8 @@ function entity_revision_delete($entity_type, $revision_id) {
 /**
  * Checks whether the given entity is the default revision.
  *
- * Note that the default revision flag is only supported by entity types based
- * upon the EntityAPIController, i.e. implementing the
- * EntityAPIControllerRevisionableInterface.
+ * Note that newly created entities will always be created in default revision,
+ * thus TRUE is returned for not yet saved entities.
  *
  * @param $entity_type
  *   The type of the entity.
@@ -298,9 +297,8 @@ function entity_revision_delete($entity_type, $revision_id) {
  *   The entity object to check.
  *
  * @return boolean
- *   If the entity is revisionable and supported, a boolean defining whether the
- *   default revision flag is set. If the entity is not revisionable, TRUE is
- *   returned. Else if the entity type is not supported, NULL is returned.
+ *   A boolean indicating whether the entity is in default revision is returned.
+ *   If the entity is not revisionable or is new, TRUE is returned.
  *
  * @see entity_revision_set_default()
  */
@@ -309,9 +307,19 @@ function entity_revision_is_default($entity_type, $entity) {
   if (empty($info['entity keys']['revision'])) {
     return TRUE;
   }
+  // Newly created entities will always be created in default revision.
+  if (!empty($entity->is_new) || empty($entity->{$info['entity keys']['id']})) {
+    return TRUE;
+  }
   if (in_array('EntityAPIControllerRevisionableInterface', class_implements($info['controller class']))) {
     $key = !empty($info['entity keys']['default revision']) ? $info['entity keys']['default revision'] : 'default_revision';
     return !empty($entity->$key);
+  }
+  else {
+    // Else, just load the default entity and compare the ID. Usually, the
+    // entity should be already statically cached anyway.
+    $default = entity_load_single($entity_type, $entity->{$info['entity keys']['id']});
+    return $default->{$info['entity keys']['revision']} == $entity->{$info['entity keys']['revision']};
   }
 }
 
