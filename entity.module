@@ -1333,15 +1333,6 @@ function entity_module_implements_alter(&$implementations, $hook) {
 function entity_entity_info_alter(&$entity_info) {
   _entity_info_add_metadata($entity_info);
 
-  // Modules are using entity_load() in hook_entity_info_alter() to add
-  // their bundle-info. This might trigger the field API cache to be built,
-  // which makes use of the bundle-info. In that case the field-info cache would
-  // have been built with in-complete bundle-info, thus we clear it so it is
-  // rebuilt with complete bundle-info the next time field-info is requested.
-  _field_info_collate_fields(TRUE);
-  // To be sure, also clear the property info cache as it depends on field info.
-  entity_property_info_cache_clear();
-
   // Populate a default value for the 'configuration' key of all entity types.
   foreach ($entity_info as $type => $info) {
     if (!isset($info['configuration'])) {
