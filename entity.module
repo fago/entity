@@ -960,13 +960,13 @@ function entity_flush_caches() {
  * Implements hook_theme().
  */
 function entity_theme() {
-  // Build a pattern in the form of "type1(\.|__)|type2(\.|__)|..." such that
-  // all templates starting with an entity type or named like the entity type
+  // Build a pattern in the form of "(type1|type2|...)(\.|__)" such that all
+  // templates starting with an entity type or named like the entity type
   // are found.
   // This has to match the template suggestions provided in
   // template_preprocess_entity().
   $types = array_keys(entity_crud_get_info());
-  $pattern = implode('(\.|__)|', $types) . '\.|__';
+  $pattern = '(' . implode('|', $types) . ')(\.|__)';
 
   return array(
     'entity_status' => array(
