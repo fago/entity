@@ -576,7 +576,7 @@ function entity_metadata_field_file_set(&$item, $property_name, $value) {
  */
 function entity_metadata_field_file_create_item($property_name, $context) {
   // 'fid' is required, so 'file' has to be set as initial property.
-  return array('display' => $context['field']['settings']['display_default']);
+  return array('display' => isset($context['field']['settings']['display_default']) ? $context['field']['settings']['display_default'] : 0);
 }
 
 /**
