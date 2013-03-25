@@ -370,7 +370,7 @@ function entity_metadata_hook_entity_info() {
  *     the same way as the entity properties array.
  *
  *  @see hook_entity_property_info_alter()
- *  @see entity_metadata_get_info()
+ *  @see entity_get_property_info()
  *  @see entity_metadata_wrapper()
  */
 function hook_entity_property_info() {
