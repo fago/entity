@@ -253,7 +253,8 @@ class Entity {
    */
   public function getTranslation($property, $langcode = NULL) {
     $all_info = entity_get_all_property_info($this->entityType);
-    $property_info = $all_info[$property];
+    // Assign by reference to avoid triggering notices if metadata is missing.
+    $property_info = &$all_info[$property];
 
     if (!empty($property_info['translatable'])) {
       if (!empty($property_info['field'])) {
