@@ -119,6 +119,13 @@
  *   Override the controller class to adapt the defaults and to improve and
  *   complete the generated metadata. Set it to FALSE to disable this feature.
  *   Defaults to the EntityDefaultMetadataController class.
+ * - extra fields controller class: (optional) A controller class for providing
+ *   field API extra fields. Defaults to none.
+ *   The class must implement the EntityExtraFieldsControllerInterface. Display
+ *   extra fields that are exposed that way are rendered by default by the
+ *   EntityAPIController. The EntityDefaultExtraFieldsController class may be
+ *   used to generate extra fields based upon property metadata, which in turn
+ *   get rendered by default by the EntityAPIController.
  * - features controller class: (optional) A controller class for providing
  *   Features module integration for exportable entities. The given class has to
  *   inherit from the default class being EntityDefaultFeaturesController. Set
