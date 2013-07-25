@@ -6,7 +6,10 @@
  */
 
 /**
- * Default controller for providing UI.
+ * Default UI controller providing admin UI.
+ *
+ * This controller suites best for managing configuration entities.
+ * For a controller suiting content entities, see EntityContentUIController.
  */
 class EntityDefaultUIController {
 
@@ -493,6 +496,81 @@ class EntityDefaultUIController {
 }
 
 /**
+ * UI controller providing UI for content entities.
+ *
+ * For a controller providing admin UI for configuration entities, see
+ * EntityDefaultUIController.
+ */
+class EntityContentUIController extends EntityDefaultUIController {
+
+  /**
+   * Provides definitions for implementing hook_menu().
+   */
+  public function hook_menu() {
+    $items = parent::hook_menu();
+    $wildcard = isset($this->entityInfo['admin ui']['menu wildcard']) ? $this->entityInfo['admin ui']['menu wildcard'] : '%entity_object';
+
+    // Unset the manage entity path, as the provided UI is for admin entities.
+    unset($items[$this->path]);
+
+    $defaults = array(
+      'file' => $this->entityInfo['admin ui']['file'],
+      'file path' =>  isset($this->entityInfo['admin ui']['file path']) ? $this->entityInfo['admin ui']['file path'] : drupal_get_path('module', $this->entityInfo['module']),
+    );
+
+    // Add view, edit and delete menu items for content entities.
+    $items[$this->path . '/' . $wildcard] = array(
+      'title callback' => 'entity_ui_get_page_title',
+      'title arguments' => array('view', $this->entityType, $this->id_count),
+      'page callback' => 'entity_ui_entity_page_view',
+      'page arguments' => array($this->id_count),
+      'load arguments' => array($this->entityType),
+      'access callback' => 'entity_access',
+      'access arguments' => array('view', $this->entityType, $this->id_count),
+    ) + $defaults;
+    $items[$this->path . '/' . $wildcard . '/view'] = array(
+      'title' => 'View',
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+      'load arguments' => array($this->entityType),
+      'weight' => -10,
+    ) + $defaults;
+    $items[$this->path . '/' . $wildcard . '/edit'] = array(
+      'page callback' => 'entity_ui_get_form',
+      'page arguments' => array($this->entityType, $this->id_count),
+      'load arguments' => array($this->entityType),
+      'access callback' => 'entity_access',
+      'access arguments' => array('edit', $this->entityType, $this->id_count),
+      'title' => 'Edit',
+      'type' => MENU_LOCAL_TASK,
+      'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    ) + $defaults;
+    $items[$this->path . '/' . $wildcard . '/delete'] = array(
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array($this->entityType . '_operation_form', $this->entityType, $this->id_count, 'delete'),
+      'load arguments' => array($this->entityType),
+      'access callback' => 'entity_access',
+      'access arguments' => array('delete', $this->entityType, $this->id_count),
+      'title' => 'Delete',
+      'type' => MENU_LOCAL_TASK,
+      'context' => MENU_CONTEXT_INLINE,
+      'file' => $this->entityInfo['admin ui']['file'],
+      'file path' => isset($this->entityInfo['admin ui']['file path']) ? $this->entityInfo['admin ui']['file path'] : drupal_get_path('module', $this->entityInfo['module']),
+    ) + $defaults;
+
+    return $items;
+  }
+
+  /**
+   * Operation form submit callback.
+   */
+  public function operationFormSubmit($form, &$form_state) {
+    parent::operationFormSubmit($form, $form_state);
+    // The manage entity path is unset for the content entity UI.
+    $form_state['redirect'] = '<front>';
+  }
+}
+
+/**
  * Form builder function for the overview form.
  *
  * @see EntityDefaultUIController::overviewForm()
@@ -603,6 +681,8 @@ function entity_ui_controller_form_submit($form, &$form_state) {
 function entity_ui_get_page_title($op, $entity_type, $entity = NULL) {
   $label = entity_label($entity_type, $entity);
   switch ($op) {
+    case 'view':
+      return $label;
     case 'edit':
       return t('Edit @label', array('@label' => $label));
     case 'clone':
@@ -669,4 +749,17 @@ function theme_entity_ui_overview_item($variables) {
     $output .= ' <small> (' . t('Machine name') . ': ' . check_plain($variables['name']) . ')</small>';
   }
   return $output;
+}
+
+/**
+ * Page callback for viewing an entity.
+ *
+ * @param Entity $entity
+ *   The entity to be rendered.
+ *
+ * @return array
+ *   A renderable array of the entity in full view mode.
+ */
+function entity_ui_entity_page_view($entity) {
+  return $entity->view('full', NULL, TRUE);
 }
