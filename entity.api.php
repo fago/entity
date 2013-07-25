@@ -95,9 +95,10 @@
  *   - path: A path where the UI should show up as expected by hook_menu().
  *   - controller class: (optional) A controller class name for providing the
  *     UI. Defaults to EntityDefaultUIController, which implements an admin UI
- *     suiting for managing configuration entities. Another provided controller
- *     suiting for content entities is EntityContentUIController (which works
- *     fine despite the poorly named 'admin ui' key).
+ *     suiting for managing configuration entities. Other provided controllers
+ *     suiting for content entities are EntityContentUIController or
+ *     EntityBundleableUIController (which work fine despite the poorly named
+ *     'admin ui' key).
  *     For customizing the UI inherit from the default class and override
  *     methods as suiting and specify your class as controller class.
  *   - file: (optional) The name of the file in which the entity form resides

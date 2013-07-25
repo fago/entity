@@ -114,6 +114,59 @@ function entity_object_load($entity_id, $entity_type) {
 }
 
 /**
+ * Page callback to show links to add an entity of a specific bundle.
+ *
+ * Entity modules that provide a further description to their bundles may wish
+ * to implement their own version of this to show these.
+ *
+ * @param $entity_type
+ *   The type of the entity.
+ */
+function entity_ui_bundle_add_page($entity_type) {
+  // Set the title, as we're a MENU_LOCAL_ACTION and hence just get tab titles.
+  module_load_include('inc', 'entity', 'includes/entity.ui');
+  drupal_set_title(entity_ui_get_action_title('add', $entity_type));
+
+  // Get entity info for our bundles.
+  $info = entity_get_info($entity_type);
+  $items = array();
+  foreach ($info['bundles'] as $bundle_name => $bundle_info) {
+    // Create an empty entity with just the bundle set to check for access.
+    $dummy_entity = entity_create($entity_type, array(
+      'bundle' => $bundle_name,
+    ));
+    // If modules use a uid, they can default to the current-user
+    // in their create() method on the storage controller.
+    if (entity_access('create', $entity_type, $dummy_entity, $account = NULL)) {
+      $add_path = $info['admin ui']['path'] . '/add/' . $bundle_name;
+      $items[] = l(t('Add @label', array('@label' => $bundle_info['label'])), $add_path);
+    }
+  }
+  return theme('item_list', array('items' => $items));
+}
+
+/**
+ * Page callback to add an entity of a specific bundle.
+ *
+ * @param $entity_type
+ *   The type of the entity.
+ * @param $bundle_name
+ *   The bundle machine name.
+ */
+function entity_ui_get_bundle_add_form($entity_type, $bundle_name) {
+  $info = entity_get_info($entity_type);
+  $bundle_key = $info['entity keys']['bundle'];
+
+  // Make a stub entity of the right bundle to pass to the entity_ui_get_form().
+  $values = array(
+    $bundle_key => $bundle_name,
+  );
+  $entity = entity_create($entity_type, $values);
+
+  return entity_ui_get_form($entity_type, $entity, 'add');
+}
+
+/**
  * A wrapper around entity_load() to load a single entity by name or numeric id.
  *
  * @todo: Re-name entity_load() to entity_load_multiple() in d8 core and this

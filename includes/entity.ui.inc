@@ -15,6 +15,7 @@ class EntityDefaultUIController {
 
   protected $entityType;
   protected $entityInfo, $path;
+  protected $id_count;
 
   /**
    * Defines the number of entries to show per page in overview table.
@@ -33,7 +34,8 @@ class EntityDefaultUIController {
    */
   public function hook_menu() {
     $items = array();
-    $id_count = count(explode('/', $this->path));
+    // Set this on the object so classes that extend hook_menu() can use it.
+    $this->id_count = count(explode('/', $this->path));
     $wildcard = isset($this->entityInfo['admin ui']['menu wildcard']) ? $this->entityInfo['admin ui']['menu wildcard'] : '%entity_object';
     $plural_label = isset($this->entityInfo['plural label']) ? $this->entityInfo['plural label'] : $this->entityInfo['label'] . 's';
 
@@ -63,12 +65,12 @@ class EntityDefaultUIController {
     $items[$this->path . '/manage/' . $wildcard] = array(
       'title' => 'Edit',
       'title callback' => 'entity_label',
-      'title arguments' => array($this->entityType, $id_count + 1),
+      'title arguments' => array($this->entityType, $this->id_count + 1),
       'page callback' => 'entity_ui_get_form',
-      'page arguments' => array($this->entityType, $id_count + 1),
+      'page arguments' => array($this->entityType, $this->id_count + 1),
       'load arguments' => array($this->entityType),
       'access callback' => 'entity_access',
-      'access arguments' => array('update', $this->entityType, $id_count + 1),
+      'access arguments' => array('update', $this->entityType, $this->id_count + 1),
     );
     $items[$this->path . '/manage/' . $wildcard . '/edit'] = array(
       'title' => 'Edit',
@@ -80,7 +82,7 @@ class EntityDefaultUIController {
     $items[$this->path . '/manage/' . $wildcard . '/clone'] = array(
       'title' => 'Clone',
       'page callback' => 'entity_ui_get_form',
-      'page arguments' => array($this->entityType, $id_count + 1, 'clone'),
+      'page arguments' => array($this->entityType, $this->id_count + 1, 'clone'),
       'load arguments' => array($this->entityType),
       'access callback' => 'entity_access',
       'access arguments' => array('create', $this->entityType),
@@ -88,10 +90,10 @@ class EntityDefaultUIController {
     // Menu item for operations like revert and delete.
     $items[$this->path . '/manage/' . $wildcard . '/%'] = array(
       'page callback' => 'drupal_get_form',
-      'page arguments' => array($this->entityType . '_operation_form', $this->entityType, $id_count + 1, $id_count + 2),
+      'page arguments' => array($this->entityType . '_operation_form', $this->entityType, $this->id_count + 1, $this->id_count + 2),
       'load arguments' => array($this->entityType),
       'access callback' => 'entity_access',
-      'access arguments' => array('delete', $this->entityType, $id_count + 1),
+      'access arguments' => array('delete', $this->entityType, $this->id_count + 1),
       'file' => 'includes/entity.ui.inc',
     );
 
@@ -498,6 +500,8 @@ class EntityDefaultUIController {
 /**
  * UI controller providing UI for content entities.
  *
+ * For a controller providing UI for bundleable content entities, see
+ * EntityBundleableUIController.
  * For a controller providing admin UI for configuration entities, see
  * EntityDefaultUIController.
  */
@@ -567,6 +571,51 @@ class EntityContentUIController extends EntityDefaultUIController {
     parent::operationFormSubmit($form, $form_state);
     // The manage entity path is unset for the content entity UI.
     $form_state['redirect'] = '<front>';
+  }
+}
+
+/**
+ * UI controller providing UI for bundleable content entities.
+ *
+ * Adds a bundle selection page to the entity/add path, analogously to the
+ * node/add path.
+ */
+class EntityBundleableUIController extends EntityContentUIController {
+
+  /**
+   * Provides definitions for implementing hook_menu().
+   */
+  public function hook_menu() {
+    $items = parent::hook_menu();
+
+    // Extend the 'add' path.
+    $items[$this->path . '/add'] = array(
+      'title callback' => 'entity_ui_get_action_title',
+      'title arguments' => array('add', $this->entityType),
+      'page callback' => 'entity_ui_bundle_add_page',
+      'page arguments' => array($this->entityType),
+      'access callback' => 'entity_access',
+      'access arguments' => array('create', $this->entityType),
+      'type' => MENU_LOCAL_ACTION,
+    );
+    $items[$this->path . '/add/%'] = array(
+      'title callback' => 'entity_ui_get_action_title',
+      'title arguments' => array('add', $this->entityType, $this->id_count + 1),
+      'page callback' => 'entity_ui_get_bundle_add_form',
+      'page arguments' => array($this->entityType, $this->id_count + 1),
+      'access callback' => 'entity_access',
+      'access arguments' => array('create', $this->entityType),
+    );
+
+    if (!empty($this->entityInfo['admin ui']['file'])) {
+      // Add in the include file for the entity form.
+      foreach (array('/add', '/add/%') as $path_end) {
+        $items[$this->path . $path_end]['file'] = $this->entityInfo['admin ui']['file'];
+        $items[$this->path . $path_end]['file path'] = isset($this->entityInfo['admin ui']['file path']) ? $this->entityInfo['admin ui']['file path'] : drupal_get_path('module', $this->entityInfo['module']);
+      }
+    }
+
+    return $items;
   }
 }
 
@@ -694,17 +743,37 @@ function entity_ui_get_page_title($op, $entity_type, $entity = NULL) {
     case 'export':
       return t('Export @label', array('@label' => $label));
   }
-  return entity_ui_get_action_title($op, $entity_type);
+  if (isset($entity)) {
+    list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+  }
+  return entity_ui_get_action_title($op, $entity_type, $bundle);
 }
 
 /**
  * Gets the page/menu title for local action operations.
+ *
+ * @param $op
+ *  The current operation. One of 'add' or 'import'.
+ * @param $entity_type
+ *  The entity type.
+ * @param $bundle_name
+ *  (Optional) The name of the bundle. May be NULL if the bundle name is not
+ *  relevant to the current page. If the entity type has only one bundle, or no
+ *  bundles, this will be the same as the entity type.
  */
-function entity_ui_get_action_title($op, $entity_type) {
+function entity_ui_get_action_title($op, $entity_type, $bundle_name = NULL) {
   $info = entity_get_info($entity_type);
   switch ($op) {
     case 'add':
-      return t('Add @entity_type', array('@entity_type' => drupal_strtolower($info['label'])));
+      if (isset($bundle_name) && $bundle_name != $entity_type) {
+        return t('Add @bundle_name @entity_type', array(
+          '@bundle_name' => drupal_strtolower($info['bundles'][$bundle_name]['label']),
+          '@entity_type' => drupal_strtolower($info['label']),
+        ));
+      }
+      else {
+        return t('Add @entity_type', array('@entity_type' => drupal_strtolower($info['label'])));
+      }
     case 'import':
       return t('Import @entity_type', array('@entity_type' => drupal_strtolower($info['label'])));
   }
