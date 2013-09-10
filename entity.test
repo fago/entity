@@ -997,6 +997,14 @@ class EntityMetadataTestCase extends EntityWebTestCase {
 
     // Test field level access.
     $this->assertTrue($wrapper->{$this->field_name}->access('view'), 'Field access granted.');
+
+    // Create node owned by anonymous and test access() method on each of its
+    // properties.
+    $node = $this->drupalCreateNode(array('type' => 'page', 'uid' => 0));
+    $wrapper = entity_metadata_wrapper('node', $node->nid);
+    foreach ($wrapper as $name => $property) {
+      $property->access('view');
+    }
   }
 
   /**

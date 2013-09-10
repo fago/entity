@@ -125,6 +125,9 @@ function entity_metadata_node_get_properties($node, array $options, $name, $enti
 
     case 'edit_url':
       return url('node/' . $node->nid . '/edit', $options);
+
+    case 'author':
+      return !empty($node->uid) ? $node->uid : drupal_anonymous_user();
   }
 }
 
