@@ -507,6 +507,8 @@ function entity_property_text_formatted_info() {
       'label' => t('Text format'),
       'options list' => 'entity_metadata_field_text_formats',
       'getter callback' => 'entity_property_verbatim_get',
+      'setter callback' => 'entity_property_verbatim_set',
+      'setter permissions' => 'administer filters',
     ),
   );
 }
