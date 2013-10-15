@@ -396,7 +396,12 @@ function entity_property_verbatim_get($data, array $options, $name, $type, $info
  */
 function entity_property_verbatim_date_get($data, array $options, $name, $type, $info) {
   $name = isset($info['schema field']) ? $info['schema field'] : $name;
-  return is_numeric($data[$name]) ? $data[$name] : strtotime($data[$name], REQUEST_TIME);
+  if (is_array($data) || (is_object($data) && $data instanceof ArrayAccess)) {
+    return is_numeric($data[$name]) ? $data[$name] : strtotime($data[$name], REQUEST_TIME);
+  }
+  elseif (is_object($data)) {
+    return is_numeric($data->$name) ? $data->$name : strtotime($data->$name, REQUEST_TIME);
+  }
 }
 
 /**
