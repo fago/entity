@@ -1436,6 +1436,11 @@ function _entity_info_add_metadata(&$entity_info) {
   $entity_info['node']['form callback'] = 'entity_metadata_form_node';
   $entity_info['user']['form callback'] = 'entity_metadata_form_user';
 
+  // URI callbacks.
+  if (!isset($entity_info['file']['uri callback'])) {
+    $entity_info['file']['uri callback'] = 'entity_metadata_uri_file';
+  }
+
   // View callbacks.
   $entity_info['node']['view callback'] = 'entity_metadata_view_node';
   $entity_info['user']['view callback'] = 'entity_metadata_view_single';

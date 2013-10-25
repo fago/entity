@@ -975,3 +975,12 @@ function entity_metadata_field_query($entity_type, $property, $value, $limit) {
   $result = $query->execute();
   return !empty($result[$entity_type]) ? array_keys($result[$entity_type]) : array();
 }
+
+/**
+ * Implements entity_uri() callback for file entities.
+ */
+function entity_metadata_uri_file($file) {
+  return array(
+    'path' => file_create_url($file->uri),
+  );
+}
