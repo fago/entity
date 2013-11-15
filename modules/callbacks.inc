@@ -23,7 +23,19 @@ function entity_metadata_book_get_properties($node, array $options, $name, $enti
   if (!isset($node->book['bid'])) {
     throw new EntityMetadataWrapperException('This node is no book page.');
   }
-  return $node->book['bid'];
+  switch ($name) {
+    case 'book':
+      return $node->book['bid'];
+
+    case 'book_ancestors':
+      $ancestors = array();
+      while (!empty($node->book['plid'])) {
+        $link = book_link_load($node->book['plid']);
+        array_unshift($ancestors, $link['nid']);
+        $node = node_load($link['nid']);
+      }
+      return $ancestors;
+  }
 }
 
 /**

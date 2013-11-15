@@ -1210,18 +1210,21 @@ class EntityMetadataIntegrationTestCase extends EntityWebTestCase {
    */
   function testBookModule() {
     $title = 'Book 1';
-    $node = $this->drupalCreateNode(array('title' => $title, 'type' => 'book'));
-    $node2 = $this->drupalCreateNode(array('type' => 'book', 'book' => array('bid' => $node->nid)));
+    $node = $this->drupalCreateNode(array('title' => $title, 'type' => 'book', 'book' => array('bid' => 'new')));
+    $book = array('bid' => $node->nid, 'plid' => $node->book['mlid']);
+    $node2 = $this->drupalCreateNode(array('type' => 'book', 'book' => $book));
     $node3 = $this->drupalCreateNode(array('type' => 'page'));
 
     // Test whether the properties work.
     $wrapper = entity_metadata_wrapper('node', $node2);
-    $this->assertEqual("Book 1", $wrapper->book->title->value(), "Book title returned.");
+    $this->assertEqual($title, $wrapper->book->title->value(), "Book title returned.");
+    $this->assertEqual(array($node->nid), $wrapper->book_ancestors->value(array('identifier' => TRUE)), "Book ancestors returned.");
     $this->assertEqual($node->nid, $wrapper->book->nid->value(), "Book id returned.");
 
     // Try using book properties for no book nodes.
     $wrapper = entity_metadata_wrapper('node', $node3);
     $this->assertException($wrapper, 'book');
+    $this->assertException($wrapper, 'book_ancestors');
   }
 
   /**
@@ -1260,11 +1263,12 @@ class EntityMetadataIntegrationTestCase extends EntityWebTestCase {
     $node = $this->drupalCreateNode(array('title' => $title, 'type' => 'page'));
     $wrapper = entity_metadata_wrapper('node', $node);
     foreach ($wrapper as $key => $value) {
-      if ($key != 'book' && $key != 'source' && $key != 'last_view') {
+      if ($key != 'book' && $key != 'book_ancestors' && $key != 'source' && $key != 'last_view') {
         $this->assertValue($wrapper, $key);
       }
     }
     $this->assertException($wrapper, 'book');
+    $this->assertException($wrapper, 'book_ancestors');
     $this->assertEmpty($wrapper, 'source');
     $this->assertException($wrapper->source, 'title');
     $this->assertEmpty($wrapper, 'last_view');
