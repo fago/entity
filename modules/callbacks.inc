@@ -915,11 +915,11 @@ function entity_metadata_form_taxonomy_term($term) {
 /**
  * Callback to get the form of a vocabulary.
  */
-function entity_metadata_form_taxonomy_vocabulary($term) {
+function entity_metadata_form_taxonomy_vocabulary($vocab) {
   // Pre-populate the form-state with the right form include.
-  $form_state['build_info']['args'] = array($term);
+  $form_state['build_info']['args'] = array($vocab);
   form_load_include($form_state, 'inc', 'taxonomy', 'taxonomy.admin');
-  return drupal_build_form('taxonomy_form_term', $form_state);
+  return drupal_build_form('taxonomy_form_vocabulary', $form_state);
 }
 
 /**
