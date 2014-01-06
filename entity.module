@@ -133,7 +133,7 @@ function entity_ui_bundle_add_page($entity_type) {
   foreach ($info['bundles'] as $bundle_name => $bundle_info) {
     // Create an empty entity with just the bundle set to check for access.
     $dummy_entity = entity_create($entity_type, array(
-      'bundle' => $bundle_name,
+      $info['entity keys']['bundle'] => $bundle_name,
     ));
     // If modules use a uid, they can default to the current-user
     // in their create() method on the storage controller.
