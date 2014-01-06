@@ -1096,6 +1096,231 @@ class EntityMetadataTestCase extends EntityWebTestCase {
 }
 
 /**
+ * Tests basic entity_access() functionality for nodes.
+ *
+ * This code is a modified version of NodeAccessTestCase.
+ *
+ * @see NodeAccessTestCase
+ */
+class EntityMetadataNodeAccessTestCase extends EntityWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Entity Metadata Node Access',
+      'description' => 'Test entity_access() for nodes',
+      'group' => 'Entity API',
+    );
+  }
+
+  /**
+   * Asserts node_access() correctly grants or denies access.
+   */
+  function assertNodeMetadataAccess($ops, $node, $account) {
+    foreach ($ops as $op => $result) {
+      $msg = t("entity_access() returns @result with operation '@op'.", array('@result' => $result ? 'TRUE' : 'FALSE', '@op' => $op));
+      $access = entity_access($op, 'node', $node, $account);
+      $this->assertEqual($result, $access, $msg);
+    }
+  }
+
+  function setUp() {
+    parent::setUp('entity', 'node');
+    // Clear permissions for authenticated users.
+    db_delete('role_permission')
+      ->condition('rid', DRUPAL_AUTHENTICATED_RID)
+      ->execute();
+  }
+
+  /**
+   * Runs basic tests for entity_access() function.
+   */
+  function testNodeMetadataAccess() {
+    // Author user.
+    $node_author_account = $this->drupalCreateUser(array());
+    // Make a node object.
+    $settings = array(
+      'uid' => $node_author_account->uid,
+      'type' => 'page',
+      'title' => 'Node ' . $this->randomName(32),
+    );
+    $node = $this->drupalCreateNode($settings);
+
+    // Ensures user without 'access content' permission can do nothing.
+    $web_user1 = $this->drupalCreateUser(array('create page content', 'edit any page content', 'delete any page content'));
+    $this->assertNodeMetadataAccess(array('create' => FALSE, 'view' => FALSE, 'update' => FALSE, 'delete' => FALSE), $node, $web_user1);
+
+    // Ensures user with 'bypass node access' permission can do everything.
+    $web_user2 = $this->drupalCreateUser(array('bypass node access'));
+    $this->assertNodeMetadataAccess(array('create' => TRUE, 'view' => TRUE, 'update' => TRUE, 'delete' => TRUE), $node, $web_user2);
+
+    // User cannot 'view own unpublished content'.
+    $web_user3 = $this->drupalCreateUser(array('access content'));
+    // Create an unpublished node.
+    $settings = array('type' => 'page', 'status' => 0, 'uid' => $web_user3->uid);
+    $node_unpublished = $this->drupalCreateNode($settings);
+    $this->assertNodeMetadataAccess(array('view' => FALSE), $node_unpublished, $web_user3);
+    // User cannot create content without permission.
+    $this->assertNodeMetadataAccess(array('create' => FALSE), $node, $web_user3);
+
+    // User can 'view own unpublished content', but another user cannot.
+    $web_user4 = $this->drupalCreateUser(array('access content', 'view own unpublished content'));
+    $web_user5 = $this->drupalCreateUser(array('access content', 'view own unpublished content'));
+    $node4 = $this->drupalCreateNode(array('status' => 0, 'uid' => $web_user4->uid));
+    $this->assertNodeMetadataAccess(array('view' => TRUE, 'update' => FALSE), $node4, $web_user4);
+    $this->assertNodeMetadataAccess(array('view' => FALSE), $node4, $web_user5);
+
+    // Tests the default access provided for a published node.
+    $node5 = $this->drupalCreateNode();
+    $this->assertNodeMetadataAccess(array('view' => TRUE, 'update' => FALSE, 'delete' => FALSE, 'create' => FALSE), $node5, $web_user3);
+  }
+}
+
+/**
+ * Test user permissions for node creation.
+ */
+class EntityMetadataNodeCreateAccessTestCase extends EntityWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Entity Metadata Node Create Access',
+      'description' => 'Test entity_access() for nodes',
+      'group' => 'Entity API',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('entity', 'node');
+  }
+
+  /**
+   * Addresses the special case of 'create' access for nodes.
+   */
+  public function testNodeMetadataCreateAccess() {
+    // Create some users. One with super-powers, one with create perms,
+    // and one with no perms, and a different one to author the node.
+    $admin_account = $this->drupalCreateUser(array(
+      'bypass node access',
+    ));
+    $creator_account = $this->drupalCreateUser(array(
+      'create page content',
+    ));
+    $auth_only_account = $this->drupalCreateUser(array());
+    $node_author_account = $this->drupalCreateUser(array());
+
+    // Make a node object with Entity API (contrib)
+    $settings = array(
+      'uid' => $node_author_account->uid,
+      'type' => 'page',
+      'title' => $this->randomName(32),
+      'body' => array(LANGUAGE_NONE => array(array($this->randomName(64)))),
+    );
+    $node = entity_create('node', $settings);
+
+    // Test the populated wrapper.
+    $wrapper = entity_metadata_wrapper('node', $node);
+    $this->assertTrue($wrapper->entityAccess('create', $admin_account), 'Create access allowed for ADMIN, for populated wrapper.');
+    $this->assertTrue($wrapper->entityAccess('create', $creator_account), 'Create access allowed for CREATOR, for populated wrapper.');
+    $this->assertFalse($wrapper->entityAccess('create', $auth_only_account), 'Create access denied for USER, for populated wrapper.');
+
+    // Test entity_acces().
+    $this->assertTrue(entity_access('create', 'node', $node, $admin_account), 'Create access allowed for ADMIN, for entity_access().');
+    $this->assertTrue(entity_access('create', 'node', $node, $creator_account), 'Create access allowed for CREATOR, for entity_access().');
+    $this->assertFalse(entity_access('create', 'node', $node, $auth_only_account), 'Create access denied for USER, for entity_access().');
+  }
+}
+
+/**
+ * Tests user permissions for node revisions.
+ *
+ * Based almost entirely on NodeRevisionPermissionsTestCase.
+ */
+class EntityMetadataNodeRevisionAccessTestCase extends DrupalWebTestCase {
+  protected $node_revisions = array();
+  protected $accounts = array();
+
+  // Map revision permission names to node revision access ops.
+  protected $map = array(
+    'view' => 'view revisions',
+    'update' => 'revert revisions',
+    'delete' => 'delete revisions',
+  );
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Entity Metadata Node Revision Access',
+      'description' => 'Tests user permissions for node revision operations.',
+      'group' => 'Entity API',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('entity', 'node');
+
+    // Create a node with several revisions.
+    $node = $this->drupalCreateNode();
+    $this->node_revisions[] = $node;
+
+    for ($i = 0; $i < 3; $i++) {
+      // Create a revision for the same nid and settings with a random log.
+      $revision = node_load($node->nid);
+      $revision->revision = 1;
+      $revision->log = $this->randomName(32);
+      node_save($revision);
+      $this->node_revisions[] = node_load($revision->nid);
+    }
+
+    // Create three users, one with each revision permission.
+    foreach ($this->map as $op => $permission) {
+      // Create the user.
+      $account = $this->drupalCreateUser(
+        array(
+          'access content',
+          'edit any page content',
+          'delete any page content',
+          $permission,
+        )
+      );
+      $account->op = $op;
+      $this->accounts[] = $account;
+    }
+
+    // Create an admin account (returns TRUE for all revision permissions).
+    $admin_account = $this->drupalCreateUser(array('access content', 'administer nodes'));
+    $admin_account->is_admin = TRUE;
+    $this->accounts['admin'] = $admin_account;
+
+    // Create a normal account (returns FALSE for all revision permissions).
+    $normal_account = $this->drupalCreateUser();
+    $normal_account->op = FALSE;
+    $this->accounts[] = $normal_account;
+  }
+
+  /**
+   * Tests the entity_access() function for revisions.
+   */
+  function testNodeRevisionAccess() {
+    // $node_revisions[1] won't be the latest revision.
+    $revision = $this->node_revisions[1];
+
+    $parameters = array(
+      'op' => array_keys($this->map),
+      'account' => $this->accounts,
+    );
+
+    $permutations = $this->generatePermutations($parameters);
+    $entity_type = 'node';
+    foreach ($permutations as $case) {
+      if (!empty($case['account']->is_admin) || $case['op'] == $case['account']->op) {
+        $access = entity_access($case['op'], $entity_type, $revision, $case['account']);
+        $this->assertTrue($access, "{$this->map[$case['op']]} granted on $entity_type.");
+      }
+      else {
+        $access = entity_access($case['op'], $entity_type, $revision, $case['account']);
+        $this->assertFalse($access, "{$this->map[$case['op']]} NOT granted on $entity_type.");
+      }
+    }
+  }
+}
+
+/**
  * Tests provided entity property info of the core modules.
  */
 class EntityTokenTestCase extends EntityWebTestCase {

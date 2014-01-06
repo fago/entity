@@ -627,23 +627,51 @@ function entity_metadata_field_file_validate_item($items, $context) {
  *
  * This function does not implement hook_node_access(), thus it may not be
  * called entity_metadata_node_access().
+ *
+ * @see entity_access()
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'update', 'create' or
+ *   'delete'.
+ * @param $node
+ *   A node to check access for. Must be a node object. Must have nid,
+ *   except in the case of 'create' operations.
+ * @param $account
+ *   The user to check for. Leave it to NULL to check for the global user.
+ *
+ * @throws EntityMalformedException
+ *
+ * @return boolean
+ *   TRUE if access is allowed, FALSE otherwise.
  */
 function entity_metadata_no_hook_node_access($op, $node = NULL, $account = NULL) {
+  // First deal with the case where a $node is provided.
   if (isset($node)) {
+    if ($op == 'create') {
+      if (isset($node->type)) {
+        return node_access($op, $node->type, $account);
+      }
+      else {
+        throw new EntityMalformedException('Permission to create a node was requested but no node type was given.');
+      }
+    }
     // If a non-default revision is given, incorporate revision access.
     $default_revision = node_load($node->nid);
-    if ($node->vid != $default_revision->vid) {
-      return _node_revision_access($node, $op);
+    if ($node->vid !== $default_revision->vid) {
+      return _node_revision_access($node, $op, $account);
     }
     else {
       return node_access($op, $node, $account);
     }
   }
-  // Is access to all nodes allowed?
+  // No node is provided. Check for access to all nodes.
+  if (user_access('bypass node access', $account)) {
+    return TRUE;
+  }
   if (!user_access('access content', $account)) {
     return FALSE;
   }
-  if (user_access('bypass node access', $account) || (!isset($account) && $op == 'view' && node_access_view_all_nodes())) {
+  if ($op == 'view' && node_access_view_all_nodes($account)) {
     return TRUE;
   }
   return FALSE;

@@ -622,7 +622,15 @@ function entity_view($entity_type, $entities, $view_mode = 'full', $langcode = N
 }
 
 /**
- * Determines whether the given user has access to an entity.
+ * Determines whether the given user can perform actions on an entity.
+ *
+ * For create operations, the pattern is to create an entity and then
+ * check if the user has create access.
+ *
+ * @code
+ * $node = entity_create('node', array('type' => 'page'));
+ * $access = entity_access('create', 'node', $node, $account);
+ * @endcode
  *
  * @param $op
  *   The operation being performed. One of 'view', 'update', 'create' or
