@@ -1005,6 +1005,28 @@ class EntityMetadataTestCase extends EntityWebTestCase {
     foreach ($wrapper as $name => $property) {
       $property->access('view');
     }
+
+    // Property access of entity references takes entity access into account.
+    $node = $this->drupalCreateNode(array('type' => 'article'));
+    $wrapper = entity_metadata_wrapper('node', $node);
+    $unprivileged_user = $this->drupalCreateUser();
+    $privileged_user = $this->drupalCreateUser(array('access user profiles'));
+
+    $this->assertTrue($wrapper->author->access('view', $privileged_user));
+    $this->assertFalse($wrapper->author->access('view', $unprivileged_user));
+
+    // Ensure the same works with multiple entity references by testing the
+    // $node->field_tags example.
+    $privileged_user = $this->drupalCreateUser(array('administer taxonomy'));
+    // Terms are view-able with access content, so make sure to remove this
+    // permission first.
+    user_role_revoke_permissions(DRUPAL_ANONYMOUS_RID, array('access content'));
+    $unprivileged_user = drupal_anonymous_user();
+
+    $this->assertTrue($wrapper->field_tags->access('view', $privileged_user), 'Privileged user has access.');
+    $this->assertTrue($wrapper->field_tags->access('view', $unprivileged_user), 'Unprivileged user has access.');
+    $this->assertTrue($wrapper->field_tags[0]->access('view', $privileged_user), 'Privileged user has access.');
+    $this->assertFalse($wrapper->field_tags[0]->access('view', $unprivileged_user), 'Unprivileged user has no access.');
   }
 
   /**
@@ -1458,11 +1480,11 @@ class EntityMetadataIntegrationTestCase extends EntityWebTestCase {
   function testComments() {
     $title = 'Node 1';
     $node = $this->drupalCreateNode(array('title' => $title, 'type' => 'page'));
-    $account = $this->drupalCreateUser();
+    $author = $this->drupalCreateUser(array('access comments', 'post comments', 'edit own comments'));
     $comment = (object)array(
       'subject' => 'topic',
       'nid' => $node->nid,
-      'uid' => $account->uid,
+      'uid' => $author->uid,
       'cid' => FALSE,
       'pid' => 0,
       'homepage' => '',
@@ -1478,6 +1500,71 @@ class EntityMetadataIntegrationTestCase extends EntityWebTestCase {
       }
     }
     $this->assertEmpty($wrapper, 'parent');
+
+    // Test comment entity access.
+    $admin_user = $this->drupalCreateUser(array('access comments', 'administer comments'));
+    // Also grant access to view user accounts to test the comment author
+    // property.
+    $unprivileged_user = $this->drupalCreateUser(array('access comments', 'access user profiles'));
+    // Published comments can be viewed and edited by the author.
+    $this->assertTrue($wrapper->access('view', $author), 'Comment author is allowed to view the published comment.');
+    $this->assertTrue($wrapper->access('edit', $author), 'Comment author is allowed to edit the published comment.');
+    // We cannot use $wrapper->access('delete') here because it only understands
+    // view and edit.
+    $this->assertFalse(entity_access('delete', 'comment', $comment, $author), 'Comment author is not allowed to delete the published comment.');
+
+    // Administrators can do anything with published comments.
+    $this->assertTrue($wrapper->access('view', $admin_user), 'Comment administrator is allowed to view the published comment.');
+    $this->assertTrue($wrapper->access('edit', $admin_user), 'Comment administrator is allowed to edit the published comment.');
+    $this->assertTrue(entity_access('delete', 'comment', $comment, $admin_user), 'Comment administrator is allowed to delete the published comment.');
+
+    // Unpriviledged users can only view the published comment.
+    $this->assertTrue($wrapper->access('view', $unprivileged_user), 'Unprivileged user is allowed to view the published comment.');
+    $this->assertFalse($wrapper->access('edit', $unprivileged_user), 'Unprivileged user is not allowed to edit the published comment.');
+    $this->assertFalse(entity_access('delete', 'comment', $comment, $unprivileged_user), 'Unprivileged user is not allowed to delete the published comment.');
+
+    // Test property view access.
+    $view_access = array('name', 'homepage', 'subject', 'created', 'author', 'node', 'parent', 'url', 'edit_url');
+    foreach ($view_access as $property_name) {
+      $this->assertTrue($wrapper->{$property_name}->access('view', $unprivileged_user), "Unpriviledged user can view the $property_name property.");
+    }
+
+    $view_denied = array('hostname', 'mail', 'status');
+    foreach ($view_denied as $property_name) {
+      $this->assertFalse($wrapper->{$property_name}->access('view', $unprivileged_user), "Unpriviledged user can not view the $property_name property.");
+      $this->assertTrue($wrapper->{$property_name}->access('view', $admin_user), "Admin user can view the $property_name property.");
+    }
+
+    // The author is allowed to edit the comment subject if they have the
+    // 'edit own comments' permission.
+    $this->assertTrue($wrapper->subject->access('edit', $author), "Author can edit the subject property.");
+    $this->assertFalse($wrapper->subject->access('edit', $unprivileged_user), "Unpriviledged user cannot edit the subject property.");
+    $this->assertTrue($wrapper->subject->access('edit', $admin_user), "Admin user can edit the subject property.");
+
+    $edit_denied = array('hostname', 'mail', 'status', 'name', 'homepage', 'created', 'parent', 'node', 'author');
+    foreach ($edit_denied as $property_name) {
+      $this->assertFalse($wrapper->{$property_name}->access('edit', $author), "Author cannot edit the $property_name property.");
+      $this->assertTrue($wrapper->{$property_name}->access('edit', $admin_user), "Admin user can edit the $property_name property.");
+    }
+
+    // Test access to unpublished comments.
+    $comment->status = COMMENT_NOT_PUBLISHED;
+    comment_save($comment);
+
+    // Unpublished comments cannot be accessed by the author.
+    $this->assertFalse($wrapper->access('view', $author), 'Comment author is not allowed to view the unpublished comment.');
+    $this->assertFalse($wrapper->access('edit', $author), 'Comment author is not allowed to edit the unpublished comment.');
+    $this->assertFalse(entity_access('delete', 'comment', $comment, $author), 'Comment author is not allowed to delete the unpublished comment.');
+
+    // Administrators can do anything with unpublished comments.
+    $this->assertTrue($wrapper->access('view', $admin_user), 'Comment administrator is allowed to view the unpublished comment.');
+    $this->assertTrue($wrapper->access('edit', $admin_user), 'Comment administrator is allowed to edit the unpublished comment.');
+    $this->assertTrue(entity_access('delete', 'comment', $comment, $admin_user), 'Comment administrator is allowed to delete the unpublished comment.');
+
+    // Unpriviledged users cannot access unpublished comments.
+    $this->assertFalse($wrapper->access('view', $unprivileged_user), 'Unprivileged user is not allowed to view the unpublished comment.');
+    $this->assertFalse($wrapper->access('edit', $unprivileged_user), 'Unprivileged user is not allowed to edit the unpublished comment.');
+    $this->assertFalse(entity_access('delete', 'comment', $comment, $unprivileged_user), 'Unprivileged user is not allowed to delete the unpublished comment.');
   }
 
   /**
@@ -1497,6 +1584,24 @@ class EntityMetadataIntegrationTestCase extends EntityWebTestCase {
     $this->assertEmpty($wrapper, 'source');
     $this->assertException($wrapper->source, 'title');
     $this->assertEmpty($wrapper, 'last_view');
+
+    // Test statistics module integration access.
+    $unpriviledged_user = $this->drupalCreateUser(array('access content'));
+    $this->assertTrue($wrapper->access('view', $unpriviledged_user), 'Unpriviledged user can view the node.');
+    $this->assertFalse($wrapper->access('edit', $unpriviledged_user), 'Unpriviledged user can not edit the node.');
+    $count_access_user = $this->drupalCreateUser(array('view post access counter'));
+    $admin_user = $this->drupalCreateUser(array('access content', 'view post access counter', 'access statistics'));
+
+    $this->assertFalse($wrapper->views->access('view', $unpriviledged_user), "Unpriviledged user cannot view the statistics counter property.");
+    $this->assertTrue($wrapper->views->access('view', $count_access_user), "Count access user can view the statistics counter property.");
+    $this->assertTrue($wrapper->views->access('view', $admin_user), "Admin user can view the statistics counter property.");
+
+    $admin_properties = array('day_views', 'last_view');
+    foreach ($admin_properties as $property_name) {
+      $this->assertFalse($wrapper->{$property_name}->access('view', $unpriviledged_user), "Unpriviledged user cannot view the $property_name property.");
+      $this->assertFalse($wrapper->{$property_name}->access('view', $count_access_user), "Count access user cannot view the $property_name property.");
+      $this->assertTrue($wrapper->{$property_name}->access('view', $admin_user), "Admin user can view the $property_name property.");
+    }
   }
 
   /**
@@ -1591,12 +1696,43 @@ class EntityMetadataIntegrationTestCase extends EntityWebTestCase {
    * Test all properties of a user.
    */
   function testUserProperties() {
-    $account = $this->drupalCreateUser();
+    $account = $this->drupalCreateUser(array('access user profiles', 'change own username'));
     $account->login = REQUEST_TIME;
     $account->access = REQUEST_TIME;
     $wrapper = entity_metadata_wrapper('user', $account);
     foreach ($wrapper as $key => $value) {
       $this->assertValue($wrapper, $key);
+    }
+
+    // Test property view access.
+    $unpriviledged_user = $this->drupalCreateUser(array('access user profiles'));
+    $admin_user = $this->drupalCreateUser(array('administer users'));
+    $this->assertTrue($wrapper->access('view', $unpriviledged_user), 'Unpriviledged account can view the user.');
+    $this->assertFalse($wrapper->access('edit', $unpriviledged_user), 'Unpriviledged account can not edit the user.');
+
+    $view_access = array('name', 'url', 'edit_url', 'created');
+    foreach ($view_access as $property_name) {
+      $this->assertTrue($wrapper->{$property_name}->access('view', $unpriviledged_user), "Unpriviledged user can view the $property_name property.");
+    }
+
+    $view_denied = array('mail', 'last_access', 'last_login', 'roles', 'status', 'theme');
+    foreach ($view_denied as $property_name) {
+      $this->assertFalse($wrapper->{$property_name}->access('view', $unpriviledged_user), "Unpriviledged user can not view the $property_name property.");
+      $this->assertTrue($wrapper->{$property_name}->access('view', $admin_user), "Admin user can view the $property_name property.");
+    }
+
+    // Test property edit access.
+    $edit_own_allowed = array('name', 'mail');
+    foreach ($edit_own_allowed as $property_name) {
+      $this->assertTrue($wrapper->{$property_name}->access('edit', $account), "Account owner can edit the $property_name property.");
+    }
+
+    $this->assertTrue($wrapper->roles->access('view', $account), "Account owner can view their own roles.");
+
+    $edit_denied = array('last_access', 'last_login', 'created', 'roles', 'status', 'theme');
+    foreach ($edit_denied as $property_name) {
+      $this->assertFalse($wrapper->{$property_name}->access('edit', $account), "Account owner cannot edit the $property_name property.");
+      $this->assertTrue($wrapper->{$property_name}->access('edit', $admin_user), "Admin user can edit the $property_name property.");
     }
   }
 

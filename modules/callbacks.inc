@@ -207,6 +207,16 @@ function entity_metadata_statistics_node_get_properties($node, array $options, $
 }
 
 /**
+ * Access callback for restricted node statistics properties.
+ */
+function entity_metadata_statistics_properties_access($op, $property, $entity = NULL, $account = NULL) {
+  if ($property == 'views' && user_access('view post access counter', $account)) {
+    return TRUE;
+  }
+  return user_access('access statistics', $account);
+}
+
+/**
  * Callback for getting site-wide properties.
  * @see entity_metadata_system_entity_info_alter()
  */
@@ -733,6 +743,18 @@ function entity_metadata_comment_access($op, $entity = NULL, $account = NULL) {
       return FALSE;
     }
   }
+
+  // Comment administrators are allowed to perform all operations on all
+  // comments.
+  if (user_access('administer comments', $account)) {
+    return TRUE;
+  }
+
+  // Unpublished comments can never be accessed by non-admins.
+  if (isset($entity->status) && $entity->status == COMMENT_NOT_PUBLISHED) {
+    return FALSE;
+  }
+
   if (isset($entity) && $op == 'update') {
     // Because 'comment_access' only checks the current user, we need to do our
     // own access checking if an account was specified.
@@ -740,13 +762,20 @@ function entity_metadata_comment_access($op, $entity = NULL, $account = NULL) {
       return comment_access('edit', $entity);
     }
     else {
-      return ($account->uid && $account->uid == $entity->uid && $entity->status == COMMENT_PUBLISHED && user_access('edit own comments', $account)) || user_access('administer comments', $account);
+      return $account->uid && $account->uid == $entity->uid && user_access('edit own comments', $account);
     }
   }
-  if (user_access('administer comments', $account) || user_access('access comments', $account) && $op == 'view') {
+  if (user_access('access comments', $account) && $op == 'view') {
     return TRUE;
   }
   return FALSE;
+}
+
+/**
+ * Access callback for restricted comment properties.
+ */
+function entity_metadata_comment_properties_access($op, $property, $entity = NULL, $account = NULL) {
+  return user_access('administer comments', $account);
 }
 
 /**
