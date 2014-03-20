@@ -758,7 +758,7 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
     elseif ($this->id === FALSE && !$this->data) {
       $this->updateParent(NULL);
     }
-    elseif ($previous_id != $this->id) {
+    elseif ($previous_id !== $this->id) {
       $this->updateParent($this->id);
     }
     return $this;
