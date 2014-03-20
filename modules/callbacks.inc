@@ -413,7 +413,7 @@ function entity_metadata_language_list() {
   $list = array();
   $list[LANGUAGE_NONE] = t('Language neutral');
   foreach (language_list() as $language) {
-    $list[$language->language] = $language->name;
+    $list[$language->language] = t($language->name);
   }
   return $list;
 }
