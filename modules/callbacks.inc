@@ -20,12 +20,12 @@ function entity_metadata_entity_get_properties($entity, array $options, $name, $
  * @see entity_metadata_book_entity_info_alter()
  */
 function entity_metadata_book_get_properties($node, array $options, $name, $entity_type) {
-  if (!isset($node->book['bid'])) {
-    throw new EntityMetadataWrapperException('This node is no book page.');
-  }
   switch ($name) {
     case 'book':
-      return $node->book['bid'];
+      if (isset($node->book['bid'])) {
+        return $node->book['bid'];
+      }
+      return NULL;
 
     case 'book_ancestors':
       $ancestors = array();
