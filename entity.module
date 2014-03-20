@@ -203,6 +203,9 @@ function entity_ui_get_page_title($op, $entity_type, $entity = NULL) {
   if (isset($entity)) {
     list(, , $bundle) = entity_extract_ids($entity_type, $entity);
   }
+  else {
+    $bundle = NULL;
+  }
   return entity_ui_get_action_title($op, $entity_type, $bundle);
 }
 
