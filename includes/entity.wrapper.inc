@@ -1044,8 +1044,11 @@ class EntityListWrapper extends EntityMetadataWrapper implements IteratorAggrega
     // Support setting lists of fully loaded entities.
     if ($this->isEntityList && $values && is_object(reset($values))) {
       foreach ($values as $key => $value) {
-        list($id, $vid, $bundle) = entity_extract_ids($this->itemType, $value);
-        $values[$key] = $id;
+        // Ignore outdated NULL value references in lists of entities.
+        if (isset($value)) {
+          list($id, $vid, $bundle) = entity_extract_ids($this->itemType, $value);
+          $values[$key] = $id;
+        }
       }
     }
     return parent::set($values);
