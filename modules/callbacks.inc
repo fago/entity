@@ -92,6 +92,12 @@ function entity_metadata_comment_get_node_properties($node, array $options, $nam
 
     case 'comment_count_new':
       return comment_num_new($node->nid);
+
+    case 'comments':
+      $select = db_select('comment', 'c')
+        ->fields('c', array('cid'))
+        ->condition('c.nid', $node->nid);
+      return array_keys($select->execute()->fetchAllKeyed(0, 0));
   }
 }
 
