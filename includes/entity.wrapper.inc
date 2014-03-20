@@ -824,6 +824,12 @@ class EntityDrupalWrapper extends EntityStructureWrapper {
    */
   public function entityAccess($op, $account = NULL) {
     $entity = $this->dataAvailable() ? $this->value() : NULL;
+    // The value() method could return FALSE on entities such as user 0, so we
+    // need to use NULL instead to conform to the expectations of
+    // entity_access().
+    if ($entity === FALSE) {
+      $entity = NULL;
+    }
     return entity_access($op, $this->type, $entity, $account);
   }
 
