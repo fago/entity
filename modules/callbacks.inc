@@ -972,10 +972,17 @@ function entity_metadata_form_comment($comment) {
  * Callback to get the form of a user account.
  */
 function entity_metadata_form_user($account) {
-  // Pre-populate the form-state with the right form include.
+  // If $account->uid is set then we want a user edit form.
+  // Otherwise we want the user register form.
+  if (isset($account->uid)) {
+    $form_id = 'user_profile_form';
+    form_load_include($form_state, 'inc', 'user', 'user.pages');
+  }
+  else {
+    $form_id = 'user_register_form';
+  }
   $form_state['build_info']['args'] = array($account);
-  form_load_include($form_state, 'inc', 'user', 'user.pages');
-  return drupal_build_form('user_profile_form', $form_state);
+  return drupal_build_form($form_id, $form_state);
 }
 
 /**
