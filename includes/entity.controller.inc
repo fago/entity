@@ -171,7 +171,7 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
     if ($this->revisionKey) {
       // Compare revision id of the base and revision table, if equal then this
       // is the default revision.
-      $query->addExpression('base.' . $this->revisionKey . ' = revision.' . $this->revisionKey, $this->defaultRevisionKey);
+      $query->addExpression('CASE WHEN base.' . $this->revisionKey . ' = revision.' . $this->revisionKey . ' THEN 1 ELSE 0 END', $this->defaultRevisionKey);
     }
     return $query;
   }
