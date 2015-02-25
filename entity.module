@@ -1076,7 +1076,8 @@ function entity_flush_caches() {
   // case of enabling or disabling modules we already rebuild defaults in
   // entity_modules_enabled() and entity_modules_disabled(), so we do not need
   // to do it again.
-  if (current_path() != 'admin/modules/list/confirm') {
+  // Also check if rebuilding on cache flush is explicitly disabled.
+  if (current_path() != 'admin/modules/list/confirm' && variable_get('entity_rebuild_on_flush', TRUE)) {
     entity_defaults_rebuild();
   }
 
