@@ -1,4 +1,4 @@
-name: Entity next
-description: This module is an incubator for future entity additions to core.
+name: Entity
+description: Provides expanded entity APIs, which will be moved to Drupal core one day.
 type: module
 core: 8.x
