@@ -1,0 +1,4 @@
+name: Entity next
+description: This module is an incubator for future entity additions to core.
+type: module
+core: 8.x
