@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Route;
 
 /**
  * @coversDefaultClass \Drupal\entity\ParamConverter\EntityRevisionParamConverter
- * @group content_entity_base
+ * @group entity
  */
 class EntityRevisionParamConverterTest extends \PHPUnit_Framework_TestCase {
 
