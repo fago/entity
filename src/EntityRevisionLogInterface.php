@@ -27,7 +27,6 @@ interface EntityRevisionLogInterface {
    *   The revision log message.
    *
    * @return $this
-   *   The class instance that this method is called on.
    */
   public function setRevisionLog($revision_log);
 
