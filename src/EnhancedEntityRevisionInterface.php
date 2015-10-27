@@ -15,8 +15,9 @@ interface EnhancedEntityRevisionInterface {
   /**
    * Gets the node revision creation timestamp.
    *
-   * @return int
-   *   The UNIX timestamp of when this revision was created.
+   * @return int|NULL
+   *   The UNIX timestamp of when this revision was created. Return NULL if the
+   *   entity type does not support revision create time.
    */
   public function getRevisionCreationTime();
 
@@ -33,8 +34,9 @@ interface EnhancedEntityRevisionInterface {
   /**
    * Gets the node revision author.
    *
-   * @return \Drupal\user\UserInterface
-   *   The user entity for the revision author.
+   * @return \Drupal\user\UserInterface|NULL
+   *   The user entity for the revision author. Return NULL if the entity type
+   *   doesn't support revision authors.
    */
   public function getRevisionAuthor();
 
@@ -53,8 +55,9 @@ interface EnhancedEntityRevisionInterface {
    *
    * Returns the entity revision log message.
    *
-   * @return string
-   *   The revision log message.
+   * @return string|NULL
+   *   The revision log message. Return NULL if the entity type doesn't support
+   *   revision logs.
    */
   public function getRevisionLog();
 
