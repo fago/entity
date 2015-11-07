@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\src\Storage\RevisionableStorageTrait.
+ * Contains \Drupal\entity\Storage\RevisionableStorageTrait.
  */
 
-namespace Drupal\src\Storage;
+namespace Drupal\entity\Storage;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 
@@ -16,6 +16,11 @@ trait RevisionableStorageTrait {
 
   /**
    * Gets an entity query instance.
+   *
+   * @param string $conjunction
+   *   (optional) The logical operator for the query, either:
+   *   - AND: all of the conditions on the query need to match.
+   *   - OR: at least one of the conditions on the query need to match.
    *
    * @return \Drupal\Core\Entity\Query\QueryInterface
    *   The query instance.
@@ -42,7 +47,7 @@ trait RevisionableStorageTrait {
   public function revisionIds(ContentEntityInterface $entity) {
     $result = $this->getQuery()
       ->allRevisions()
-      ->condition($entity_type->getKey('id'), $entity->id())
+      ->condition($entity->getEntityType()->getKey('id'), $entity->id())
       ->execute();
     return array_keys($result);
   }
