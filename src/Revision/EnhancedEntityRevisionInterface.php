@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\src\EnhancedEntityRevisionInterface.
+ * Contains \Drupal\entity\Revision\EnhancedEntityRevisionInterface.
  */
 
-namespace Drupal\src;
+namespace Drupal\entity\Revision;
 
 /**
  * Defines an entity type with create/author/log information for revisions.
