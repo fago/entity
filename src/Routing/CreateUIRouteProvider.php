@@ -70,8 +70,8 @@ class CreateUIRouteProvider implements EntityRouteProviderInterface {
   protected function addPageRoute(EntityTypeInterface $entity_type) {
     if ($entity_type->hasLinkTemplate('add-page')) {
       $route = new Route($entity_type->getLinkTemplate('add-page'));
-      $route->setDefault('_controller', '\Drupal\Core\Entity\Controller\EntityCrudController::addPage');
-      $route->setDefault('_title_callback', '\Drupal\Core\Entity\Controller\EntityCrudController::getAddPageTitle');
+      $route->setDefault('_controller', '\Drupal\src\Controller\EntityCreateController::addPage');
+      $route->setDefault('_title_callback', '\Drupal\src\Controller\EntityCreateController::getAddPageTitle');
       $route->setDefault('entity_definition', $entity_type->id());
       $route->setOption('parameters', ['entity_definition' => ['type' => 'entity_definition']]);
       $route->setRequirement('_entity_create_access', $entity_type->id());
@@ -89,8 +89,8 @@ class CreateUIRouteProvider implements EntityRouteProviderInterface {
   protected function addFormRoute(EntityTypeInterface $entity_type) {
     if ($entity_type->hasLinkTemplate('add-form')) {
       $route = new Route('entity.' . $entity_type->id() . '.add-form');
-      $route->setDefault('_controller', '\Drupal\Core\Entity\Controller\EntityCrudController::addForm');
-      $route->setDefault('_title_callback', '\Drupal\Core\Entity\Controller\EntityCrudController::getAddFormTitle');
+      $route->setDefault('_controller', '\Drupal\src\Controller\EntityCreateController::addForm');
+      $route->setDefault('_title_callback', '\Drupal\src\Controller\EntityCreateController::getAddFormTitle');
       $route->setDefault('entity_type', $entity_type->id());
       $route->setRequirement('_entity_create_access', $entity_type->id());
       return $route;
