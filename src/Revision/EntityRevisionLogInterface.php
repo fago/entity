@@ -2,18 +2,18 @@
 
 /**
  * @file
- * Contains \Drupal\entity\Revision\EnhancedEntityRevisionInterface.
+ * Contains \Drupal\entity\Revision\EntityRevisionLogInterface.
  */
 
 namespace Drupal\entity\Revision;
 
 /**
- * Defines an entity type with create/author/log information for revisions.
+ * Defines an entity type with create time/author/log information for revisions.
  */
-interface EnhancedEntityRevisionInterface {
+interface EntityRevisionLogInterface {
 
   /**
-   * Gets the node revision creation timestamp.
+   * Gets the entity revision creation timestamp.
    *
    * @return int|NULL
    *   The UNIX timestamp of when this revision was created. Return NULL if the
@@ -22,7 +22,7 @@ interface EnhancedEntityRevisionInterface {
   public function getRevisionCreationTime();
 
   /**
-   * Sets the node revision creation timestamp.
+   * Sets the entity revision creation timestamp.
    *
    * @param int $timestamp
    *   The UNIX timestamp of when this revision was created.
@@ -32,43 +32,41 @@ interface EnhancedEntityRevisionInterface {
   public function setRevisionCreationTime($timestamp);
 
   /**
-   * Gets the node revision author.
+   * Gets the entity revision author.
    *
    * @return \Drupal\user\UserInterface|NULL
    *   The user entity for the revision author. Return NULL if the entity type
    *   doesn't support revision authors.
    */
-  public function getRevisionAuthor();
+  public function getRevisionUser();
 
   /**
-   * Sets the node revision author.
+   * Sets the entity revision author.
    *
-   * @param int $uid
+   * @param int $user_id
    *   The user ID of the revision author.
    *
    * @return $this
    */
-  public function setRevisionAuthorId($uid);
+  public function setRevisionUser($user_id);
 
   /**
-   * @todo Ideally this would be its own interface?
-   *
    * Returns the entity revision log message.
    *
    * @return string|NULL
    *   The revision log message. Return NULL if the entity type doesn't support
    *   revision logs.
    */
-  public function getRevisionLog();
+  public function getRevisionLogMessage();
 
   /**
    * Sets the entity revision log message.
    *
-   * @param string $revision_log
+   * @param string $revision_log_message
    *   The revision log message.
    *
    * @return $this
    */
-  public function setRevisionLog($revision_log);
+  public function setRevisionLogMessage($revision_log_message);
 
 }
