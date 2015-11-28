@@ -54,8 +54,12 @@ class EntityRevisionLogTraitTest extends KernelTestBase {
 
     $entity->setRevisionCreationTime(1234567890);
     $this->assertEquals(1234567890, $entity->getRevisionCreationTime());
-    $entity->setRevisionUser($user2->id());
+    $entity->setRevisionUser($user2);
     $this->assertEquals($user2->id(), $entity->getRevisionUser()->id());
+    $this->assertEquals($user2->id(), $entity->getRevisionUserId());
+    $entity->setRevisionUserId($user->id());
+    $this->assertEquals($user->id(), $entity->getRevisionUserId());
+
     $entity->setRevisionLogMessage('Giraffe!');
     $this->assertEquals('Giraffe!', $entity->getRevisionLogMessage());
   }
