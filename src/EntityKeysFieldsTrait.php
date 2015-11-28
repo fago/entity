@@ -26,35 +26,41 @@ trait EntityKeysFieldsTrait {
   protected function entityKeysBaseFieldDefinitions(ContentEntityTypeInterface $entity_type) {
     $fields = [];
 
-    $fields[$entity_type->getKey('id')] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('ID'))
-      ->setReadOnly(TRUE)
-      ->setSetting('unsigned', TRUE);
+    if ($entity_type->hasKey('id')) {
+      $fields[$entity_type->getKey('id')] = BaseFieldDefinition::create('integer')
+        ->setLabel(t('ID'))
+        ->setReadOnly(TRUE)
+        ->setSetting('unsigned', TRUE);
+    }
 
-    $fields[$entity_type->getKey('uuid')] = BaseFieldDefinition::create('uuid')
-      ->setLabel(t('UUID'))
-      ->setReadOnly(TRUE);
+    if ($entity_type->hasKey('uuid')) {
+      $fields[$entity_type->getKey('uuid')] = BaseFieldDefinition::create('uuid')
+        ->setLabel(t('UUID'))
+        ->setReadOnly(TRUE);
+    }
 
-    if ($entity_type->isRevisionable()) {
+    if ($entity_type->isRevisionable() && $entity_type->hasKey('revision')) {
       $fields[$entity_type->getKey('revision')] = BaseFieldDefinition::create('integer')
         ->setLabel(t('Revision ID'))
         ->setReadOnly(TRUE)
         ->setSetting('unsigned', TRUE);
     }
 
-    $fields[$entity_type->getKey('langcode')] = BaseFieldDefinition::create('language')
-      ->setLabel(t('Language'))
-      ->setTranslatable(TRUE)
-      ->setRevisionable(TRUE)
-      ->setDisplayOptions('view', [
-        'type' => 'hidden',
-      ])
-      ->setDisplayOptions('form', [
-        'type' => 'language_select',
-        'weight' => 2,
-      ]);
+    if ($entity_type->hasKey('langcode')) {
+      $fields[$entity_type->getKey('langcode')] = BaseFieldDefinition::create('language')
+        ->setLabel(t('Language'))
+        ->setTranslatable(TRUE)
+        ->setRevisionable(TRUE)
+        ->setDisplayOptions('view', [
+          'type' => 'hidden',
+        ])
+        ->setDisplayOptions('form', [
+          'type' => 'language_select',
+          'weight' => 2,
+        ]);
+    }
 
-    if ($bundle_entity_type_id = $entity_type->getBundleEntityType()) {
+    if ($bundle_entity_type_id = $entity_type->getBundleEntityType() && $entity_type->hasKey('bundle')) {
       $bundle_key = $entity_type->getKey('bundle');
       $fields[$bundle_key] = BaseFieldDefinition::create('entity_reference')
         ->setLabel(t('Type'))
