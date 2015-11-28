@@ -44,7 +44,7 @@ class EntityRevisionLogTraitTest extends KernelTestBase {
     /** @var \Drupal\entity\Revision\EntityRevisionLogInterface $entity */
     $entity = EntityWithRevisionLog::create([
       'revision_user' => $user->id(),
-      'revision_create' => 1447941735,
+      'revision_created' => 1447941735,
       'revision_log_message' => 'Test message',
     ]);
 
