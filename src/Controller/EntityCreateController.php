@@ -11,6 +11,9 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Generic controller to provide /entity/add and /entity/add/{bundle} routes.
+ */
 class EntityCreateController extends ControllerBase {
 
   /**
@@ -27,10 +30,10 @@ class EntityCreateController extends ControllerBase {
    *   returns the custom entity add page for that custom entity type.
    */
   public function addPage($entity_type_id, Request $request) {
-    $entity_type = $this->entityManager()->getDefinition($entity_type_id);
+    $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
     // Get the storage controller for this entity.
     $bundle_storage = $entity_type->getBundleEntityType()
-      ? $this->entityManager()->getStorage($entity_type->getBundleEntityType())
+      ? $this->entityTypeManager()->getStorage($entity_type->getBundleEntityType())
       : NULL;
     // Load all entity types for this entity definition.
     $types = $bundle_storage->loadMultiple();
@@ -81,10 +84,10 @@ class EntityCreateController extends ControllerBase {
    *   The title customized for this entity type.
    */
   public function getAddPageTitle($entity_type_id) {
-    $entity_type = $this->entityManager()->getDefinition($entity_type_id);
+    $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
     // Get the storage controller for this entity.
     $bundle_storage = $entity_type->getBundleEntityType()
-      ? $this->entityManager()->getStorage($entity_type->getBundleEntityType())
+      ? $this->entityTypeManager()->getStorage($entity_type->getBundleEntityType())
       : NULL;
     $types = [];
     if ($bundle_storage) {
@@ -117,10 +120,10 @@ class EntityCreateController extends ControllerBase {
    *   A form array as expected by drupal_render().
    */
   public function addForm($entity_type_id, $entity_bundle_id) {
-    $entity_type = $this->entityManager()->getDefinition($entity_type_id);
+    $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
 
     // Get the entity storage for this entity type.
-    $entity_storage = $this->entityManager()->getStorage($entity_type_id);
+    $entity_storage = $this->entityTypeManager()->getStorage($entity_type_id);
 
     $bundle_key = $entity_type->getKey('bundle');
     $entity = $entity_storage->create([
@@ -141,8 +144,8 @@ class EntityCreateController extends ControllerBase {
    *   The page title.
    */
   public function getAddFormTitle($entity_type_id, $entity_bundle_id) {
-    $entity_type = $this->entityManager()->getDefinition($entity_type_id);
-    $entity_bundle = $this->entityManager()->getStorage($entity_type->getBundleEntityType())->load($entity_bundle_id);
+    $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
+    $entity_bundle = $this->entityTypeManager()->getStorage($entity_type->getBundleEntityType())->load($entity_bundle_id);
     // Build the form page title using the type.
     return $this->t('Add %type @entity_label', [
       '@entity_label' => $entity_type->getLabel(),

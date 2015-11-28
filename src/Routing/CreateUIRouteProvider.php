@@ -44,7 +44,7 @@ class CreateUIRouteProvider implements EntityRouteProviderInterface {
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *
-   * @return \Symfony\Component\Routing\Route|NULL
+   * @return \Symfony\Component\Routing\Route|null
    */
   protected function collectionRoute(EntityTypeInterface $entity_type) {
     if ($entity_type->hasLinkTemplate('collection')) {
@@ -65,7 +65,7 @@ class CreateUIRouteProvider implements EntityRouteProviderInterface {
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *
-   * @return \Symfony\Component\Routing\Route|NULL
+   * @return \Symfony\Component\Routing\Route|null
    */
   protected function addPageRoute(EntityTypeInterface $entity_type) {
     if ($entity_type->hasLinkTemplate('add-page')) {
@@ -84,7 +84,7 @@ class CreateUIRouteProvider implements EntityRouteProviderInterface {
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *
-   * @return \Symfony\Component\Routing\Route|NULL
+   * @return \Symfony\Component\Routing\Route|null
    */
   protected function addFormRoute(EntityTypeInterface $entity_type) {
     if ($entity_type->hasLinkTemplate('add-form')) {
