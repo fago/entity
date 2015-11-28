@@ -8,6 +8,7 @@
 namespace Drupal\entity\Revision;
 
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\user\UserInterface;
 
 /**
  * Provides a trait implementing \Drupal\entity\Revision\EntityRevisionLogInterface.
@@ -74,7 +75,22 @@ trait EntityRevisionLogTrait {
   /**
    * {@inheritdoc}
    */
-  public function setRevisionUser($user_id) {
+  public function setRevisionUser(UserInterface $account) {
+    $this->revision_user->entity = $account;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRevisionUserId() {
+    return $this->revision_user->target_id;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setRevisionUserId($user_id) {
     $this->revision_user->target_id = $user_id;
     return $this;
   }

@@ -43,12 +43,30 @@ interface EntityRevisionLogInterface {
   /**
    * Sets the entity revision author.
    *
+   * @param \Drupal\user\UserInterface $account
+   *   The user account of the revision author.
+   *
+   * @return $this
+   */
+  public function setRevisionUser($account);
+
+  /**
+   * Gets the entity revision author ID.
+   *
+   * @return int
+   *   The user ID.
+   */
+  public function getRevisionUserId();
+
+  /**
+   * Sets the entity revision author by ID.
+   *
    * @param int $user_id
    *   The user ID of the revision author.
    *
    * @return $this
    */
-  public function setRevisionUser($user_id);
+  public function setRevisionUserId($user_id);
 
   /**
    * Returns the entity revision log message.
