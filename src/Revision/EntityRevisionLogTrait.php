@@ -19,7 +19,7 @@ trait EntityRevisionLogTrait {
    *
    * @return \Drupal\Core\Field\BaseFieldDefinition[]
    */
-  protected static function enhancedEntityRevisionDefaultBaseFields() {
+  protected static function entityRevisionLogBaseFieldDefinitions() {
     $fields = [];
 
     $fields['revision_created'] = BaseFieldDefinition::create('created')

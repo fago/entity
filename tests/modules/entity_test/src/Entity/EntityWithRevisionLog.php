@@ -64,7 +64,7 @@ class EntityWithRevisionLog extends ContentEntityBase {
         'weight' => 2,
       ]);
 
-    $fields += static::enhancedEntityRevisionDefaultBaseFields();
+    $fields += static::entityRevisionLogBaseFieldDefinitions();
 
     return $fields;
   }
