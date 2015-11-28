@@ -10,6 +10,7 @@ namespace Drupal\entity_test\Entity;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\entity\EntityKeysFieldsTrait;
 use Drupal\entity\Revision\EntityRevisionLogTrait;
 
 /**
@@ -31,6 +32,7 @@ use Drupal\entity\Revision\EntityRevisionLogTrait;
 class EntityWithRevisionLog extends ContentEntityBase {
 
   use EntityRevisionLogTrait;
+  use EntityKeysFieldsTrait;
 
   /**
    * {@inheritdoc}
@@ -38,32 +40,7 @@ class EntityWithRevisionLog extends ContentEntityBase {
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = [];
 
-    $fields['id'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t(''))
-      ->setReadOnly(TRUE)
-      ->setSetting('unsigned', TRUE);
-
-    $fields['uuid'] = BaseFieldDefinition::create('uuid')
-      ->setLabel(t('UUID'))
-      ->setReadOnly(TRUE);
-
-    $fields['vid'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('Revision ID'))
-      ->setReadOnly(TRUE)
-      ->setSetting('unsigned', TRUE);
-
-    $fields['langcode'] = BaseFieldDefinition::create('language')
-      ->setLabel(t('Language'))
-      ->setTranslatable(TRUE)
-      ->setRevisionable(TRUE)
-      ->setDisplayOptions('view', [
-        'type' => 'hidden',
-      ])
-      ->setDisplayOptions('form', [
-        'type' => 'language_select',
-        'weight' => 2,
-      ]);
-
+    $fields += static::entityKeysBaseFieldDefinitions($entity_type);
     $fields += static::entityRevisionLogBaseFieldDefinitions();
 
     return $fields;

@@ -23,7 +23,7 @@ trait EntityKeysFieldsTrait {
    *
    * @return \Drupal\Core\Field\BaseFieldDefinition[]
    */
-  protected function entityKeysBaseFieldDefinitions(ContentEntityTypeInterface $entity_type) {
+  protected static function entityKeysBaseFieldDefinitions(ContentEntityTypeInterface $entity_type) {
     $fields = [];
 
     if ($entity_type->hasKey('id')) {
