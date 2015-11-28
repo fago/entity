@@ -10,6 +10,7 @@ namespace Drupal\Tests\entity\Unit\ParamConverter;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\entity\ParamConverter\EntityRevisionParamConverter;
 use Symfony\Component\Routing\Route;
 
@@ -19,9 +20,16 @@ use Symfony\Component\Routing\Route;
  */
 class EntityRevisionParamConverterTest extends \PHPUnit_Framework_TestCase {
 
-  protected $entityManager;
+  /**
+   * The entity manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
 
   /**
+   * The tested entity revision param converter.
+   *
    * @var \Drupal\entity\ParamConverter\EntityRevisionParamConverter
    */
   protected $converter;
@@ -32,7 +40,7 @@ class EntityRevisionParamConverterTest extends \PHPUnit_Framework_TestCase {
   protected function setUp() {
     parent::setUp();
 
-    $this->converter = new EntityRevisionParamConverter($this->prophesize(EntityManagerInterface::class)->reveal());
+    $this->converter = new EntityRevisionParamConverter($this->prophesize(EntityTypeManagerInterface::class)->reveal());
   }
 
   protected function getTestRoute() {
@@ -69,9 +77,9 @@ class EntityRevisionParamConverterTest extends \PHPUnit_Framework_TestCase {
     $storage = $this->prophesize(EntityStorageInterface::class);
     $storage->loadRevision(1)->willReturn($entity);
 
-    $entity_manager = $this->prophesize(EntityManagerInterface::class);
-    $entity_manager->getStorage('test')->willReturn($storage->reveal());
-    $converter = new EntityRevisionParamConverter($entity_manager->reveal());
+    $entity_type_manager = $this->prophesize(EntityTypeManagerInterface::class);
+    $entity_type_manager->getStorage('test')->willReturn($storage->reveal());
+    $converter = new EntityRevisionParamConverter($entity_type_manager->reveal());
 
     $route = $this->getTestRoute();
     $converter->convert(1, $route->getOption('parameters')['test_revision'], 'test_revision', ['test_revision' => 1]);
