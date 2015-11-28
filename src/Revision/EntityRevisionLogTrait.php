@@ -6,23 +6,13 @@
  */
 
 namespace Drupal\entity\Revision;
+
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\user\Entity\User;
 
 /**
  * Provides a trait implementing \Drupal\entity\Revision\EntityRevisionLogInterface.
  */
 trait EntityRevisionLogTrait {
-
-  /**
-   * Returns whether the entity type has a specific field.
-   *
-   * @param string $field_name
-   *   The field name.
-   *
-   * @return bool
-   */
-  abstract function hasField($field_name);
 
   /**
    * Provides the base fields for the entity revision log trait.
@@ -32,7 +22,7 @@ trait EntityRevisionLogTrait {
   protected static function enhancedEntityRevisionDefaultBaseFields() {
     $fields = [];
 
-    $fields['revision_create'] = BaseFieldDefinition::create('created')
+    $fields['revision_created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Revision create time'))
       ->setDescription(t('The time that the current revision was created.'))
       ->setRevisionable(TRUE);
@@ -63,19 +53,14 @@ trait EntityRevisionLogTrait {
    * {@inheritdoc}
    */
   public function getRevisionCreationTime() {
-    if ($this->hasField('revision_create')) {
-      return $this->revision_create->value;
-    }
-    return 0;
+    return $this->revision_created->value;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setRevisionCreationTime($timestamp) {
-    if ($this->hasField('revision_create')) {
-      $this->revision_create->value = $timestamp;
-    }
+    $this->revision_created->value = $timestamp;
     return $this;
   }
 
@@ -83,19 +68,14 @@ trait EntityRevisionLogTrait {
    * {@inheritdoc}
    */
   public function getRevisionUser() {
-    if ($this->hasField('revision_user')) {
-      return $this->revision_user->entity;
-    }
-    return User::getAnonymousUser();
+    return $this->revision_user->entity;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setRevisionUser($user_id) {
-    if ($this->hasField('revision_user')) {
-      $this->revision_user->target_id = $user_id;
-    }
+    $this->revision_user->target_id = $user_id;
     return $this;
   }
 
@@ -103,19 +83,14 @@ trait EntityRevisionLogTrait {
    * {@inheritdoc}
    */
   public function getRevisionLogMessage() {
-    if ($this->hasField('revision_log_message')) {
-      return $this->revision_log_message->value;
-    }
-    return '';
+    return $this->revision_log_message->value;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setRevisionLogMessage($revision_log_message) {
-    if ($this->hasField('revision_log_message')) {
-      $this->revision_log_message->value = $revision_log_message;
-    }
+    $this->revision_log_message->value = $revision_log_message;
     return $this;
   }
 
