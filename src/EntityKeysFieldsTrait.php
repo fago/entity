@@ -16,7 +16,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
 trait EntityKeysFieldsTrait {
 
   /**
-   * Returns some base field definitions.
+   * Returns the base field definitions for entity keys.
    *
    * @param \Drupal\Core\Entity\ContentEntityTypeInterface $entity_type
    *   The entity type.
@@ -39,7 +39,7 @@ trait EntityKeysFieldsTrait {
         ->setReadOnly(TRUE);
     }
 
-    if ($entity_type->isRevisionable() && $entity_type->hasKey('revision')) {
+    if ($entity_type->hasKey('revision')) {
       $fields[$entity_type->getKey('revision')] = BaseFieldDefinition::create('integer')
         ->setLabel(t('Revision ID'))
         ->setReadOnly(TRUE)
