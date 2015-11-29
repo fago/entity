@@ -119,7 +119,7 @@ class EntityCreateController extends ControllerBase {
   }
 
   /**
-   * Provides the add form for an entity of a specific bundle.
+   * Provides the add form for an entity.
    *
    * @param string $entity_type_id
    *   The entity type ID.
@@ -131,12 +131,13 @@ class EntityCreateController extends ControllerBase {
    */
   public function addForm($entity_type_id, RouteMatchInterface $route_match) {
     $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
-    $bundle_type = $entity_type->getBundleEntityType();
-    $bundle_key = $entity_type->getKey('bundle');
-    $bundle_name = $route_match->getRawParameter($bundle_type);
-    $entity = $this->entityTypeManager()->getStorage($entity_type_id)->create([
-      $bundle_key => $bundle_name,
-    ]);
+    $values = [];
+    // Entities of this type have bundles, one was provided in the url.
+    if ($bundle_type = $entity_type->getBundleEntityType()) {
+      $bundle_key = $entity_type->getKey('bundle');
+      $values[$bundle_key] = $route_match->getRawParameter($bundle_type);
+    }
+    $entity = $this->entityTypeManager()->getStorage($entity_type_id)->create($values);
 
     return $this->entityFormBuilder()->getForm($entity, 'add');
   }
@@ -154,14 +155,13 @@ class EntityCreateController extends ControllerBase {
    */
   public function addFormTitle($entity_type_id, RouteMatchInterface $route_match) {
     $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
-    $bundle_type = $entity_type->getBundleEntityType();
-    $bundle_name = $route_match->getRawParameter($bundle_type);
     $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type_id);
-    if (count($bundles) == 1) {
-      $title = $this->t('Add @entity-type', ['@entity-type' => $entity_type->getLowercaseLabel()]);
+    if (count($bundles) > 1) {
+      $bundle_name = $route_match->getRawParameter($bundle_type);
+      $title = $this->t('Add @bundle', ['@bundle' => $bundles[$bundle_name]['label']]);
     }
     else {
-      $title = $this->t('Add @bundle', ['@bundle' => $bundles[$bundle_name]['label']]);
+      $title = $this->t('Add @entity-type', ['@entity-type' => $entity_type->getLowercaseLabel()]);
     }
 
     return $title;
