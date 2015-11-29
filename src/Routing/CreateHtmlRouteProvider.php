@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\entity\Routing\CreateUIRouteProvider.
+ * Contains \Drupal\entity\Routing\CreateHtmlRouteProvider.
  */
 
 namespace Drupal\entity\Routing;
@@ -18,8 +18,10 @@ use Symfony\Component\Routing\RouteCollection;
  * This class provides the following routes for entities, with title callbacks:
  * - add-page
  * - add-form
+ *
+ * @see \Drupal\entity\Routing\AdminCreateHtmlRouteProvider.
  */
-class CreateUIRouteProvider implements EntityRouteProviderInterface {
+class CreateHtmlRouteProvider implements EntityRouteProviderInterface {
 
   /**
    * {@inheritdoc}
