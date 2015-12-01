@@ -5,6 +5,7 @@
  * Provides expanded entity APIs.
  */
 
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 
 /**
@@ -37,19 +38,19 @@ function entity_theme() {
 function template_preprocess_entity_add_list(&$variables) {
   $bundle_type = \Drupal::entityTypeManager()->getDefinition($variables['bundle_type']);
   $variables += [
-    'class' => str_replace('_', '-', $bundle_type->getBundleOf()) . '-add-list',
-    'create_bundle_url' => Url::fromRoute('entity.' . $bundle_type->id() . '.add_form'),
+    'create_bundle_url' => Url::fromRoute('entity.' . $bundle_type->id() . '.add_form')->toString(),
     'bundle_type_label' => $bundle_type->getLowercaseLabel(),
   ];
 
   foreach ($variables['bundles'] as $bundle) {
-    $url = Url::fromRoute($variables['form_route_name'], [$bundle->getEntityTypeId() => $bundle->id()]);
-    $variables['bundles'][$bundle->id()] = [
-      'bundle' => $bundle->id(),
-      'add_link' => \Drupal::l($bundle->label(), $url),
-      'description' => [
-        '#markup' => $bundle->getDescription(),
-      ],
+    $bundle_id = $bundle->id();
+    $variables['bundles'][$bundle_id] = [
+      'add_link' => Link::createFromRoute($bundle->label(), $variables['form_route_name'], [$bundle_type->id() => $bundle_id]),
     ];
+    if ($bundle instanceof \Drupal\entity\Entity\EntityDescriptionInterface) {
+      $variables['bundles'][$bundle_id]['description'] = [
+        '#markup' => $bundle->getDescription(),
+      ];
+    }
   }
 }

@@ -4,7 +4,6 @@
  * Default theme implementation to present a list of available bundles.
  *
  * Available variables:
- *   - class: The entity type specific class. E.g. 'node-add-list'.
  *   - create_bundle_url: The url to the bundle creation page.
  *   - bundle_type_label: The lowercase label of the bundle entity type.
  *   - bundles: A list of bundles, each with the following properties:
@@ -17,7 +16,7 @@
  */
 #}
 {% if bundles is not empty %}
-  <dl class="entity-add-list {{ class }}">
+  <dl>
     {% for bundle in bundles %}
       <dt>{{ bundle.add_link }}</dt>
       <dd>{{ bundle.description }}</dd>
