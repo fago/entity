@@ -19,7 +19,7 @@ class EntityRevisionLogTraitTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['entity', 'entity_test', 'user', 'system'];
+  public static $modules = ['entity', 'entity_module_test', 'user', 'system'];
 
   /**
    * {@inheritdoc}

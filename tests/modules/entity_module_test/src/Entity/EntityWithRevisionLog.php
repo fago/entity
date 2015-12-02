@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\entity_test\Entity\EntityWithRevisionLog.
+ * Contains \Drupal\entity_module_test\Entity\EntityWithRevisionLog.
  */
 
-namespace Drupal\entity_test\Entity;
+namespace Drupal\entity_module_test\Entity;
 
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
