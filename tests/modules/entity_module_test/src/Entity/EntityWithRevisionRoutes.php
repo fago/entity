@@ -9,6 +9,7 @@ namespace Drupal\entity_module_test\Entity;
 
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\entity\EntityKeysFieldsTrait;
 use Drupal\entity\Revision\EntityRevisionLogTrait;
 
@@ -51,6 +52,15 @@ class EntityWithRevisionRoutes extends ContentEntityBase {
     $fields = [];
 
     $fields += static::entityKeysBaseFieldDefinitions($entity_type);
+
+    $fields['name'] = BaseFieldDefinition::create('string')
+      ->setLabel('Name')
+      ->setRevisionable(TRUE)
+      ->setDisplayOptions('view', [
+        'label' => 'hidden',
+        'type' => 'string',
+        'weight' => -5,
+      ]);
 
     return $fields;
   }

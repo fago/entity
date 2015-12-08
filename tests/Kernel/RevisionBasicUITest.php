@@ -37,10 +37,13 @@ class RevisionBasicUITest extends KernelTestBase {
   }
 
   public function testRevisionView() {
-    $entity = EntityWithRevisionRoutes::create([]);
+    $entity = EntityWithRevisionRoutes::create([
+      'name' => 'rev 1',
+    ]);
     $entity->save();
 
     $revision = clone $entity;
+    $revision->name->value = 'rev 2';
     $revision->setNewRevision(TRUE);
     $revision->isDefaultRevision(FALSE);
     $revision->save();
@@ -65,6 +68,8 @@ class RevisionBasicUITest extends KernelTestBase {
     $request = Request::create($revision->url('revision'));
     $response = $http_kernel->handle($request);
     $this->assertEquals(200, $response->getStatusCode());
+    $this->assertNotContains('rev 1', $response->getContent());
+    $this->assertContains('rev 2', $response->getContent());
   }
 
 }
