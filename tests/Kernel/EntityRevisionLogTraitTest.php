@@ -7,7 +7,7 @@
 
 namespace Drupal\Tests\entity\Kernel;
 
-use Drupal\entity_test\Entity\EntityWithRevisionLog;
+use Drupal\entity_module_test\Entity\EntityWithRevisionLog;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\user\Entity\User;
 
