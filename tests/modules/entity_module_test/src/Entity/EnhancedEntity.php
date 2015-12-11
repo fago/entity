@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\entity_module_test\Entity\EntityWithRevisionRoutes.
+ * Contains \Drupal\entity_module_test\Entity\EnhancedEntity.
  */
 
 namespace Drupal\entity_module_test\Entity;
@@ -14,33 +14,35 @@ use Drupal\entity\EntityKeysFieldsTrait;
 use Drupal\entity\Revision\EntityRevisionLogTrait;
 
 /**
+ * Provides a test entity which uses all the capabilities of entity module.
+ *
  * @ContentEntityType(
- *   id = "entity_test__rev_routes",
- *   label = @Translation("Entity test with revision routes"),
+ *   id = "entity_test_enhanced",
+ *   label = @Translation("Entity test with enhancements"),
  *   handlers = {
  *     "storage" = "\Drupal\Core\Entity\Sql\SqlContentEntityStorage",
  *     "route_provider" = {
  *       "revision" = "\Drupal\entity\Routing\RevisionRouteProvider",
  *     },
  *   },
- *   base_table = "entity_test__revision_routes",
- *   data_table = "entity_test__revision_routes__field_data",
- *   revision_table = "entity_test__revision_routes__revision",
- *   revision_data_table = "entity_test__revision_routes__field_revision",
+ *   base_table = "entity_test_enhanced",
+ *   data_table = "entity_test_enhanced_field_data",
+ *   revision_table = "entity_test_enhanced_revision",
+ *   revision_data_table = "entity_test_enhanced_field_revision",
  *   translatable = TRUE,
  *   revisionable = TRUE,
- *   admin_permission = "administer entity_test__revision_routes",
+ *   admin_permission = "administer entity_test_enhanced",
  *   entity_keys = {
  *     "id" = "id",
  *     "revision" = "vid",
  *     "langcode" = "langcode",
  *   },
  *   links = {
- *     "revision" = "/entity_test__rev_routes/{entity_test__rev_routes}/revisions/{entity_test__rev_routes_revision}/view",
+ *     "revision" = "/entity_test_enhanced/{entity_test_enhanced}/revisions/{entity_test_enhanced_revision}/view",
  *   }
  * )
  */
-class EntityWithRevisionRoutes extends ContentEntityBase {
+class EnhancedEntity extends ContentEntityBase {
 
   use EntityRevisionLogTrait;
   use EntityKeysFieldsTrait;
@@ -52,6 +54,7 @@ class EntityWithRevisionRoutes extends ContentEntityBase {
     $fields = [];
 
     $fields += static::entityKeysBaseFieldDefinitions($entity_type);
+    $fields += static::entityRevisionLogBaseFieldDefinitions();
 
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel('Name')

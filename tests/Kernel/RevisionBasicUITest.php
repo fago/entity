@@ -7,7 +7,7 @@
 
 namespace Drupal\Tests\entity\Kernel;
 
-use Drupal\entity_module_test\Entity\EntityWithRevisionRoutes;
+use Drupal\entity_module_test\Entity\EnhancedEntity;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
@@ -30,14 +30,14 @@ class RevisionBasicUITest extends KernelTestBase {
     parent::setUp();
 
     $this->installEntitySchema('user');
-    $this->installEntitySchema('entity_test__rev_routes');
+    $this->installEntitySchema('entity_test_enhanced');
     $this->installSchema('system', 'router');
 
     \Drupal::service('router.builder')->rebuild();
   }
 
   public function testRevisionView() {
-    $entity = EntityWithRevisionRoutes::create([
+    $entity = EnhancedEntity::create([
       'name' => 'rev 1',
     ]);
     $entity->save();
@@ -55,8 +55,8 @@ class RevisionBasicUITest extends KernelTestBase {
     $this->assertEquals(403, $response->getStatusCode());
 
     $role = Role::create(['id' => 'test_role']);
-    $role->grantPermission('view all entity_test__rev_routes revisions');
-    $role->grantPermission('administer entity_test__revision_routes');
+    $role->grantPermission('view all entity_test_enhanced revisions');
+    $role->grantPermission('administer entity_test_enhanced');
     $role->save();
 
     $user = User::create([

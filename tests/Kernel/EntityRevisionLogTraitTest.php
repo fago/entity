@@ -7,7 +7,7 @@
 
 namespace Drupal\Tests\entity\Kernel;
 
-use Drupal\entity_module_test\Entity\EntityWithRevisionLog;
+use Drupal\entity_module_test\Entity\EnhancedEntity;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\user\Entity\User;
 
@@ -42,7 +42,7 @@ class EntityRevisionLogTraitTest extends KernelTestBase {
     $user2->save();
 
     /** @var \Drupal\entity\Revision\EntityRevisionLogInterface $entity */
-    $entity = EntityWithRevisionLog::create([
+    $entity = EnhancedEntity::create([
       'revision_user' => $user->id(),
       'revision_created' => 1447941735,
       'revision_log_message' => 'Test message',
