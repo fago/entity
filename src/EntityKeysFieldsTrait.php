@@ -60,9 +60,9 @@ trait EntityKeysFieldsTrait {
         ]);
     }
 
-    if ($bundle_entity_type_id = $entity_type->getBundleEntityType() && $entity_type->hasKey('bundle')) {
-      $bundle_key = $entity_type->getKey('bundle');
-      $fields[$bundle_key] = BaseFieldDefinition::create('entity_reference')
+    $bundle_entity_type_id = $entity_type->getBundleEntityType();
+    if ($bundle_entity_type_id && $entity_type->hasKey('bundle')) {
+      $fields[$entity_type->getKey('bundle')] = BaseFieldDefinition::create('entity_reference')
         ->setLabel(t('Type'))
         ->setSetting('target_type', $bundle_entity_type_id)
         ->setReadOnly(TRUE);
