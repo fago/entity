@@ -23,7 +23,6 @@ class RevisionRouteProvider implements EntityRouteProviderInterface {
   public function getRoutes(EntityTypeInterface $entity_type) {
     $collection = new RouteCollection();
     $entity_type_id = $entity_type->id();
-
     if ($view_route = $this->getRevisionViewRoute($entity_type)) {
       $collection->add("entity.$entity_type_id.revision", $view_route);
     }
