@@ -7,10 +7,14 @@
 
 namespace Drupal\entity\Form;
 
+use Drupal\Core\Datetime\DateFormatterInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\entity\Revision\EntityRevisionLogInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class RevisionRevertForm extends ConfirmFormBase {
 
@@ -36,6 +40,29 @@ class RevisionRevertForm extends ConfirmFormBase {
   protected $bundleInformation;
 
   /**
+   * Creates a new RevisionRevertForm instance.
+   *
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
+   *   The date formatter.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $bundle_information
+   *   The bundle information.
+   */
+  public function __construct(DateFormatterInterface $date_formatter, EntityTypeBundleInfoInterface $bundle_information) {
+    $this->dateFormatter = $date_formatter;
+    $this->bundleInformation = $bundle_information;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('date.formatter'),
+      $container->get('entity_type.bundle.info')
+    );
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getFormId() {
@@ -56,7 +83,10 @@ class RevisionRevertForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return $this->revision->toUrl('version-history');
+    if ($this->revision->getEntityType()->hasLinkTemplate('version-history')) {
+      return $this->revision->toUrl('version-history');
+    }
+    return $this->revision->toUrl();
   }
 
   /**
@@ -76,8 +106,8 @@ class RevisionRevertForm extends ConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $_revision = NULL) {
-    $this->revision = $_revision;
+  public function buildForm(array $form, FormStateInterface $form_state, $_entity_revision = NULL, Request $request = NULL) {
+    $this->revision = $_entity_revision;
     $form = parent::buildForm($form, $form_state);
 
     return $form;

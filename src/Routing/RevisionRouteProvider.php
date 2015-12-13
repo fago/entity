@@ -79,11 +79,11 @@ class RevisionRouteProvider implements EntityRouteProviderInterface {
       $entity_type_id = $entity_type->id();
       $route = new Route($entity_type->getLinkTemplate('revision-revert-form'));
       $route->addDefaults([
-        '_form' => '\Drupal\entity\From\RevisionRevertForm',
+        '_form' => '\Drupal\entity\Form\RevisionRevertForm',
         'title' => 'Revert to earlier revision',
       ]);
       $route->addRequirements([
-        '_entity_access_revision' => "$entity_type_id.",
+        '_entity_access_revision' => "$entity_type_id.update",
       ]);
       $route->setOption('parameters', [
         $entity_type->id() => [

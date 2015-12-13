@@ -11,6 +11,7 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\entity\EntityKeysFieldsTrait;
+use Drupal\entity\EntityRevisionTrait;
 use Drupal\entity\Revision\EntityRevisionLogTrait;
 
 /**
@@ -27,6 +28,7 @@ use Drupal\entity\Revision\EntityRevisionLogTrait;
  *       "delete" = "\Drupal\Core\Entity\EntityDeleteForm",
  *     },
  *     "route_provider" = {
+ *       "html" = "\Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider",
  *       "revision" = "\Drupal\entity\Routing\RevisionRouteProvider",
  *       "create" = "\Drupal\entity\Routing\CreateHtmlRouteProvider",
  *     },
@@ -47,7 +49,9 @@ use Drupal\entity\Revision\EntityRevisionLogTrait;
  *   links = {
  *     "add-page" = "/entity_test_enhanced/add",
  *     "add-form" = "/entity_test_enhanced/add/{type}",
+ *     "canonical" = "/entity_test_enhanced/{entity_test_enhanced}",
  *     "revision" = "/entity_test_enhanced/{entity_test_enhanced}/revisions/{entity_test_enhanced_revision}/view",
+ *     "revision-revert-form" = "/entity_test_enhanced/{entity_test_enhanced}/revisions/{entity_test_enhanced_revision}/revert",
  *   },
  *   bundle_entity_type = "entity_test_enhanced_bundle"
  * )
@@ -56,6 +60,7 @@ class EnhancedEntity extends ContentEntityBase {
 
   use EntityRevisionLogTrait;
   use EntityKeysFieldsTrait;
+  use EntityRevisionTrait;
 
   /**
    * {@inheritdoc}
@@ -76,6 +81,13 @@ class EnhancedEntity extends ContentEntityBase {
       ]);
 
     return $fields;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function urlRouteParameters($rel) {
+    return $this->urlRouteParametersWithRevisionSupport($rel);
   }
 
 }
