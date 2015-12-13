@@ -41,7 +41,7 @@ class CreateHtmlRouteProvider implements EntityRouteProviderInterface {
   /**
    * Returns the add page route.
    *
-   * Built only for entity types that have bundle entity types.
+   * Built only for entity types that have bundles.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type.
@@ -50,7 +50,7 @@ class CreateHtmlRouteProvider implements EntityRouteProviderInterface {
    *   The generated route, if available.
    */
   protected function addPageRoute(EntityTypeInterface $entity_type) {
-    if ($entity_type->hasLinkTemplate('add-page') && $entity_type->getBundleEntityType()) {
+    if ($entity_type->hasLinkTemplate('add-page') && $entity_type->getKey('bundle')) {
       $route = new Route($entity_type->getLinkTemplate('add-page'));
       $route->setDefault('_controller', '\Drupal\entity\Controller\EntityCreateController::addPage');
       $route->setDefault('_title_callback', '\Drupal\entity\Controller\EntityCreateController::addPageTitle');
@@ -77,12 +77,6 @@ class CreateHtmlRouteProvider implements EntityRouteProviderInterface {
       $route->setDefault('_title_callback', '\Drupal\entity\Controller\EntityCreateController::addFormTitle');
       $route->setDefault('entity_type_id', $entity_type->id());
       $route->setRequirement('_entity_create_access', $entity_type->id());
-      // The route needs a bundle parameter.
-      if ($bundle_type = $entity_type->getBundleEntityType()) {
-        $route->setOption('parameters', [
-          $bundle_type => ['type' => 'entity:' . $bundle_type],
-        ]);
-      }
 
       return $route;
     }

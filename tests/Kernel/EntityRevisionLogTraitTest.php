@@ -8,6 +8,7 @@
 namespace Drupal\Tests\entity\Kernel;
 
 use Drupal\entity_module_test\Entity\EnhancedEntity;
+use Drupal\entity_module_test\Entity\EnhancedEntityBundle;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\user\Entity\User;
 
@@ -29,6 +30,12 @@ class EntityRevisionLogTraitTest extends KernelTestBase {
 
     $this->installEntitySchema('user');
     $this->installSchema('system', 'sequences');
+
+    $bundle = EnhancedEntityBundle::create([
+      'id' => 'default',
+      'label' => 'Default',
+    ]);
+    $bundle->save();
   }
 
   public function testEntityRevisionLog() {
@@ -43,6 +50,7 @@ class EntityRevisionLogTraitTest extends KernelTestBase {
 
     /** @var \Drupal\entity\Revision\EntityRevisionLogInterface $entity */
     $entity = EnhancedEntity::create([
+      'type' => 'default',
       'revision_user' => $user->id(),
       'revision_created' => 1447941735,
       'revision_log_message' => 'Test message',

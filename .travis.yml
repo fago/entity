@@ -40,10 +40,20 @@ before_script:
   # Download Drupal 8 core.
   - travis_retry git clone --branch 8.0.x --depth 1 http://git.drupal.org/project/drupal.git
   - cd drupal
+  # Add a patch for BrowserTestBase
+  - curl -o 2636228-6.patch https://www.drupal.org/files/issues/2636228-6.patch
+  - patch -p1 < 2636228-6.patch
 
   # Reference entity in build site.
   - ln -s $TESTDIR modules/entity
 
+  # Start a web server on port 8888, run in the background; wait for
+  # initialization.
+  - nohup php -S localhost:8888 > /dev/null 2>&1 &
+
+  # Export web server URL for browser tests.
+  - export SIMPLETEST_BASE_URL=http://localhost:8888
+
 script:
   # Run the PHPUnit tests which also include the kernel tests.
-  - ./vendor/phpunit/phpunit/phpunit -c ./core/phpunit.xml.dist ./modules/entity
+  - ./vendor/phpunit/phpunit/phpunit -c ./core/phpunit.xml.dist --verbose ./modules/entity

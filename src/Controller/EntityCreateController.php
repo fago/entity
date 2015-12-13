@@ -11,9 +11,10 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Url;
+use Drupal\Core\Link;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * A generic controller for creating entities.
@@ -74,6 +75,7 @@ class EntityCreateController extends ControllerBase {
   public function addPage($entity_type_id, Request $request) {
     $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
     $bundle_type = $entity_type->getBundleEntityType();
+    $bundle_key = $entity_type->getKey('bundle');
     $form_route_name = 'entity.' . $entity_type_id . '.add_form';
     $build = [
       '#theme' => 'entity_add_list',
@@ -81,25 +83,32 @@ class EntityCreateController extends ControllerBase {
         'tags' => $entity_type->getListCacheTags(),
       ],
       '#bundle_type' => $bundle_type,
-      '#form_route_name' => $form_route_name,
     ];
-    $bundles = array_keys($this->entityTypeBundleInfo->getBundleInfo($entity_type_id));
+    $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type_id);
     // Filter out the bundles the user doesn't have access to.
     $access_control_handler = $this->entityTypeManager()->getAccessControlHandler($bundle_type);
-    foreach ($bundles as $index => $bundle_name) {
+    foreach ($bundles as $bundle_name => $bundle_info) {
       $access = $access_control_handler->createAccess($bundle_name, NULL, [], TRUE);
       if (!$access->isAllowed()) {
-        unset($bundles[$index]);
+        unset($bundles[$bundle_name]);
       }
       $this->renderer->addCacheableDependency($build, $access);
     }
     // Redirect if there's only one bundle available.
     if (count($bundles) == 1) {
-      $bundle_name = reset($bundles);
-      return $this->redirect($form_route_name, [$bundle_type => $bundle_name]);
+      $bundle_names = array_keys($bundles);
+      $bundle_name = reset($bundle_names);
+      return $this->redirect($form_route_name, [$bundle_key => $bundle_name]);
     }
-    // The theme function needs the full bundle entities.
-    $build['#bundles'] = $this->entityTypeManager->getStorage($bundle_type)->loadMultiple($bundles);
+    // Prepare the #bundles array for the template.
+    $bundles = $this->loadBundleDescriptions($bundles, $bundle_type);
+    foreach ($bundles as $bundle_name => $bundle_info) {
+      $build['#bundles'][$bundle_name] = [
+        'label' => $bundle_info['label'],
+        'description' => $bundle_info['description'],
+        'add_link' => Link::createFromRoute($bundle_info['label'], $form_route_name, [$bundle_key => $bundle_name]),
+      ];
+    }
 
     return $build;
   }
@@ -133,9 +142,14 @@ class EntityCreateController extends ControllerBase {
     $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
     $values = [];
     // Entities of this type have bundles, one was provided in the url.
-    if ($bundle_type = $entity_type->getBundleEntityType()) {
-      $bundle_key = $entity_type->getKey('bundle');
-      $values[$bundle_key] = $route_match->getRawParameter($bundle_type);
+    if ($bundle_key = $entity_type->getKey('bundle')) {
+      $bundle_name = $route_match->getRawParameter($bundle_key);
+      $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type_id);
+      if (empty($bundle_name) || !isset($bundles[$bundle_name])) {
+        // The bundle parameter is invalid.
+        throw new NotFoundHttpException();
+      }
+      $values[$bundle_key] = $bundle_name;
     }
     $entity = $this->entityTypeManager()->getStorage($entity_type_id)->create($values);
 
@@ -155,9 +169,10 @@ class EntityCreateController extends ControllerBase {
    */
   public function addFormTitle($entity_type_id, RouteMatchInterface $route_match) {
     $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
+    $bundle_key = $entity_type->getKey('bundle');
     $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type_id);
-    if (count($bundles) > 1) {
-      $bundle_name = $route_match->getRawParameter($bundle_type);
+    if ($bundle_key && count($bundles) > 1) {
+      $bundle_name = $route_match->getRawParameter($bundle_key);
       $title = $this->t('Add @bundle', ['@bundle' => $bundles[$bundle_name]['label']]);
     }
     else {
@@ -165,6 +180,41 @@ class EntityCreateController extends ControllerBase {
     }
 
     return $title;
+  }
+
+  /**
+   * Expands the bundle information with descriptions, if known.
+   *
+   * @param array $bundles
+   *   An array of bundle information.
+   * @param string $bundle_type
+   *   The id of the bundle entity type.
+   *
+   * @return array
+   *   The expanded array of bundle information.
+   */
+  protected function loadBundleDescriptions(array $bundles, $bundle_type) {
+    // Ensure the presence of the description key.
+    foreach ($bundles as $bundle_name => &$bundle_info) {
+      $bundle_info['description'] = '';
+    }
+    // Only bundles provided by entity types have descriptions.
+    if (empty($bundle_type)) {
+      return $bundles;
+    }
+    $bundle_entity_type = $this->entityTypeManager()->getDefinition($bundle_type);
+    if (!$bundle_entity_type->isSubclassOf('\Drupal\entity\Entity\EntityDescriptionInterface')) {
+      return $bundles;
+    }
+    $bundle_names = array_keys($bundles);
+    $bundle_entities = $this->entityTypeManager->getStorage($bundle_type)->loadMultiple($bundle_names);
+    foreach ($bundles as $bundle_name => &$bundle_info) {
+      if (isset($bundle_entities[$bundle_name])) {
+        $bundle_info['description'] = $bundle_entities[$bundle_name]->getDescription();
+      }
+    }
+
+    return $bundles;
   }
 
 }

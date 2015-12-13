@@ -21,8 +21,14 @@ use Drupal\entity\Revision\EntityRevisionLogTrait;
  *   label = @Translation("Entity test with enhancements"),
  *   handlers = {
  *     "storage" = "\Drupal\Core\Entity\Sql\SqlContentEntityStorage",
+ *     "form" = {
+ *       "add" = "\Drupal\Core\Entity\ContentEntityForm",
+ *       "edit" = "\Drupal\Core\Entity\ContentEntityForm",
+ *       "delete" = "\Drupal\Core\Entity\EntityDeleteForm",
+ *     },
  *     "route_provider" = {
  *       "revision" = "\Drupal\entity\Routing\RevisionRouteProvider",
+ *       "create" = "\Drupal\entity\Routing\CreateHtmlRouteProvider",
  *     },
  *   },
  *   base_table = "entity_test_enhanced",
@@ -34,12 +40,16 @@ use Drupal\entity\Revision\EntityRevisionLogTrait;
  *   admin_permission = "administer entity_test_enhanced",
  *   entity_keys = {
  *     "id" = "id",
+ *     "bundle" = "type",
  *     "revision" = "vid",
  *     "langcode" = "langcode",
  *   },
  *   links = {
+ *     "add-page" = "/entity_test_enhanced/add",
+ *     "add-form" = "/entity_test_enhanced/add/{type}",
  *     "revision" = "/entity_test_enhanced/{entity_test_enhanced}/revisions/{entity_test_enhanced_revision}/view",
- *   }
+ *   },
+ *   bundle_entity_type = "entity_test_enhanced_bundle"
  * )
  */
 class EnhancedEntity extends ContentEntityBase {
