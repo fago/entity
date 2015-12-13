@@ -14,6 +14,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Routing\Access\AccessInterface;
 use Drupal\Core\Session\AccountInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
 
 /**
@@ -46,7 +47,8 @@ class EntityRevisionRouteAccessChecker implements AccessInterface {
   /**
    * {@inheritdoc}
    */
-  public function access(Route $route, AccountInterface $account, RevisionableInterface $_entity_revision) {
+  public function access(Route $route, AccountInterface $account, Request $request) {
+    $_entity_revision = $request->attributes->get('_entity_revision');
     $operation = $route->getRequirement('_entity_access_revision');
     list(, $operation) = explode('.', $operation, 2);
     return AccessResult::allowedIf($_entity_revision && $this->checkAccess($_entity_revision, $account, $operation))->cachePerPermissions();
