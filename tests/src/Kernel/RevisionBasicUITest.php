@@ -55,8 +55,9 @@ class RevisionBasicUITest extends KernelTestBase {
     $revision->isDefaultRevision(FALSE);
     $revision->save();
 
+    /** @var \Symfony\Component\HttpKernel\HttpKernelInterface $http_kernel */
     $http_kernel = \Drupal::service('http_kernel');
-    $request = Request::create($revision->url('revision'));
+    $request = Request::create($revision->url('version-history'));
     $response = $http_kernel->handle($request);
     $this->assertEquals(403, $response->getStatusCode());
 
@@ -71,9 +72,13 @@ class RevisionBasicUITest extends KernelTestBase {
     $user->addRole($role->id());
     \Drupal::service('account_switcher')->switchTo($user);
 
-    $request = Request::create($revision->url('revision'));
+    $request = Request::create($revision->url('version-history'));
     $response = $http_kernel->handle($request);
     $this->assertEquals(200, $response->getStatusCode());
+
+    // This ensures that the default revision is still the first revision.
+    $this->assertTrue(strpos($response->getContent(), 'entity_test_enhanced/1/revisions/2/view') !== FALSE);
+    $this->assertTrue(strpos($response->getContent(), 'entity_test_enhanced/1') !== FALSE);
   }
 
   public function testRevisionView() {

@@ -10,14 +10,11 @@ namespace Drupal\entity\Controller;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Defines a trait for common revision UI functionality.
  */
 trait RevisionControllerTrait {
-
-  use StringTranslationTrait;
 
   /**
    * @return \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -116,7 +113,7 @@ trait RevisionControllerTrait {
    * @return array
    *   An array as expected by drupal_render().
    */
-  public function revisionOverview(ContentEntityInterface $entity) {
+  protected function revisionOverview(ContentEntityInterface $entity) {
     $langcode = $this->languageManager()
       ->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)
       ->getId();
@@ -133,16 +130,15 @@ trait RevisionControllerTrait {
       return $entity_storage->loadRevision($vid);
       }, $revision_ids));
 
-    $latest_revision = TRUE;
-
     foreach ($entity_revisions as $revision) {
       $row = [];
       /** @var \Drupal\Core\Entity\ContentEntityInterface $revision */
       if ($revision->hasTranslation($langcode) && $revision->getTranslation($langcode)
           ->isRevisionTranslationAffected()
       ) {
-        if ($latest_revision) {
-          $row[] = $this->getRevisionDescription($revision, TRUE);
+        $row[] = $this->getRevisionDescription($revision, $revision->isDefaultRevision());
+
+        if ($revision->isDefaultRevision()) {
           $row[] = [
             'data' => [
               '#prefix' => '<em>',
@@ -153,18 +149,9 @@ trait RevisionControllerTrait {
           foreach ($row as &$current) {
             $current['class'] = ['revision-current'];
           }
-          $latest_revision = FALSE;
         }
         else {
-          $row[] = $this->getRevisionDescription($revision, FALSE);
-          $links = $this->getOperationLinks($revision);
-
-          $row[] = [
-            'data' => [
-              '#type' => 'operations',
-              '#links' => $links,
-            ],
-          ];
+          $row[] = $this->getOperationLinks($revision);
         }
       }
 
@@ -203,7 +190,8 @@ trait RevisionControllerTrait {
     if ($delete_permission) {
       $links['delete'] = $this->buildDeleteRevisionLink($entity_revision);
     }
-    return $links;
+
+    return array_filter($links);
   }
 
 }

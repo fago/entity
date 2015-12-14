@@ -113,14 +113,15 @@ class RevisionRouteProvider implements EntityRouteProviderInterface {
   protected function getRevisionHistoryRoute($entity_type) {
     if ($entity_type->hasLinkTemplate('version-history')) {
       $entity_type_id = $entity_type->id();
-      $route = new Route($entity_type->getLinkTemplate('revision'));
+      $route = new Route($entity_type->getLinkTemplate('version-history'));
       $route->addDefaults([
-        '_controller' => '\Drupal\entity\Controller\RevisionControllerTrait::revisionOverview',
+        '_controller' => '\Drupal\entity\Controller\RevisionOverviewController::revisionOverviewController',
         '_title' => 'Revisions',
       ]);
       $route->addRequirements([
-        '_entity_access_revision' => "$entity_type_id.view",
+        '_entity_access_revision' => "$entity_type_id.list",
       ]);
+      $route->setOption('entity_type_id', $entity_type->id());
       $route->setOption('parameters', [
         $entity_type->id() => [
           'type' => 'entity:' . $entity_type->id(),
