@@ -118,9 +118,7 @@ class RevisionRouteProvider implements EntityRouteProviderInterface {
         '_controller' => '\Drupal\entity\Controller\RevisionOverviewController::revisionOverviewController',
         '_title' => 'Revisions',
       ]);
-      $route->addRequirements([
-        '_entity_access_revision' => "$entity_type_id.list",
-      ]);
+      $route->setRequirement('_entity_access_revision', "$entity_type_id.list");
       $route->setOption('entity_type_id', $entity_type->id());
       $route->setOption('parameters', [
         $entity_type->id() => [

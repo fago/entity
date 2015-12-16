@@ -17,11 +17,15 @@ use Drupal\Core\Entity\EntityInterface;
 trait RevisionControllerTrait {
 
   /**
+   * Returns the entity type manager.
+   *
    * @return \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   abstract protected function entityTypeManager();
 
   /**
+   * Returns the langauge manager.
+   *
    * @return \Drupal\Core\Language\LanguageManagerInterface
    */
   public abstract function languageManager();
@@ -54,9 +58,8 @@ trait RevisionControllerTrait {
    * @param \Drupal\Core\Entity\EntityInterface $entity_revision
    *   The entity to build a revert revision link for.
    *
-   * @return array A link render array.
-   * A link render array.
-   * @internal param int $revision_id The revision ID of the revert link.*   The revision ID of the revert link.
+   * @return array
+   *   A link render array.
    *
    */
   abstract protected function buildRevertRevisionLink(EntityInterface $entity_revision);
@@ -67,10 +70,8 @@ trait RevisionControllerTrait {
    * @param \Drupal\Core\Entity\EntityInterface $entity_revision
    *   The entity to build a delete revision link for.
    *
-   * @return array A link render array.
-   * A link render array.
-   * @internal param int $revision_id The revision ID of the delete link.*   The revision ID of the delete link.
-   *
+   * @return array
+   *   A link render array.
    */
   abstract protected function buildDeleteRevisionLink(EntityInterface $entity_revision);
 
@@ -81,6 +82,7 @@ trait RevisionControllerTrait {
    *   non-current revision, it also provides a link to view that revision.
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $revision
+   *   The entity revision.
    * @param bool $is_current
    *   TRUE if the revision is the current revision.
    *
@@ -90,9 +92,12 @@ trait RevisionControllerTrait {
   abstract protected function getRevisionDescription(ContentEntityInterface $revision, $is_current = FALSE);
 
   /**
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   * Loads all revision IDs of an entity sorted by revision ID descending.
    *
-   * @return array
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The entity.
+   *
+   * @return mixed[]
    */
   protected function revisionIds(ContentEntityInterface $entity) {
     $entity_type = $entity->getEntityTypeId();
@@ -111,13 +116,12 @@ trait RevisionControllerTrait {
    *   An entity object.
    *
    * @return array
-   *   An array as expected by drupal_render().
+   *   A render array.
    */
   protected function revisionOverview(ContentEntityInterface $entity) {
     $langcode = $this->languageManager()
       ->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)
       ->getId();
-    /** @var \Drupal\content_entity_base\Entity\Storage\RevisionableStorageInterface $entity_storage */
     $entity_storage = $this->entityTypeManager()
       ->getStorage($entity->getEntityTypeId());
 
@@ -181,13 +185,11 @@ trait RevisionControllerTrait {
    */
   protected function getOperationLinks(EntityInterface $entity_revision) {
     $links = [];
-    $revert_permission = $this->hasRevertRevisionAccess($entity_revision);
-    $delete_permission = $this->hasDeleteRevisionAccess($entity_revision);
-    if ($revert_permission) {
+    if ($this->hasRevertRevisionAccess($entity_revision)) {
       $links['revert'] = $this->buildRevertRevisionLink($entity_revision);
     }
 
-    if ($delete_permission) {
+    if ($this->hasDeleteRevisionAccess($entity_revision)) {
       $links['delete'] = $this->buildDeleteRevisionLink($entity_revision);
     }
 

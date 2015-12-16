@@ -43,6 +43,9 @@ class RevisionBasicUITest extends KernelTestBase {
     \Drupal::service('router.builder')->rebuild();
   }
 
+  /**
+   * Tests the revision history controller.
+   */
   public function testRevisionHistory() {
     $entity = EnhancedEntity::create([
       'name' => 'rev 1',

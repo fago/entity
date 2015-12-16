@@ -18,6 +18,13 @@ use Drupal\entity\Revision\EntityRevisionLogInterface;
 use Drupal\user\EntityOwnerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Provides a controller which shows the revision history.
+ *
+ * This controller leverages the revision controller trait, which is agnostic to
+ * any entity type, by using the new interface
+ * \Drupal\entity\Revision\EntityRevisionLogInterface.
+ */
 class RevisionOverviewController extends ControllerBase {
 
   use RevisionControllerTrait;
@@ -77,6 +84,15 @@ class RevisionOverviewController extends ControllerBase {
     }
   }
 
+  /**
+   * Generates an overview table of older revisions of an entity.
+   *
+   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+   *   The route match.
+   *
+   * @return array
+   *   A render array.
+   */
   public function revisionOverviewController(RouteMatchInterface $route_match) {
     return $this->revisionOverview($route_match->getParameter($route_match->getRouteObject()->getOption('entity_type_id')));
   }
@@ -87,23 +103,20 @@ class RevisionOverviewController extends ControllerBase {
   protected function getRevisionDescription(ContentEntityInterface $revision, $is_default = FALSE) {
     /** @var \Drupal\Core\Entity\ContentEntityInterface|\Drupal\user\EntityOwnerInterface|\Drupal\entity\Revision\EntityRevisionLogInterface $revision */
 
-    if ($revision instanceof EntityOwnerInterface) {
-      $username = [
-        '#theme' => 'username',
-        '#account' => $revision->getOwner(),
-      ];
-    }
-    else {
-      $username = '';
-    }
-
     if ($revision instanceof EntityRevisionLogInterface) {
       // Use revision link to link to revisions that are not active.
       $date = $this->dateFormatter->format($revision->getRevisionCreationTime(), 'short');
       $link = $revision->toLink($date, 'revision');
+
+      $username = [
+        '#theme' => 'username',
+        '#account' => $revision->getRevisionUser(),
+      ];
     }
     else {
       $link = $revision->toLink($revision->label(), 'revision');
+      $username = '';
+
     }
 
     $markup = '';
