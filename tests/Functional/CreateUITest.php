@@ -65,7 +65,14 @@ class CreateUITest extends BrowserTestBase {
     $assert->addressEquals('/entity_test_enhanced/add');
     $assert->statusCodeEquals(200);
     $assert->elementTextContains('css', '.page-title', 'Add entity test with enhancements');
-    // @todo Bundle links.
+    // Confirm the presence of unescaped descriptions.
+    $assert->responseContains('The first bundle');
+    $assert->responseContains('The <b>second</b> bundle');
+    // Validate the links.
+    $link = $this->getSession()->getPage()->findLink('First');
+    $this->assertEquals('/entity_test_enhanced/add/first', $link->getAttribute('href'));
+    $link = $this->getSession()->getPage()->findLink('Second');
+    $this->assertEquals('/entity_test_enhanced/add/second', $link->getAttribute('href'));
   }
 
   /**
