@@ -20,8 +20,8 @@ function entity_views_data() {
     if ($entity_type->hasViewBuilderClass()) {
       $data[$base_table]['rendered_entity'] = [
         'field' => [
-          'title' => $this->t('Rendered entity'),
-          'help' => $this->t('Renders an entity in a view mode.'),
+          'title' => t('Rendered entity'),
+          'help' => t('Renders an entity in a view mode.'),
           'id' => 'rendered_entity',
         ],
       ];
