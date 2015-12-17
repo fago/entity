@@ -14,6 +14,7 @@ use Drupal\user\Entity\User;
 
 /**
  * @coversDefaultClass \Drupal\entity\Revision\EntityRevisionLogTrait
+ * @group entity
  */
 class EntityRevisionLogTraitTest extends KernelTestBase {
 
