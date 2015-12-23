@@ -13,6 +13,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\views\Entity\Render\EntityTranslationRenderTrait;
 use Drupal\views\ResultRow;
+use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -196,7 +197,7 @@ class RenderedEntity extends FieldPluginBase implements CacheableDependencyInter
 
     $view_mode = $this->entityManager
       ->getStorage('entity_view_mode')
-      ->load($this->entityTypeId . '.' . $this->options['view_mode']);
+      ->load($this->getEntityTypeId() . '.' . $this->options['view_mode']);
     if ($view_mode) {
       $dependencies[$view_mode->getConfigDependencyKey()][] = $view_mode->getConfigDependencyName();
     }
