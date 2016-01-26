@@ -138,7 +138,13 @@ class ContentEntityFormWithRevisions extends ContentEntityForm {
     if ($this->entity->id()) {
       $form_state->setValue('id', $this->entity->id());
       $form_state->set('id', $this->entity->id());
-      $form_state->setRedirectUrl($this->entity->urlInfo('collection'));
+
+      if ($this->entity->getEntityType()->hasLinkTemplate('collection')) {
+        $form_state->setRedirectUrl($this->entity->toUrl('collection'));
+      }
+      else {
+        $form_state->setRedirectUrl($this->entity->toUrl('canonical'));
+      }
     }
     else {
       // In the unlikely case something went wrong on save, the entity will be
