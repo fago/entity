@@ -98,7 +98,7 @@ class EntityCreateController extends ControllerBase {
     if (count($bundles) == 1) {
       $bundle_names = array_keys($bundles);
       $bundle_name = reset($bundle_names);
-      return $this->redirect($form_route_name, [$bundle_key => $bundle_name]);
+      return $this->redirect($form_route_name, [$bundle_type => $bundle_name]);
     }
     // Prepare the #bundles array for the template.
     $bundles = $this->loadBundleDescriptions($bundles, $bundle_type);
