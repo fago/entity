@@ -6,6 +6,7 @@
  */
 
 namespace Drupal\entity\Revision;
+
 use Drupal\user\UserInterface;
 
 /**
