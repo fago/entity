@@ -7,6 +7,8 @@
 
 namespace Drupal\entity\Revision;
 
+use Drupal\user\UserInterface;
+
 /**
  * Defines an entity type with create time/author/log information for revisions.
  */
@@ -48,7 +50,7 @@ interface EntityRevisionLogInterface {
    *
    * @return $this
    */
-  public function setRevisionUser($account);
+  public function setRevisionUser(UserInterface $account);
 
   /**
    * Gets the entity revision author ID.
