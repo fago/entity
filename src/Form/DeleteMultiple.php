@@ -29,18 +29,11 @@ class DeleteMultiple extends ConfirmFormBase {
   protected $currentUser;
 
   /**
-   * The entity type.
+   * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\ContentEntityTypeInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityType;
-
-  /**
-   * The entity storage.
-   *
-   * @var \Drupal\Core\Entity\EntityStorageInterface
-   */
-  protected $storage;
+  protected $entityTypeManager;
 
   /**
    * The tempstore.
@@ -50,11 +43,18 @@ class DeleteMultiple extends ConfirmFormBase {
   protected $tempStore;
 
   /**
-   * The array of entities to delete.
+   * The entity type id.
+   *
+   * @var string
+   */
+  protected $entityTypeId;
+
+  /**
+   * The selection, in the entity_id => langcodes format.
    *
    * @var array
    */
-  protected $entityInfo = [];
+  protected $selection = [];
 
   /**
    * Constructs a new DeleteMultiple object.
@@ -67,10 +67,8 @@ class DeleteMultiple extends ConfirmFormBase {
    *   The tempstore factory.
    */
   public function __construct(AccountInterface $current_user, EntityTypeManagerInterface $entity_type_manager, PrivateTempStoreFactory $temp_store_factory) {
-    $entity_type_id = \Drupal::routeMatch()->getParameter('entity_type');
     $this->currentUser = $current_user;
-    $this->entityType = $entity_type_manager->getDefinition($entity_type_id);
-    $this->storage = $entity_type_manager->getStorage($this->entityType->id());
+    $this->entityTypeManager = $entity_type_manager;
     $this->tempStore = $temp_store_factory->get('entity_delete_multiple_confirm');
   }
 
@@ -96,14 +94,14 @@ class DeleteMultiple extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return $this->formatPlural(count($this->entityInfo), 'Are you sure you want to delete this item?', 'Are you sure you want to delete these items?');
+    return $this->formatPlural(count($this->selection), 'Are you sure you want to delete this item?', 'Are you sure you want to delete these items?');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return new Url('entity.' . $this->entityType->id() . '.collection');
+    return new Url('entity.' . $this->entityTypeId . '.collection');
   }
 
   /**
@@ -115,17 +113,22 @@ class DeleteMultiple extends ConfirmFormBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param string $entity_type_id
+   *   The entity type id.
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
-    $this->entityInfo = $this->tempStore->get($this->currentUser->id());
-    if (empty($this->entityInfo)) {
+  public function buildForm(array $form, FormStateInterface $form_state, $entity_type_id = NULL) {
+    $this->entityTypeId = $entity_type_id;
+    $this->selection = $this->tempStore->get($this->currentUser->id());
+    if (empty($this->entityTypeId) || empty($this->selection)) {
       return new RedirectResponse($this->getCancelUrl()->setAbsolute()->toString());
     }
 
+    $storage = $this->entityTypeManager->getStorage($this->entityTypeId);
     /** @var \Drupal\Core\Entity\ContentEntityInterface[] $entities */
-    $entities = $this->storage->loadMultiple(array_keys($this->entityInfo));
+    $entities = $storage->loadMultiple(array_keys($this->selection));
     $items = [];
-    foreach ($this->entityInfo as $id => $langcodes) {
+    foreach ($this->selection as $id => $langcodes) {
       foreach ($langcodes as $langcode) {
         $entity = $entities[$id]->getTranslation($langcode);
         $key = $id . ':' . $langcode;
@@ -172,10 +175,11 @@ class DeleteMultiple extends ConfirmFormBase {
     $total_count = 0;
     $delete_entities = [];
     $delete_translations = [];
+    $storage = $this->entityTypeManager->getStorage($this->entityTypeId);
     /** @var \Drupal\Core\Entity\ContentEntityInterface[] $entities */
-    $entities = $this->storage->loadMultiple(array_keys($this->entityInfo));
+    $entities = $storage->loadMultiple(array_keys($this->selection));
 
-    foreach ($this->entityInfo as $id => $langcodes) {
+    foreach ($this->selection as $id => $langcodes) {
       foreach ($langcodes as $langcode) {
         $entity = $entities[$id]->getTranslation($langcode);
         if ($entity->isDefaultTranslation()) {
@@ -190,10 +194,10 @@ class DeleteMultiple extends ConfirmFormBase {
     }
 
     if ($delete_entities) {
-      $this->storage->delete($delete_entities);
+      $storage->delete($delete_entities);
       $this->logger('content')->notice('Deleted @count @entity_type items.', [
         '@count' => count($delete_entities),
-        '@entity_type' => $this->entityType->id(),
+        '@entity_type' => $this->entityTypeId,
       ]);
     }
 
@@ -212,7 +216,7 @@ class DeleteMultiple extends ConfirmFormBase {
         $total_count += $count;
         $this->logger('content')->notice('Deleted @count @entity_type translations.', [
           '@count' => $count,
-          '@entity_type' => $this->entityType->id(),
+          '@entity_type' => $this->entityTypeId,
         ]);
       }
     }
