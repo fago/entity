@@ -83,6 +83,7 @@ class RevisionBasicUITest extends KernelTestBase {
   public function testRevisionRevert() {
     $entity = EnhancedEntity::create([
       'name' => 'rev 1',
+      'type' => 'entity_test_enhance',
     ]);
     $entity->save();
     $entity->name->value = 'rev 2';
