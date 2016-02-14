@@ -120,7 +120,7 @@ class RevisionRevertForm extends ConfirmFormBase {
     // The revision timestamp will be updated when the revision is saved. Keep
     // the original one for the confirmation message.
 
-    $this->revision = $this->prepareRevisionRevert($this->revision);
+    $this->revision = $this->prepareRevision($this->revision);
     if ($this->revision instanceof EntityRevisionLogInterface) {
       $original_revision_timestamp = $this->revision->getRevisionCreationTime();
 
@@ -149,7 +149,7 @@ class RevisionRevertForm extends ConfirmFormBase {
    * @return \Drupal\Core\Entity\RevisionableInterface
    *   The prepared revision ready to be stored.
    */
-  protected function prepareRevisionRevert(RevisionableInterface $revision) {
+  protected function prepareRevision(RevisionableInterface $revision) {
     $revision->setNewRevision();
     $revision->isDefaultRevision(TRUE);
 
