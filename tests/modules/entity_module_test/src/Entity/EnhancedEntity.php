@@ -9,10 +9,12 @@ namespace Drupal\entity_module_test\Entity;
 
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\entity\EntityKeysFieldsTrait;
 use Drupal\entity\EntityRevisionTrait;
 use Drupal\entity\Revision\EntityRevisionLogTrait;
+use Drupal\entity\Revision\RevisionableContentEntityBase;
 
 /**
  * Provides a test entity which uses all the capabilities of entity module.
@@ -56,11 +58,10 @@ use Drupal\entity\Revision\EntityRevisionLogTrait;
  *   bundle_entity_type = "entity_test_enhanced_bundle"
  * )
  */
-class EnhancedEntity extends ContentEntityBase {
+class EnhancedEntity extends RevisionableContentEntityBase {
 
   use EntityRevisionLogTrait;
   use EntityKeysFieldsTrait;
-  use EntityRevisionTrait;
 
   /**
    * {@inheritdoc}
