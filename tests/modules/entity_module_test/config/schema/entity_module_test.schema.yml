@@ -11,3 +11,6 @@ entity_module_test.entity_test_enhanced_bundle.*:
     description:
       type: text
       label: 'Description'
+    new_revision:
+      type: boolean
+      label: 'New revision'
