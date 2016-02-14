@@ -49,6 +49,7 @@ class RevisionBasicUITest extends KernelTestBase {
   public function testRevisionHistory() {
     $entity = EnhancedEntity::create([
       'name' => 'rev 1',
+      'type' => 'default',
     ]);
     $entity->save();
 

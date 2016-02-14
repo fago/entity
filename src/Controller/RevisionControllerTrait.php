@@ -100,8 +100,8 @@ trait RevisionControllerTrait {
    * @return mixed[]
    */
   protected function revisionIds(ContentEntityInterface $entity) {
-    $entity_type = $entity->getEntityTypeId();
-    $result = $this->entityTypeManager()->getStorage($entity_type)->getQuery()
+    $entity_type = $entity->getEntityType();
+    $result = $this->entityTypeManager()->getStorage($entity_type->id())->getQuery()
       ->allRevisions()
       ->condition($entity_type->getKey('id'), $entity->id())
       ->sort($entity_type->getKey('revision'), 'DESC')
