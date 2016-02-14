@@ -11,7 +11,6 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Routing\Access\AccessInterface;
 use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,10 +47,17 @@ class EntityRevisionRouteAccessChecker implements AccessInterface {
    * {@inheritdoc}
    */
   public function access(Route $route, AccountInterface $account, Request $request) {
-    $_entity_revision = $request->attributes->get('_entity_revision');
     $operation = $route->getRequirement('_entity_access_revision');
     list(, $operation) = explode('.', $operation, 2);
-    return AccessResult::allowedIf($_entity_revision && $this->checkAccess($_entity_revision, $account, $operation))->cachePerPermissions();
+
+    if ($operation === 'list') {
+      $_entity = $request->attributes->get('_entity', $request->attributes->get($route->getOption('entity_type_id')));
+      return AccessResult::allowedIf($this->checkAccess($_entity, $account, $operation))->cachePerPermissions();
+    }
+    else {
+      $_entity_revision = $request->attributes->get('_entity_revision');
+      return AccessResult::allowedIf($_entity_revision && $this->checkAccess($_entity_revision, $account, $operation))->cachePerPermissions();
+    }
   }
 
   protected function checkAccess(ContentEntityInterface $entity, AccountInterface $account, $operation = 'view') {
@@ -64,12 +70,14 @@ class EntityRevisionRouteAccessChecker implements AccessInterface {
 
     $map = [
       'view' => "view all $entity_type_id revisions",
+      'list' => "view all $entity_type_id revisions",
       'update' => "revert all $entity_type_id revisions",
       'delete' => "delete all $entity_type_id revisions",
     ];
     $bundle = $entity->bundle();
     $type_map = [
       'view' => "view $entity_type_id $bundle revisions",
+      'list' => "view $entity_type_id $bundle revisions",
       'update' => "revert $entity_type_id $bundle revisions",
       'delete' => "delete $entity_type_id $bundle revisions",
     ];

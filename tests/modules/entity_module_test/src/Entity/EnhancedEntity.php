@@ -51,8 +51,9 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *     "canonical" = "/entity_test_enhanced/{entity_test_enhanced}",
  *     "revision" = "/entity_test_enhanced/{entity_test_enhanced}/revisions/{entity_test_enhanced_revision}/view",
  *     "revision-revert-form" = "/entity_test_enhanced/{entity_test_enhanced}/revisions/{entity_test_enhanced_revision}/revert",
+ *     "version-history" = "/entity_test_enhanced/{entity_test_enhanced}/revisions",
  *   },
- *   bundle_entity_type = "entity_test_enhanced_bundle"
+ *   bundle_entity_type = "entity_test_enhanced_bundle",
  * )
  */
 class EnhancedEntity extends RevisionableContentEntityBase {
