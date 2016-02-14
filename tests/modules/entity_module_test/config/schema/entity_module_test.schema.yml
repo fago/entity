@@ -1,6 +1,6 @@
 entity_module_test.entity_test_enhanced_bundle.*:
   type: config_entity
-  label: 'Entity test with enhancments - Bundle'
+  label: 'Entity test with enhancements - Bundle'
   mapping:
     id:
       type: string
