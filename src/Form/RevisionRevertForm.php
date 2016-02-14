@@ -167,10 +167,7 @@ class RevisionRevertForm extends ConfirmFormBase {
   protected function getBundleLabel(RevisionableInterface $revision) {
     /** @var \Drupal\Core\Entity\EntityInterface|\Drupal\Core\Entity\RevisionableInterface $revision */
     $bundle_info = $this->bundleInformation->getBundleInfo($revision->getEntityTypeId());
-    if (isset($bundle_info[$revision->bundle()])) {
-      return $bundle_info[$revision->bundle()]['label'];
-    }
-    return $revision->getEntityType()->getLabel();
+    return $bundle_info[$revision->bundle()]['label'];
   }
 
 }
