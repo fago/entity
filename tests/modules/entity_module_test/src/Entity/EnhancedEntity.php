@@ -81,11 +81,4 @@ class EnhancedEntity extends RevisionableContentEntityBase {
     return $fields;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  protected function urlRouteParameters($rel) {
-    return $this->urlRouteParametersWithRevisionSupport($rel);
-  }
-
 }
