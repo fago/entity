@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\entity\Form\ContentEntityFormWithRevisions.
+ * Contains \Drupal\entity\Form\RevisionableContentEntityForm.
  */
 
 namespace Drupal\entity\Form;
@@ -11,7 +11,10 @@ use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\entity\Entity\RevisionableEntityBundleInterface;
 
-class ContentEntityFormWithRevisions extends ContentEntityForm {
+/**
+ * Extends the base entity form with revision support in the UI.
+ */
+class RevisionableContentEntityForm extends ContentEntityForm {
 
   /**
    * The entity being used by this form.
@@ -39,20 +42,24 @@ class ContentEntityFormWithRevisions extends ContentEntityForm {
     }
   }
 
+  /**
+   * Returns the bundle entity of the entity, or NULL if there is none.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface|null
+   */
   protected function getBundleEntity() {
-    $bundle_entity = $this->entity->{$this->entity->getEntityType()->getKey('bundle')}->referencedEntities()[0];
-    return $bundle_entity;
+    if ($bundle_key = $this->entity->getEntityType()->getKey('bundle')) {
+      return $this->entity->{$bundle_key}->referencedEntities()[0];
+    }
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-
     $entity_type = $this->entity->getEntityType();
-
     $bundle_entity = $this->getBundleEntity();
-
     $account = $this->currentUser();
 
     if ($this->operation == 'edit') {

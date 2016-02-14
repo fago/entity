@@ -22,8 +22,8 @@ use Drupal\entity\Revision\EntityRevisionLogTrait;
  *   handlers = {
  *     "storage" = "\Drupal\Core\Entity\Sql\SqlContentEntityStorage",
  *     "form" = {
- *       "add" = "\Drupal\entity\Form\ContentEntityFormWithRevisions",
- *       "edit" = "\Drupal\entity\Form\ContentEntityFormWithRevisions",
+ *       "add" = "\Drupal\entity\Form\RevisionableContentEntityForm",
+ *       "edit" = "\Drupal\entity\Form\RevisionableContentEntityForm",
  *       "delete" = "\Drupal\Core\Entity\EntityDeleteForm",
  *     },
  *     "route_provider" = {
