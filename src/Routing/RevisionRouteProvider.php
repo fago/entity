@@ -30,6 +30,10 @@ class RevisionRouteProvider implements EntityRouteProviderInterface {
       $collection->add("entity.$entity_type_id.revision_revert_form", $view_route);
     }
 
+    if ($view_route = $this->getRevisionHistoryRoute($entity_type)) {
+      $collection->add("entity.$entity_type_id.version_history", $view_route);
+    }
+
     return $collection;
   }
 
@@ -91,6 +95,35 @@ class RevisionRouteProvider implements EntityRouteProviderInterface {
         ],
         $entity_type->id() . '_revision' => [
           'type' => 'entity_revision:' . $entity_type->id(),
+        ],
+      ]);
+      return $route;
+    }
+  }
+
+  /**
+   * Gets the entity revision version history route.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   *   The entity type.
+   *
+   * @return \Symfony\Component\Routing\Route|null
+   *   The generated route, if available.
+   */
+  protected function getRevisionHistoryRoute($entity_type) {
+    if ($entity_type->hasLinkTemplate('version-history')) {
+      $entity_type_id = $entity_type->id();
+      $route = new Route($entity_type->getLinkTemplate('revision'));
+      $route->addDefaults([
+        '_controller' => '\Drupal\entity\Controller\RevisionControllerTrait::revisionOverview',
+        '_title' => 'Revisions',
+      ]);
+      $route->addRequirements([
+        '_entity_access_revision' => "$entity_type_id.view",
+      ]);
+      $route->setOption('parameters', [
+        $entity_type->id() => [
+          'type' => 'entity:' . $entity_type->id(),
         ],
       ]);
       return $route;
