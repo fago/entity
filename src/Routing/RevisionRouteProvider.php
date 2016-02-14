@@ -26,7 +26,7 @@ class RevisionRouteProvider implements EntityRouteProviderInterface {
     if ($view_route = $this->getRevisionViewRoute($entity_type)) {
       $collection->add("entity.$entity_type_id.revision", $view_route);
     }
-    if ($view_route = $this->getRevisionrevertRoute($entity_type)) {
+    if ($view_route = $this->getRevisionRevertRoute($entity_type)) {
       $collection->add("entity.$entity_type_id.revision_revert_form", $view_route);
     }
 
@@ -74,7 +74,7 @@ class RevisionRouteProvider implements EntityRouteProviderInterface {
    * @return \Symfony\Component\Routing\Route|null
    *   The generated route, if available.
    */
-  protected function getRevisionrevertRoute(EntityTypeInterface $entity_type) {
+  protected function getRevisionRevertRoute(EntityTypeInterface $entity_type) {
     if ($entity_type->hasLinkTemplate('revision-revert-form')) {
       $entity_type_id = $entity_type->id();
       $route = new Route($entity_type->getLinkTemplate('revision-revert-form'));

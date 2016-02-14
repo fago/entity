@@ -43,7 +43,7 @@ class RevisionBasicUITest extends KernelTestBase {
     \Drupal::service('router.builder')->rebuild();
   }
 
-  public function ptestRevisionView() {
+  public function testRevisionView() {
     $entity = EnhancedEntity::create([
       'name' => 'rev 1',
       'type' => 'default',

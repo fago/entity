@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 class RevisionRevertForm extends ConfirmFormBase {
 
   /**
-   * The node revision.
+   * The entity revision.
    *
    * @var \Drupal\Core\Entity\EntityInterface|\Drupal\Core\Entity\RevisionableInterface|\Drupal\entity\Revision\EntityRevisionLogInterface
    */
@@ -124,9 +124,7 @@ class RevisionRevertForm extends ConfirmFormBase {
     if ($this->revision instanceof EntityRevisionLogInterface) {
       $original_revision_timestamp = $this->revision->getRevisionCreationTime();
 
-      if ($this->revision instanceof EntityRevisionLogInterface) {
-        $this->revision->setRevisionLogMessage($this->t('Copy of the revision from %date.', ['%date' => $this->dateFormatter->format($original_revision_timestamp)]));
-      }
+      $this->revision->setRevisionLogMessage($this->t('Copy of the revision from %date.', ['%date' => $this->dateFormatter->format($original_revision_timestamp)]));
       drupal_set_message(t('@type %title has been reverted to the revision from %revision-date.', ['@type' => $this->getBundleLabel($this->revision), '%title' => $this->revision->label(), '%revision-date' => $this->dateFormatter->format($original_revision_timestamp)]));
     }
     else {
@@ -138,7 +136,7 @@ class RevisionRevertForm extends ConfirmFormBase {
     $this->logger('content')->notice('@type: reverted %title revision %revision.', ['@type' => $this->revision->bundle(), '%title' => $this->revision->label(), '%revision' => $this->revision->getRevisionId()]);
     $form_state->setRedirect(
       "entity.{$this->revision->getEntityTypeId()}.version_history",
-      array($this->revision->getEntityTypeId() => $this->revision->id())
+      [$this->revision->getEntityTypeId() => $this->revision->id()]
     );
   }
 
