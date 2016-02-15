@@ -13,6 +13,7 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
+use Drupal\views\Entity\View;
 use Drupal\views\Tests\ViewKernelTestBase;
 use Drupal\views\Tests\ViewTestData;
 use Drupal\views\Views;
@@ -130,7 +131,12 @@ class RenderedEntityTest extends ViewKernelTestBase {
 
     // The view should not display the body field.
     $view = Views::getView('test_field_entity_test_rendered');
-    $build = $view->preview();
+    $build = [
+      '#type' => 'view',
+      '#name' => 'test_field_entity_test_rendered',
+      '#view' => $view,
+      '#display_id' => 'default',
+    ];
     $renderer = \Drupal::service('renderer');
     $renderer->renderPlain($build);
     for ($i = 1; $i <= 3; $i++) {
@@ -138,6 +144,9 @@ class RenderedEntityTest extends ViewKernelTestBase {
       $search_result = strpos($view_field, "Test $i") !== FALSE;
       $this->assertFalse($search_result, "The text 'Test $i' not found in the view.");
     }
+
+    $this->assertConfigDependencies($view->storage);
+    $this->assertCacheabilityMetadata($build);
   }
 
   /**
@@ -151,7 +160,12 @@ class RenderedEntityTest extends ViewKernelTestBase {
 
     // The view should display the body field.
     $view = Views::getView('test_field_entity_test_rendered');
-    $build = $view->preview();
+    $build = [
+      '#type' => 'view',
+      '#name' => 'test_field_entity_test_rendered',
+      '#view' => $view,
+      '#display_id' => 'default',
+    ];
     $renderer = \Drupal::service('renderer');
     $renderer->renderPlain($build);
     for ($i = 1; $i <= 3; $i++) {
@@ -159,6 +173,49 @@ class RenderedEntityTest extends ViewKernelTestBase {
       $search_result = strpos($view_field, "Test $i") !== FALSE;
       $this->assertTrue($search_result, "The text 'Test $i' found in the view.");
     }
+
+    $this->assertConfigDependencies($view->storage);
+    $this->assertCacheabilityMetadata($build);
+  }
+
+  /**
+   * Ensures that the expected cacheability metadata is applied.
+   *
+   * @param array $build
+   *   The render array
+   */
+  protected function assertCacheabilityMetadata($build) {
+    $this->assertEqual([
+      'config:core.entity_view_display.entity_test.entity_test.foobar',
+      'config:views.view.test_field_entity_test_rendered',
+      'entity_test:1',
+      'entity_test:2',
+      'entity_test:3',
+      'entity_test_list',
+      'entity_test_view',
+    ], $build['#cache']['tags']);
+
+    $this->assertEqual([
+      'entity_test_view_grants',
+      'languages:language_interface',
+      'theme',
+      'url.query_args',
+      'user.permissions',
+    ], $build['#cache']['contexts']);
+  }
+
+  /**
+   * Ensures that the config dependencies are calculated the right way.
+   *
+   * @param \Drupal\views\Entity\View $storage
+   *   The view storage.
+   */
+  protected function assertConfigDependencies(View $storage) {
+    $storage->calculateDependencies();
+    $this->assertEqual([
+      'config' => ['core.entity_view_mode.entity_test.foobar'],
+      'module' => ['entity_test'],
+    ], $storage->getDependencies());
   }
 
 }
