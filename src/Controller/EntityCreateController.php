@@ -65,14 +65,12 @@ class EntityCreateController extends ControllerBase {
    *
    * @param string $entity_type_id
    *   The entity type ID.
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The request.
    *
    * @return \Symfony\Component\HttpFoundation\RedirectResponse|array
    *   If there's only one available bundle, a redirect response.
    *   Otherwise, a render array with the add links for each bundle.
    */
-  public function addPage($entity_type_id, Request $request) {
+  public function addPage($entity_type_id) {
     $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
     $bundle_type = $entity_type->getBundleEntityType();
     $bundle_key = $entity_type->getKey('bundle');
@@ -137,6 +135,9 @@ class EntityCreateController extends ControllerBase {
    *
    * @return array
    *   The add form.
+   *
+   * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+   *   Thrown when the bundle parameter is invalid.
    */
   public function addForm($entity_type_id, RouteMatchInterface $route_match) {
     $entity_type = $this->entityTypeManager()->getDefinition($entity_type_id);
