@@ -16,6 +16,7 @@ use Drupal\KernelTests\KernelTestBase;
 
 /**
  * Tests the delete entity action.
+ * @group entity
  */
 class DeleteActionTest extends KernelTestBase {
 
