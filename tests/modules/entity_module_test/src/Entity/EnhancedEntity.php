@@ -9,8 +9,6 @@ namespace Drupal\entity_module_test\Entity;
 
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\entity\EntityKeysFieldsTrait;
-use Drupal\entity\Revision\EntityRevisionLogTrait;
 use Drupal\entity\Revision\RevisionableContentEntityBase;
 
 /**
@@ -29,7 +27,6 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *     "route_provider" = {
  *       "html" = "\Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider",
  *       "revision" = "\Drupal\entity\Routing\RevisionRouteProvider",
- *       "create" = "\Drupal\entity\Routing\CreateHtmlRouteProvider",
  *       "delete-multiple" = "\Drupal\entity\Routing\DeleteMultipleRouteProvider",
  *     },
  *     "list_builder" = "\Drupal\Core\Entity\EntityListBuilder",
@@ -62,17 +59,11 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  */
 class EnhancedEntity extends RevisionableContentEntityBase {
 
-  use EntityRevisionLogTrait;
-  use EntityKeysFieldsTrait;
-
   /**
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
-    $fields = [];
-
-    $fields += static::entityKeysBaseFieldDefinitions($entity_type);
-    $fields += static::entityRevisionLogBaseFieldDefinitions();
+    $fields = parent::baseFieldDefinitions($entity_type);
 
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel('Name')
