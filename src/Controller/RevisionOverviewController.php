@@ -13,6 +13,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\user\EntityOwnerInterface;
@@ -36,20 +37,28 @@ class RevisionOverviewController extends ControllerBase {
   protected $dateFormatter;
 
   /**
+   * The renderer.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * Creates a new RevisionOverviewController instance.
    *
    * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
    *   The date formatter.
    */
-  public function __construct(DateFormatterInterface $date_formatter) {
+  public function __construct(DateFormatterInterface $date_formatter, RendererInterface $renderer) {
     $this->dateFormatter = $date_formatter;
+    $this->renderer = $renderer;
   }
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('date.formatter'));
+    return new static($container->get('date.formatter'), $container->get('renderer'));
   }
 
   /**
@@ -106,10 +115,12 @@ class RevisionOverviewController extends ControllerBase {
       $date = $this->dateFormatter->format($revision->getRevisionCreationTime(), 'short');
       $link = $revision->toLink($date, 'revision');
 
+      // @todo: Simplify this when https://www.drupal.org/node/2334319 lands.
       $username = [
         '#theme' => 'username',
         '#account' => $revision->getRevisionUser(),
       ];
+      $username = $this->renderer->render($username);
     }
     else {
       $link = $revision->toLink($revision->label(), 'revision');

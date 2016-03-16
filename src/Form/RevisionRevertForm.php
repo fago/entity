@@ -74,7 +74,7 @@ class RevisionRevertForm extends ConfirmFormBase {
    */
   public function getQuestion() {
     if ($this->revision instanceof RevisionLogInterface) {
-      return $this->t('Are you sure you want to revert to the revision from %revision-date?', ['%revision-date' => $this->dateFormatter->format($this->revision->getRevisionLogMessage())]);
+      return $this->t('Are you sure you want to revert to the revision from %revision-date?', ['%revision-date' => $this->dateFormatter->format($this->revision->getRevisionCreationTime())]);
     }
     return $this->t('Are you sure you want to revert the revision?');
   }
