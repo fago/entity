@@ -84,7 +84,7 @@ class EntityCreateController extends ControllerBase {
     ];
     $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type_id);
     // Filter out the bundles the user doesn't have access to.
-    $access_control_handler = $this->entityTypeManager()->getAccessControlHandler($bundle_type);
+    $access_control_handler = $this->entityTypeManager()->getAccessControlHandler($entity_type_id);
     foreach ($bundles as $bundle_name => $bundle_info) {
       $access = $access_control_handler->createAccess($bundle_name, NULL, [], TRUE);
       if (!$access->isAllowed()) {

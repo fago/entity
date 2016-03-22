@@ -76,7 +76,7 @@ class CreateHtmlRouteProvider implements EntityRouteProviderInterface {
       $route->setDefault('_controller', '\Drupal\entity\Controller\EntityCreateController::addForm');
       $route->setDefault('_title_callback', '\Drupal\entity\Controller\EntityCreateController::addFormTitle');
       $route->setDefault('entity_type_id', $entity_type->id());
-      $route->setRequirement('_entity_create_access', $entity_type->id());
+      $route->setRequirement('_entity_create_access', $entity_type->id() . ':{type}');
 
       return $route;
     }
