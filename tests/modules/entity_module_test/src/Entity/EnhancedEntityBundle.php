@@ -8,7 +8,7 @@
 namespace Drupal\entity_module_test\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
-use Drupal\entity\Entity\EntityDescriptionInterface;
+use Drupal\Core\Entity\EntityDescriptionInterface;
 use Drupal\entity\Entity\RevisionableEntityBundleInterface;
 
 /**
@@ -17,11 +17,6 @@ use Drupal\entity\Entity\RevisionableEntityBundleInterface;
  * @ConfigEntityType(
  *   id = "entity_test_enhanced_bundle",
  *   label = @Translation("Entity test with enhancments - Bundle"),
- *   handlers = {
- *     "route_provider" = {
- *       "create" = "\Drupal\entity\Routing\CreateHtmlRouteProvider",
- *     },
- *   },
  *   admin_permission = "administer entity_test_enhanced",
  *   config_prefix = "entity_test_enhanced_bundle",
  *   bundle_of = "entity_test_enhanced",
@@ -33,9 +28,6 @@ use Drupal\entity\Entity\RevisionableEntityBundleInterface;
  *     "id",
  *     "label",
  *     "description"
- *   },
- *   links = {
- *     "add-form" = "/entity_test_enhanced_bundle/add",
  *   },
  * )
  */

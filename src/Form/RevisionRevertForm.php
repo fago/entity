@@ -12,7 +12,7 @@ use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\entity\Revision\EntityRevisionLogInterface;
+use Drupal\Core\Entity\RevisionLogInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -21,7 +21,7 @@ class RevisionRevertForm extends ConfirmFormBase {
   /**
    * The entity revision.
    *
-   * @var \Drupal\Core\Entity\EntityInterface|\Drupal\Core\Entity\RevisionableInterface|\Drupal\entity\Revision\EntityRevisionLogInterface
+   * @var \Drupal\Core\Entity\EntityInterface|\Drupal\Core\Entity\RevisionableInterface|\Drupal\Core\Entity\RevisionLogInterface
    */
   protected $revision;
 
@@ -73,8 +73,8 @@ class RevisionRevertForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    if ($this->revision instanceof EntityRevisionLogInterface) {
-      return $this->t('Are you sure you want to revert to the revision from %revision-date?', ['%revision-date' => $this->dateFormatter->format($this->revision->getRevisionLogMessage())]);
+    if ($this->revision instanceof RevisionLogInterface) {
+      return $this->t('Are you sure you want to revert to the revision from %revision-date?', ['%revision-date' => $this->dateFormatter->format($this->revision->getRevisionCreationTime())]);
     }
     return $this->t('Are you sure you want to revert the revision?');
   }
@@ -119,9 +119,8 @@ class RevisionRevertForm extends ConfirmFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // The revision timestamp will be updated when the revision is saved. Keep
     // the original one for the confirmation message.
-
     $this->revision = $this->prepareRevision($this->revision);
-    if ($this->revision instanceof EntityRevisionLogInterface) {
+    if ($this->revision instanceof RevisionLogInterface) {
       $original_revision_timestamp = $this->revision->getRevisionCreationTime();
 
       $this->revision->setRevisionLogMessage($this->t('Copy of the revision from %date.', ['%date' => $this->dateFormatter->format($original_revision_timestamp)]));

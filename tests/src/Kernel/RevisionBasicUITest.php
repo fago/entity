@@ -33,6 +33,7 @@ class RevisionBasicUITest extends KernelTestBase {
     $this->installEntitySchema('user');
     $this->installEntitySchema('entity_test_enhanced');
     $this->installSchema('system', 'router');
+    $this->installConfig(['system']);
 
     $bundle = EnhancedEntityBundle::create([
       'id' => 'default',
