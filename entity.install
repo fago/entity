@@ -1,0 +1,16 @@
+<?php
+
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+
+/**
+ * Implements hook_install().
+ */
+function entity_install() {
+  /** @var EntityTypeManagerInterface $entity_type_manager */
+  $entity_type_manager = \Drupal::service('entity_type.manager');
+  $definitions = $entity_type_manager->getDefinitions();
+  foreach ($definitions as $definition) {
+    $entities = $entity_type_manager->getStorage($definition->id())->loadMultiple();
+    \Drupal::service('entity.index.uuid')->addMultiple($entities);
+  }
+}

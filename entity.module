@@ -4,3 +4,14 @@
  * @file
  * Provides expanded entity APIs.
  */
+
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_entity_insert().
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ */
+function entity_entity_insert(EntityInterface $entity) {
+  \Drupal::service('entity.index.uuid')->add($entity);
+}
