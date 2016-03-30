@@ -40,6 +40,7 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *   admin_permission = "administer entity_test_enhanced",
  *   entity_keys = {
  *     "id" = "id",
+ *     "uuid" = "uuid",
  *     "bundle" = "type",
  *     "revision" = "vid",
  *     "langcode" = "langcode",
