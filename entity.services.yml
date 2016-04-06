@@ -15,8 +15,3 @@ services:
     arguments: ['@entity_type.manager']
     tags:
       - { name: access_check, applies_to: _entity_access_revision, needs_request: TRUE }
-
-   route_enhancer.entity_always:
-     class: \Drupal\content_entity_base\Entity\Enhancer\EntityRouteEnhancer
-     tags:
-       - { name: route_enhancer, priority: 20 }
