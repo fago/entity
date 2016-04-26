@@ -82,6 +82,9 @@ class RevisionRouteAccessTest extends BrowserTestBase {
     $edit_link = $this->getSession()->getPage()->findLink('Edit');
     $edit_link->click();
     $this->assertSession()->addressEquals('/entity_test_enhanced/1/edit');
+    // Check if we have revision tab link on edit page.
+    $this->getSession()->getPage()->findLink('Revisions')->click();
+    $this->assertSession()->addressEquals('/entity_test_enhanced/1/revisions');
     $this->drupalGet('/entity_test_enhanced/1/revisions/2/view');
     $this->assertSession()->statusCodeEquals(200);
     $this->assertSession()->responseContains('rev 2');
