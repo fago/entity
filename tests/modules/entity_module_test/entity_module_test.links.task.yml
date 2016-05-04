@@ -1,9 +1,9 @@
-entity.entity_module_test.canonical:
+entity.entity_test_enhanced.canonical:
   title: View
-  route_name: entity.entity_module_test.canonical
-  base_route: entity.entity_module_test.canonical
+  route_name: entity.entity_test_enhanced.canonical
+  base_route: entity.entity_test_enhanced.canonical
 
 entity.entity_module_test.edit_form:
   title: Edit
-  route_name: entity.entity_module_test.edit_form
-  base_route: entity.entity_module_test.canonical
+  route_name: entity.entity_test_enhanced.edit_form
+  base_route: entity.entity_test_enhanced.canonical
