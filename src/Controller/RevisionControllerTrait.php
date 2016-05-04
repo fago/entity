@@ -155,7 +155,13 @@ trait RevisionControllerTrait {
           }
         }
         else {
-          $row[] = $this->getOperationLinks($revision);
+          $links = $this->getOperationLinks($revision);
+          $row[] = [
+            'data' => [
+              '#type' => 'operations',
+              '#links' => $links,
+            ],
+          ];
         }
       }
 
