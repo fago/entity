@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\entity\Form\RevisionableContentEntityForm.
- */
-
 namespace Drupal\entity\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;

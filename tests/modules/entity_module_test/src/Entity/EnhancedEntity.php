@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\entity_module_test\Entity\EnhancedEntity.
- */
-
 namespace Drupal\entity_module_test\Entity;
 
 use Drupal\Core\Entity\EntityTypeInterface;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\entity\Controller\RevisionControllerTrait.
- */
-
 namespace Drupal\entity\Controller;
 
 use Drupal\Core\Entity\ContentEntityInterface;

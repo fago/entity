@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\entity\Kernel\RevisionBasicUITest.
- */
-
 namespace Drupal\Tests\entity\Kernel;
 
 use Drupal\entity_module_test\Entity\EnhancedEntity;

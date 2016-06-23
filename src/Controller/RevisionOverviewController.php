@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\entity\Controller\RevisionOverviewController.
- */
-
 namespace Drupal\entity\Controller;
 
 use Drupal\Component\Utility\Xss;
