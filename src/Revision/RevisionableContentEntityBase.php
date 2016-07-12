@@ -2,8 +2,8 @@
 
 namespace Drupal\entity\Revision;
 
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase as BaseRevisionableContentEntityBase;
-use Drupal\Core\Entity\ContentEntityBase;
 
 /**
  * Improves the url route handling of core's revisionable content entity base.
@@ -26,5 +26,20 @@ abstract class RevisionableContentEntityBase extends BaseRevisionableContentEnti
 
     return $uri_route_parameters;
   }
+
+  /**
+   * @inheritDoc
+   */
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+
+    // If no revision author has been set explicitly, make the entity owner the
+    // revision author.
+    if (($uid = $this->getEntityKey('uid'))) {
+      $this->setRevisionUserId($uid);
+    }
+    $this->setRevisionCreationTime(time());
+  }
+
 
 }
