@@ -12,6 +12,11 @@ use Drupal\entity\Entity\RevisionableEntityBundleInterface;
 class RevisionableContentEntityForm extends ContentEntityForm {
 
   /**
+   * The class the entity type must extend to use this form.
+   */
+  const REQUIRED_PARENT = 'Drupal\entity\Revision\RevisionableContentEntityBase';
+
+  /**
    * The entity being used by this form.
    *
    * @var \Drupal\Core\Entity\EntityInterface|\Drupal\Core\Entity\RevisionableInterface|\Drupal\entity\Revision\EntityRevisionLogInterface
@@ -54,6 +59,11 @@ class RevisionableContentEntityForm extends ContentEntityForm {
    */
   public function form(array $form, FormStateInterface $form_state) {
     $entity_type = $this->entity->getEntityType();
+    $reflection = new \ReflectionClass($entity_type->getClass());
+    if (!$reflection->isSubclassOf(self::REQUIRED_PARENT)) {
+      throw new \Exception('Entity type must implement ' . self::REQUIRED_PARENT);
+    }
+    $form = parent::form($form, $form_state);
     $bundle_entity = $this->getBundleEntity();
     $account = $this->currentUser();
 
@@ -100,16 +110,11 @@ class RevisionableContentEntityForm extends ContentEntityForm {
         ],
       ];
     }
+    // RevisionLogEntityTrait adds the log message field; move it into tab group.
+    $form['revision_information']['revision_log_message'] = $form['revision_log_message'];
+    unset($form['revision_log_message']);
 
-    $form['revision_information']['revision_log'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Revision log message'),
-      '#rows' => 4,
-      '#default_value' => $this->entity->getRevisionLogMessage(),
-      '#description' => $this->t('Briefly describe the changes you have made.'),
-    ];
-
-    return parent::form($form, $form_state);
+    return $form;
   }
 
   /**
