@@ -17,6 +17,7 @@ use Drupal\user\UserInterface;
  *   handlers = {
  *     "storage" = "\Drupal\Core\Entity\Sql\SqlContentEntityStorage",
  *     "access" = "\Drupal\entity\EntityAccessControlHandler",
+ *     "permission_provider" = "\Drupal\entity\EntityPermissionProvider",
  *     "form" = {
  *       "add" = "\Drupal\entity\Form\RevisionableContentEntityForm",
  *       "edit" = "\Drupal\entity\Form\RevisionableContentEntityForm",

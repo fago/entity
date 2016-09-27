@@ -71,7 +71,7 @@ class PermissionsTest extends EntityKernelTestBase {
     ]);
     $entity->save();
 
-    $user1 = $this->createUser([], ['bypass entity_test_enhanced access']);
+    $user1 = $this->createUser([], ['administer entity_test_enhanced']);
     $user2 = $this->createUser([], ['create default entity_test_enhanced', 'update default entity_test_enhanced']);
     $user3 = $this->createUser([], ['create tester entity_test_enhanced', 'update tester entity_test_enhanced']);
 
@@ -87,7 +87,7 @@ class PermissionsTest extends EntityKernelTestBase {
 
     $user4 = $this->createUser([], ['update own default entity_test_owner']);
     $user5 = $this->createUser([], ['update any default entity_test_owner']);
-    $user6 = $this->createUser([], ['bypass entity_test_owner access']);
+    $user6 = $this->createUser([], ['administer entity_test_owner']);
 
     $entity = EnhancedOwnerEntity::create([
       'name' => 'Alpaca',
@@ -114,7 +114,7 @@ class PermissionsTest extends EntityKernelTestBase {
     // User with "any" can update their own entries.
     $this->assertTrue($other_entity->access('update', $user5));
 
-    // User with bypass can update both entities.
+    // User with "administer" can update both entities.
     $this->assertTrue($entity->access('update', $user6));
     $this->assertTrue($other_entity->access('update', $user6));
   }

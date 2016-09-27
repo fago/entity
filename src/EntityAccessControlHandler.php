@@ -22,10 +22,6 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
     $result = parent::checkAccess($entity, $operation, $account);
 
     if ($result->isNeutral()) {
-      $result = AccessResult::allowedIfHasPermission($account, "bypass {$this->entityTypeId} access");
-    }
-
-    if ($result->isNeutral()) {
       if ($entity instanceof EntityOwnerInterface) {
         $result = $this->checkEntityOwnerPermissions($entity, $operation, $account);
       }
@@ -33,9 +29,9 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
         $result = $this->checkEntityPermissions($entity, $operation, $account);
       }
     }
-    $result->cachePerUser()->cachePerPermissions()->addCacheableDependency($entity);
 
-    return $result;
+    // Ensure that access is evaluated again when the entity changes.
+    return $result->addCacheableDependency($entity);
   }
 
   /**
@@ -74,6 +70,7 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
    *   The access result.
    */
   protected function checkEntityOwnerPermissions(EntityInterface $entity, $operation, AccountInterface $account) {
+    /** @var \Drupal\Core\Entity\EntityInterface|\Drupal\user\EntityOwnerInterface $entity */
     if (($account->id() == $entity->getOwnerId())) {
       $result = AccessResult::allowedIfHasPermissions($account, [
         "$operation own {$entity->getEntityTypeId()}",
@@ -89,7 +86,7 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
       ], 'OR');
     }
 
-    return $result;
+    return $result->cachePerUser();
   }
 
   /**
@@ -99,7 +96,7 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
     $result = parent::checkCreateAccess($account, $context, $entity_bundle);
     if ($result->isNeutral()) {
       $result = AccessResult::allowedIfHasPermissions($account, [
-        'bypass ' . $this->entityTypeId . ' access',
+        'administer ' . $this->entityTypeId,
         'create ' . $entity_bundle . ' ' . $this->entityTypeId,
         'create any ' . $entity_bundle . ' ' . $this->entityTypeId,
         'create own ' . $entity_bundle . ' ' . $this->entityTypeId,
