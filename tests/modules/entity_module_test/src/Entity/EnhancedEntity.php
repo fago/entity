@@ -19,8 +19,6 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *   label = @Translation("Entity test with enhancements"),
  *   handlers = {
  *     "storage" = "\Drupal\Core\Entity\Sql\SqlContentEntityStorage",
- *     "access" = "\Drupal\entity\EntityAccessControlHandler",
- *     "permission_provider" = "\Drupal\entity\EntityPermissionProvider",
  *     "form" = {
  *       "add" = "\Drupal\entity\Form\RevisionableContentEntityForm",
  *       "edit" = "\Drupal\entity\Form\RevisionableContentEntityForm",
@@ -40,7 +38,6 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *   translatable = TRUE,
  *   revisionable = TRUE,
  *   admin_permission = "administer entity_test_enhanced",
- *   permission_granularity = "bundle",
  *   entity_keys = {
  *     "id" = "id",
  *     "bundle" = "type",
