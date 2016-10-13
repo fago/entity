@@ -63,7 +63,7 @@ class BundlePluginInstaller implements BundlePluginInstallerInterface {
   public function installBundles(EntityTypeInterface $entity_type, array $modules) {
     $bundle_handler = $this->entityTypeManager->getHandler($entity_type->id(), 'bundle_plugin');
     $bundles = array_filter($bundle_handler->getBundleInfo(), function ($bundle_info) use ($modules) {
-      return in_array($bundle_info['provider'], $modules);
+      return in_array($bundle_info['provider'], $modules, TRUE);
     });
     foreach (array_keys($bundles) as $bundle) {
       $this->entityBundleListener->onBundleCreate($bundle, $entity_type->id());
@@ -80,7 +80,7 @@ class BundlePluginInstaller implements BundlePluginInstallerInterface {
   public function uninstallBundles(EntityTypeInterface $entity_type, array $modules) {
     $bundle_handler = $this->entityTypeManager->getHandler($entity_type->id(), 'bundle_plugin');
     $bundles = array_filter($bundle_handler->getBundleInfo(), function ($bundle_info) use ($modules) {
-      return in_array($bundle_info['provider'], $modules);
+      return in_array($bundle_info['provider'], $modules, TRUE);
     });
     foreach (array_keys($bundles) as $bundle) {
       $this->entityBundleListener->onBundleDelete($bundle, $entity_type->id());

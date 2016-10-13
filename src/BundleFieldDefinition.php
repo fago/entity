@@ -11,7 +11,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  * example uses BaseFieldDefinition, which is wrong. Tracked in #2346347.
  *
  * Note that this class implements both FieldStorageDefinitionInterface and
- * FieldStorageDefinitionInterface. This is a simplification for DX reasons,
+ * FieldDefinitionInterface. This is a simplification for DX reasons,
  * allowing code to return just the bundle definitions instead of having to
  * return both storage definitions and bundle definitions.
  */
