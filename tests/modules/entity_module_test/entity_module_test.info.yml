@@ -1,3 +1,4 @@
 name: Entity test
 type: module
+package: Testing
 core: 8.x
