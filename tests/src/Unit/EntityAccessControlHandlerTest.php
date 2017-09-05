@@ -192,6 +192,8 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $entity->bundle()->willReturn($entity_type->id());
     $entity->isNew()->willReturn(FALSE);
     $entity->uuid()->willReturn('fake uuid');
+    $entity->id()->willReturn('fake id');
+    $entity->getRevisionId()->willReturn(NULL);
     $entity->language()->willReturn(new Language(['id' => $langcode]));
     $entity->getEntityTypeId()->willReturn($entity_type->id());
     $entity->getEntityType()->willReturn($entity_type);
