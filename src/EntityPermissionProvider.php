@@ -2,7 +2,6 @@
 
 namespace Drupal\entity;
 
-use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityHandlerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -64,7 +63,7 @@ class EntityPermissionProvider implements EntityPermissionProviderInterface, Ent
    */
   public function buildPermissions(EntityTypeInterface $entity_type) {
     $entity_type_id = $entity_type->id();
-    $has_owner = $entity_type->isSubclassOf(EntityOwnerInterface::class);
+    $has_owner = $entity_type->entityClassImplements(EntityOwnerInterface::class);
     $singular_label = $entity_type->getSingularLabel();
     $plural_label = $entity_type->getPluralLabel();
 
@@ -125,7 +124,7 @@ class EntityPermissionProvider implements EntityPermissionProviderInterface, Ent
    */
   protected function buildEntityTypePermissions(EntityTypeInterface $entity_type) {
     $entity_type_id = $entity_type->id();
-    $has_owner = $entity_type->isSubclassOf(EntityOwnerInterface::class);
+    $has_owner = $entity_type->entityClassImplements(EntityOwnerInterface::class);
     $singular_label = $entity_type->getSingularLabel();
     $plural_label = $entity_type->getPluralLabel();
 
@@ -185,7 +184,7 @@ class EntityPermissionProvider implements EntityPermissionProviderInterface, Ent
   protected function buildBundlePermissions(EntityTypeInterface $entity_type) {
     $entity_type_id = $entity_type->id();
     $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type_id);
-    $has_owner = $entity_type->isSubclassOf(EntityOwnerInterface::class);
+    $has_owner = $entity_type->entityClassImplements(EntityOwnerInterface::class);
     $singular_label = $entity_type->getSingularLabel();
     $plural_label = $entity_type->getPluralLabel();
 
