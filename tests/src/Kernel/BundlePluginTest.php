@@ -18,7 +18,6 @@ class BundlePluginTest extends KernelTestBase {
   public static $modules = [
     'system',
     'entity',
-    'entity_module_bundle_plugin_test',
   ];
 
   /**
@@ -28,8 +27,12 @@ class BundlePluginTest extends KernelTestBase {
     parent::setUp();
 
     $this->installSchema('system', 'router');
-    $this->installEntitySchema('entity_test_bundle_plugin');
-    $this->installConfig('entity_module_bundle_plugin_test');
+
+    // Install the modules properly. Putting them into static::$modules doesn't trigger the install
+    // hooks, like hook_modules_installed, so entity_modules_installed is not triggered().
+    /** @var \Drupal\Core\Extension\ModuleInstallerInterface $module_installer */
+    $module_installer = \Drupal::service('module_installer');
+    $module_installer->install(['entity_module_bundle_plugin_test', 'entity_module_bundle_plugin_examples_test']);
   }
 
   /**
@@ -76,6 +79,52 @@ class BundlePluginTest extends KernelTestBase {
     $second_entity->save();
     $second_entity = EntityTestBundlePlugin::load($second_entity->id());
     $this->assertEquals('admin@example.com', $second_entity->second_mail->value);
+  }
+
+  /**
+   * Tests the uninstallation for a bundle provided by a module.
+   */
+  public function testBundlePluginModuleUninstallation() {
+    /** @var \Drupal\Core\Extension\ModuleInstallerInterface $module_installer */
+    $module_installer = \Drupal::service('module_installer');
+
+    // One should be possible to uninstall without any actual content.
+    $violations = $module_installer->validateUninstall(['entity_module_bundle_plugin_examples_test']);
+    $this->assertEmpty($violations);
+
+    $first_entity = EntityTestBundlePlugin::create([
+      'type' => 'first',
+      'first_mail' => 'admin@test.com',
+    ]);
+    $first_entity->save();
+    $second_entity = EntityTestBundlePlugin::create([
+      'type' => 'second',
+      'second_mail' => 'admin@example.com',
+    ]);
+    $second_entity->save();
+
+    $violations = $module_installer->validateUninstall(['entity_module_bundle_plugin_examples_test']);
+    $this->assertCount(1, $violations);
+    $this->assertCount(1, $violations['entity_module_bundle_plugin_examples_test']);
+    $this->assertEquals('There is data for the bundle Second on the entity type Entity test bundle plugin. Please remove all content before uninstalling the module.', $violations['entity_module_bundle_plugin_examples_test'][0]);
+
+    $second_entity->delete();
+
+    // The first entity is defined by entity_module_bundle_plugin_test, so it should be possible
+    // to uninstall the module providing the second bundle plugin.
+    $violations = $module_installer->validateUninstall(['entity_module_bundle_plugin_examples_test']);
+    $this->assertEmpty($violations);
+
+    $module_installer->uninstall(['entity_module_bundle_plugin_examples_test']);
+
+    // The first entity is provided by entity_module_bundle_plugin_test which we cannot uninstall,
+    // until all the entities are deleted.
+    $violations = $module_installer->validateUninstall(['entity_module_bundle_plugin_test']);
+    $this->assertNotEmpty($violations);
+
+    $first_entity->delete();
+    $violations = $module_installer->validateUninstall(['entity_module_bundle_plugin_test']);
+    $this->assertEmpty($violations);
   }
 
 }

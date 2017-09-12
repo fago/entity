@@ -1,9 +1,10 @@
 <?php
 
-namespace Drupal\entity_module_bundle_plugin_test\Plugin\BundlePluginTest;
+namespace Drupal\entity_module_bundle_plugin_examples_test\Plugin\BundlePluginTest;
 
 use Drupal\entity\BundleFieldDefinition;
 use Drupal\Core\Plugin\PluginBase;
+use Drupal\entity_module_bundle_plugin_test\Plugin\BundlePluginTest\BundlePluginTestInterface;
 
 /**
  * Provides the second bundle plugin.
