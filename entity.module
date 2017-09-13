@@ -1,8 +1,47 @@
 <?php
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Database\Query\Select;
+use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
+use Drupal\entity\Query\SqlQueryAlter;
 
 /**
  * @file
  * Provides expanded entity APIs.
  */
+
+/**
+ * Implements hook_query_entity_query_alter().
+ *
+ * Enables to take into account query_access handlers for entity queries.
+ */
+function entity_query_entity_query_alter(Select $query) {
+  $entity_type_id = $query->getMetaData('entity_type');
+  if (!$query->hasTag($entity_type_id . '_access')) {
+    return;
+  }
+
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $current_user = \Drupal::currentUser();
+  $entity_type = $entity_type_manager->getDefinition($entity_type_id);
+
+  $storage = $entity_type_manager->getStorage($entity_type_id);
+  if (!$storage instanceof SqlContentEntityStorage) {
+    return;
+  }
+  $table_mapping = $storage->getTableMapping();
+
+  if ($entity_type->hasHandlerClass('query_access')) {
+    /** @var \Drupal\entity\Query\QueryAccessHandlerInterface $query_access */
+    $query_access = $entity_type_manager->getHandler($entity_type_id, 'query_access');
+    $condition = $query_access->conditions('view', $current_user);
+
+    $sql_condition = $query->andConditionGroup();
+    if (count($condition)) {
+      $sql_query_alter = new SqlQueryAlter(\Drupal::service('entity_field.manager'));
+      $sql_condition = $sql_query_alter->applyCondition($entity_type, $table_mapping, $query, $sql_condition, $condition);
+
+      $query->condition($sql_condition);
+    }
+  }
+}
+

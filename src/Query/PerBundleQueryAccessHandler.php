@@ -49,7 +49,7 @@ class PerBundleQueryAccessHandler implements EntityHandlerInterface, QueryAccess
    * {@inheritdoc}
    */
   public function conditions($operation, AccountInterface $account) {
-    $condition = new QueryCondition('OR');
+    $condition = new Condition('OR');
 
     // When we would write down \Drupal\entity\EntityAccessControlHandler::checkEntityOwnerPermissions
     // as boolean logic we would end up with something like this:
@@ -93,7 +93,7 @@ class PerBundleQueryAccessHandler implements EntityHandlerInterface, QueryAccess
       // View own $bundle permission
       foreach (array_keys($bundle_info) as $bundle) {
         if ($account->hasPermission("$operation own $bundle $entity_type_id")) {
-          $inner_condition = (new QueryCondition('AND'))
+          $inner_condition = (new Condition('AND'))
             ->condition($bundle_key, $bundle)
             ->condition($uid_key, $account->id());
           $condition->condition($inner_condition);
