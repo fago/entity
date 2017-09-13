@@ -5,12 +5,15 @@ namespace Drupal\Tests\entity\Kernel;
 use Drupal\entity_query_access_test\Entity\EntityQueryAccessTest;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\Tests\user\Traits\UserCreationTrait;
+use Drupal\views\Tests\ViewResultAssertionTrait;
+use Drupal\views\Views;
 
 class QueryAccessTest extends KernelTestBase {
 
   use UserCreationTrait;
+  use ViewResultAssertionTrait;
 
-  public static $modules = ['entity', 'system', 'entity_test', 'entity_query_access_test', 'user'];
+  public static $modules = ['entity', 'system', 'entity_test', 'entity_query_access_test', 'user', 'views'];
 
   /**
    * {@inheritdoc}
@@ -21,6 +24,7 @@ class QueryAccessTest extends KernelTestBase {
     $this->installSchema('system', 'sequences');
     $this->installEntitySchema('user');
     $this->installEntitySchema('entity_query_access_test');
+    $this->installConfig('entity_query_access_test');
   }
 
   public function testAccess() {
@@ -87,6 +91,38 @@ class QueryAccessTest extends KernelTestBase {
     \Drupal::currentUser()->setAccount($user_view_bundle_own);
     $result = $query->execute();
     $this->assertEquals([$first_entity_own->id()], array_values($result));
+
+    $column_map = [
+      'id' => 'id',
+    ];
+
+    \Drupal::currentUser()->setAccount($user_view_any);
+    $view = Views::getView('entity_test_query_access');
+    $view->execute();
+    $this->assertIdenticalResultset($view, $this->convertToExpectedResult([$first_entity_other->id(), $first_entity_own->id(), $first_entity_3->id(), $second_entity_other->id(), $second_entity_own->id()]), $column_map);
+
+    \Drupal::currentUser()->setAccount($user_view_own);
+    $view = Views::getView('entity_test_query_access');
+    $view->execute();
+    $this->assertIdenticalResultset($view, $this->convertToExpectedResult([$first_entity_3->id(), $second_entity_own->id()]), $column_map);
+
+    \Drupal::currentUser()->setAccount($user_view_bundle_any);
+    $view = Views::getView('entity_test_query_access');
+    $view->execute();
+    $this->assertIdenticalResultset($view, $this->convertToExpectedResult([$first_entity_other->id(), $first_entity_own->id(), $first_entity_3->id()]), $column_map);
+
+    \Drupal::currentUser()->setAccount($user_view_bundle_own);
+    $view = Views::getView('entity_test_query_access');
+    $view->execute();
+    $this->assertIdenticalResultset($view, $this->convertToExpectedResult([$first_entity_own->id()]), $column_map);
+  }
+
+  protected function convertToExpectedResult($entity_ids) {
+    return array_map(function ($entity_id) {
+      return [
+        'id' => $entity_id,
+      ];
+    }, $entity_ids);
   }
 
 }
