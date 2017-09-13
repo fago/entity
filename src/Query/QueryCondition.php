@@ -7,7 +7,7 @@ namespace Drupal\entity\Query;
  *
  * Query access handlers can use them to filter entities based upon certain access rules.
  */
-class Condition implements \Countable {
+class QueryCondition implements \Countable {
 
   /**
    * Array of conditions.

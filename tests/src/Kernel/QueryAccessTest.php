@@ -68,23 +68,23 @@ class QueryAccessTest extends KernelTestBase {
     $entityTypeManager = \Drupal::entityTypeManager();
 
     $query = $entityTypeManager->getStorage('entity_query_access_test')->getQuery();
-    entity_query_apply_conditions($entityTypeManager, 'entity_query_access_test', $query, $user_view_any);
+    \Drupal::currentUser()->setAccount($user_view_any);
     $result = $query->execute();
     sort($result);
     $this->assertEquals([$first_entity_other->id(), $first_entity_own->id(), $first_entity_3->id(), $second_entity_other->id(), $second_entity_own->id()], array_values($result));
 
     $query = $entityTypeManager->getStorage('entity_query_access_test')->getQuery();
-    entity_query_apply_conditions($entityTypeManager, 'entity_query_access_test', $query, $user_view_own);
+    \Drupal::currentUser()->setAccount($user_view_own);
     $result = $query->execute();
     $this->assertEquals([$first_entity_3->id(), $second_entity_own->id()], array_values($result));
 
     $query = $entityTypeManager->getStorage('entity_query_access_test')->getQuery();
-    entity_query_apply_conditions($entityTypeManager, 'entity_query_access_test', $query, $user_view_bundle_any);
+    \Drupal::currentUser()->setAccount($user_view_bundle_any);
     $result = $query->execute();
     $this->assertEquals([$first_entity_other->id(), $first_entity_own->id(), $first_entity_3->id()], array_values($result));
 
     $query = $entityTypeManager->getStorage('entity_query_access_test')->getQuery();
-    entity_query_apply_conditions($entityTypeManager, 'entity_query_access_test', $query, $user_view_bundle_own);
+    \Drupal::currentUser()->setAccount($user_view_bundle_own);
     $result = $query->execute();
     $this->assertEquals([$first_entity_own->id()], array_values($result));
   }

@@ -49,7 +49,7 @@ class PerBundleQueryAccessHandler implements EntityHandlerInterface, QueryAccess
    * {@inheritdoc}
    */
   public function conditions($operation, AccountInterface $account) {
-    $condition = new Condition('OR');
+    $condition = new QueryCondition('OR');
 
     // @todo Implement $operation.
     $entity_type_id = $this->entityType->id();
@@ -95,7 +95,7 @@ class PerBundleQueryAccessHandler implements EntityHandlerInterface, QueryAccess
       // View own $bundle permission
       foreach (array_keys($bundle_info) as $bundle) {
         if ($account->hasPermission("$operation own $bundle $entity_type_id")) {
-          $inner_condition = (new Condition('AND'))
+          $inner_condition = (new QueryCondition('AND'))
             ->condition($bundle_key, $bundle)
             ->condition($uid_key, $account->id());
           $condition->condition($inner_condition);

@@ -6,33 +6,3 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
  * @file
  * Provides expanded entity APIs.
  */
-
-// @fixme
-// Find a proper way to alter existing entity queries. Maybe we need to go onto the SQL alter level
-// but avoiding that would be dramatically helpful.
-function entity_query_apply_conditions(EntityTypeManagerInterface $entityTypeManager, $entity_type_id, \Drupal\Core\Entity\Query\QueryInterface $query, $user) {
-  $entity_type = $entityTypeManager->getDefinition($entity_type_id);
-  if ($entity_type->hasHandlerClass('query_access')) {
-    /** @var \Drupal\entity\Query\QueryAccessHandlerInterface $query_access */
-    $query_access = $entityTypeManager->getHandler($entity_type_id, 'query_access');
-    $condition = $query_access->conditions('view', $user);
-
-    if (count($condition)) {
-      $query->condition(_entity_query_apply_condition($query, $condition));
-    }
-  }
- 
-}
-
-function _entity_query_apply_condition(\Drupal\Core\Entity\Query\QueryInterface $query, \Drupal\entity\Query\Condition $condition) {
-  $query_condition = new \Drupal\Core\Entity\Query\Sql\Condition($condition->getConjunction(), $query);
-  foreach ($condition->conditions() as $cond) {
-    if ($cond['field'] instanceof \Drupal\entity\Query\Condition) {
-      $query_condition->condition(_entity_query_apply_condition($query, $cond['field']));
-    }
-    else {
-      $query_condition->condition($cond['field'], $cond['value'], $cond['operator'], $cond['langcode']);
-    }
-  }
-  return $query_condition;
-}
