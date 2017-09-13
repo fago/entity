@@ -81,5 +81,4 @@ class Condition implements \Countable {
     return count($this->conditions);
   }
 
-
 }

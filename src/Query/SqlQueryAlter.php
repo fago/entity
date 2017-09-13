@@ -17,19 +17,14 @@ class SqlQueryAlter {
   /** @var  \Drupal\Core\Entity\EntityFieldManagerInterface */
   protected $entityFieldManager;
   
-  /**
-   * @var \Drupal\Core\Session\AccountInterface
-   */
+  /** @var \Drupal\Core\Session\AccountInterface */
   protected $currentUser;
 
-  /**
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
+  /** @var \Drupal\Core\Entity\EntityTypeManagerInterface */
   protected $entityTypeManager;
 
   /**
    * SqlQueryAlter constructor.
-   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
    */
   public function __construct(EntityFieldManagerInterface $entityFieldManager, EntityTypeManagerInterface $entityTypeManager, AccountInterface $currentUser) {
     $this->entityFieldManager = $entityFieldManager;
@@ -39,7 +34,7 @@ class SqlQueryAlter {
 
   public static function create(ContainerInterface $container) {
     return new static(
-      \Drupal::service('entity_field.manager'), \Drupal::entityTypeManager(), \Drupal::currentUser()
+      $container->get('entity_field.manager'), $container->get('entity_type.manager'), $container->get('current_user')
     );
   }
 
@@ -74,6 +69,9 @@ class SqlQueryAlter {
     }
   }
 
+  /**
+   * Tries to ensure that a given table exists.
+   */
   protected static function ensureTable(Select $select, $table, EntityTypeInterface $entity_type) {
     $tables = $select->getTables();
     foreach ($tables as $table_info) {
@@ -82,19 +80,28 @@ class SqlQueryAlter {
       }
     }
 
+    // @todo Is this the right join?
     return $select->innerJoin($table, NULL, $entity_type->getBaseTable() . '.' . $entity_type->getKey('id') . ' = ' . '%alias.entity_id');
   }
 
-  public function applyCondition(EntityTypeInterface $entity_type, DefaultTableMapping $table_mapping, Select $select, SqlCondition $sql_condition, Condition $condition) {
+  /**
+   * Apply the entity conditions recursively to the sql condition.
+   *
+   * @return \Drupal\Core\Database\Query\Condition
+   */
+  protected function applyCondition(EntityTypeInterface $entity_type, DefaultTableMapping $table_mapping, Select $select, SqlCondition $sql_condition, Condition $condition) {
     $entity_type_id = $entity_type->id();
     $field_storage_definitions = $this->entityFieldManager->getFieldStorageDefinitions($entity_type_id);
 
     foreach ($condition->conditions() as $cond) {
+      // Support nested conditions.
       if ($cond['field'] instanceof Condition) {
         $sql_condition->condition($this->applyCondition($entity_type, $table_mapping, $select, $sql_condition->conditionGroupFactory($cond['field']->getConjunction()), $cond['field']));
       }
       else {
         $field_storage_definition = $field_storage_definitions[$cond['field']];
+
+        // Determine the real table and column before applying the condition.
         if ($field_storage_definition->isBaseField()) {
           $table_name = $entity_type->getDataTable() ?: $entity_type->getBaseTable();
         }
@@ -106,9 +113,11 @@ class SqlQueryAlter {
 
         // @todo we need support for non main properties?
         // @todo we need support for revision queries?
-        $field_name = $table_mapping->getFieldColumnName($field_storage_definition, $field_storage_definition->getMainPropertyName());
+        // @todo What do we do with the langcode value?
+  
+        $field_column_name = $table_mapping->getFieldColumnName($field_storage_definition, $field_storage_definition->getMainPropertyName());
 
-        $sql_condition->condition("{$table_name}.{$field_name}", $cond['value'], $cond['operator']);
+        $sql_condition->condition("{$table_name}.{$field_column_name}", $cond['value'], $cond['operator']);
       }
     }
     return $sql_condition;
