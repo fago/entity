@@ -5,20 +5,73 @@ namespace Drupal\entity\Query;
 use Drupal\Core\Database\Query\Select;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Sql\DefaultTableMapping;
 use Drupal\Core\Database\Query\Condition as SqlCondition;
+use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
+use Drupal\Core\Session\AccountInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SqlQueryAlter {
 
   /** @var  \Drupal\Core\Entity\EntityFieldManagerInterface */
   protected $entityFieldManager;
+  
+  /**
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $currentUser;
+
+  /**
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
 
   /**
    * SqlQueryAlter constructor.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
    */
-  public function __construct(EntityFieldManagerInterface $entityFieldManager) {
+  public function __construct(EntityFieldManagerInterface $entityFieldManager, EntityTypeManagerInterface $entityTypeManager, AccountInterface $currentUser) {
     $this->entityFieldManager = $entityFieldManager;
+    $this->currentUser = $currentUser;
+    $this->entityTypeManager = $entityTypeManager;
+  }
+
+  public static function create(ContainerInterface $container) {
+    return new static(
+      \Drupal::service('entity_field.manager'), \Drupal::entityTypeManager(), \Drupal::currentUser()
+    );
+  }
+
+  /**
+   * Shared alter function between entity queries and views queries.
+   *
+   * @param \Drupal\Core\Database\Query\Select $query
+   *   The select query we alter.
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   *   The entity type we deal with.
+   */
+  public function queryAlter(Select $query, EntityTypeInterface $entity_type) {
+    $entity_type_id = $entity_type->id();
+
+    $storage = $this->entityTypeManager->getStorage($entity_type_id);
+    if (!$storage instanceof SqlContentEntityStorage) {
+      return;
+    }
+    $table_mapping = $storage->getTableMapping();
+
+    if ($entity_type->hasHandlerClass('query_access')) {
+      /** @var \Drupal\entity\Query\QueryAccessHandlerInterface $query_access */
+      $query_access = $this->entityTypeManager->getHandler($entity_type_id, 'query_access');
+      $condition = $query_access->conditions('view', $this->currentUser);
+
+      $sql_condition = $query->andConditionGroup();
+      if (count($condition)) {
+        $sql_condition = $this->applyCondition($entity_type, $table_mapping, $query, $sql_condition, $condition);
+
+        $query->condition($sql_condition);
+      }
+    }
   }
 
   protected static function ensureTable(Select $select, $table, EntityTypeInterface $entity_type) {
