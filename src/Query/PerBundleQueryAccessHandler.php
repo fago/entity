@@ -51,27 +51,25 @@ class PerBundleQueryAccessHandler implements EntityHandlerInterface, QueryAccess
   public function conditions($operation, AccountInterface $account) {
     $condition = new QueryCondition('OR');
 
-    // @todo Implement $operation.
-    $entity_type_id = $this->entityType->id();
-    $bundle_info = $this->bundleInfo->getBundleInfo($entity_type_id);
-    $bundle_key = $this->entityType->getKey('bundle');
-
     // When we would write down \Drupal\entity\EntityAccessControlHandler::checkEntityOwnerPermissions
     // as boolean logic we would end up with something like this:
     // (view any ... = 1)
-    //   || (.uid = account.uid && operation any ... = 1)
-    //   || (.bundle = bundle1 and (operation any bundle1 == 1))
-    //   || (.bundle = bundle1 and .uid = account.uid and (operation any bundle1 == 1))
-    //   || (.bundle = bundle2 and (operation any bundle2 == 1))
+    //   || (*.uid = account.uid && operation any ... = 1)
+    //   || (*.bundle = bundle1 and (operation any bundle1 == 1))
+    //   || (*.bundle = bundle1 and *.uid = account.uid and (operation any bundle1 == 1))
+    //   || (*.bundle = bundle2 and (operation any bundle2 == 1))
     
     // We can though take a couple of shortcuts by checking things in PHP which don't vary per
     // entity.
     
     // No conditions are needed when the user can access all entities anyway.
+    $entity_type_id = $this->entityType->id();
      if ($account->hasPermission("$operation any {$entity_type_id}")) {
       return;
     }
 
+    $bundle_info = $this->bundleInfo->getBundleInfo($entity_type_id);
+    $bundle_key = $this->entityType->getKey('bundle');
     if ($this->entityType->entityClassImplements(EntityOwnerInterface::class)) {
       $uid_key = $this->entityType->getKey('uid');
 
@@ -103,7 +101,8 @@ class PerBundleQueryAccessHandler implements EntityHandlerInterface, QueryAccess
         }
       }
 
-      // When we couldn't apply any conditions we need to deny access.
+      // When we couldn't apply any conditions we need to deny access, as otherwise we return all
+      // results.
       if (!$has_conditions) {
         $condition->condition($this->entityType->getKey('id'), NULL, 'IS NULL');
       }
