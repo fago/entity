@@ -8,6 +8,11 @@ use Drupal\Tests\user\Traits\UserCreationTrait;
 use Drupal\views\Tests\ViewResultAssertionTrait;
 use Drupal\views\Views;
 
+/**
+ * Tests query_access handlers.
+ *
+ * @group entity
+ */
 class QueryAccessTest extends KernelTestBase {
 
   use UserCreationTrait;

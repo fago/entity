@@ -16,7 +16,7 @@ class SqlQueryAlter {
 
   /** @var  \Drupal\Core\Entity\EntityFieldManagerInterface */
   protected $entityFieldManager;
-  
+
   /** @var \Drupal\Core\Session\AccountInterface */
   protected $currentUser;
 
@@ -39,7 +39,9 @@ class SqlQueryAlter {
   }
 
   /**
-   * Shared alter function between entity queries and views queries.
+   * Adds the query_access condition for any SQL query.
+   *
+   * This is shared logic between altering entity queries and views queries.
    *
    * @param \Drupal\Core\Database\Query\Select $query
    *   The select query we alter.
@@ -71,6 +73,9 @@ class SqlQueryAlter {
 
   /**
    * Tries to ensure that a given table exists.
+   *
+   * @return string
+   *   The table name/alias used in the query.
    */
   protected static function ensureTable(Select $select, $table, EntityTypeInterface $entity_type) {
     $tables = $select->getTables();

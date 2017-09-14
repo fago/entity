@@ -12,6 +12,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @see \Drupal\entity\EntityAccessControlHandler
  * @see \Drupal\entity\EntityPermissionProvider
+ *
+ * @todo Take into account \Drupal\Core\Entity\EntityPublishedInterface
  */
 class PerBundleQueryAccessHandler implements EntityHandlerInterface, QueryAccessHandlerInterface {
 

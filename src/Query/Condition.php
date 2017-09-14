@@ -6,6 +6,31 @@ namespace Drupal\entity\Query;
  * Value object to encode a condition to a query.
  *
  * Query access handlers can use them to filter entities based upon certain access rules.
+ *
+ * Some examples following:
+ * 
+ * Filter by the bundle property.
+ * @code
+ *   $condition->condition('bundle', ['article', 'page'])
+ * @endcode
+ *
+ * Filter by bundle property AND uid.
+ * @code
+ *   $condition->condition(
+ *     (new Condition('AND))
+ *       ->conditon('bundle', 'article')
+ *       ->condition('uid', $user->id())
+ *   )
+ * @endcode
+ * 
+ * Filter by bundle property OR uid.
+ * @code
+ *   $condition->condition(
+ *     (new Condition('OR))
+ *       ->conditon('bundle', 'article')
+ *       ->condition('uid', $user->id())
+ *   )
+ * @endcode
  */
 class Condition implements \Countable {
 
