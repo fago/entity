@@ -126,6 +126,49 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $data[] = [$entity->reveal(), 'update', $second_account->reveal(), FALSE];
     $data[] = [$entity->reveal(), 'update', $third_account->reveal(), TRUE];
 
+    // Per bundle permissions.
+    $entity_first_other = $this->buildMockEntity($entity_type->reveal(), 9999, 'first');
+    $entity_first_own = $this->buildMockEntity($entity_type->reveal(), 9, 'first');
+    $entity_first_own_bundle = $this->buildMockEntity($entity_type->reveal(), 12, 'first');
+
+    $entity_second_other = $this->buildMockEntity($entity_type->reveal(), 9999, 'second');
+    $entity_second_own = $this->buildMockEntity($entity_type->reveal(), 9, 'second');
+    $entity_second_own_bundle = $this->buildMockEntity($entity_type->reveal(), 12, 'second');
+    
+    $user_view_any = $this->buildMockUser(9, 'view own green_entity');
+    $user_view_own = $this->buildMockUser(10, 'view any green_entity');
+    $user_view_bundle_any = $this->buildMockUser(11, 'view any first green_entity');
+    $user_view_bundle_own = $this->buildMockUser(12, 'view own first green_entity');
+
+    $data[] = [$entity_first_other->reveal(), 'view', $user_view_any->reveal(), FALSE];
+    $data[] = [$entity_first_own->reveal(), 'view', $user_view_any->reveal(), TRUE];
+    $data[] = [$entity_first_own_bundle->reveal(), 'view', $user_view_any->reveal(), FALSE];
+    $data[] = [$entity_second_other->reveal(), 'view', $user_view_any->reveal(), FALSE];
+    $data[] = [$entity_second_own->reveal(), 'view', $user_view_any->reveal(), TRUE];
+    $data[] = [$entity_second_own_bundle->reveal(), 'view', $user_view_any->reveal(), FALSE];
+
+    $data[] = [$entity_first_other->reveal(), 'view', $user_view_own->reveal(), TRUE];
+    $data[] = [$entity_first_own->reveal(), 'view', $user_view_own->reveal(), TRUE];
+    $data[] = [$entity_first_own_bundle->reveal(), 'view', $user_view_own->reveal(), TRUE];
+    $data[] = [$entity_second_other->reveal(), 'view', $user_view_own->reveal(), TRUE];
+    $data[] = [$entity_second_own->reveal(), 'view', $user_view_own->reveal(), TRUE];
+    $data[] = [$entity_second_own_bundle->reveal(), 'view', $user_view_own->reveal(), TRUE];
+
+    $data[] = [$entity_first_other->reveal(), 'view', $user_view_bundle_any->reveal(), TRUE];
+    $data[] = [$entity_first_own->reveal(), 'view', $user_view_bundle_any->reveal(), TRUE];
+    $data[] = [$entity_first_own_bundle->reveal(), 'view', $user_view_bundle_any->reveal(), TRUE];
+    $data[] = [$entity_second_other->reveal(), 'view', $user_view_bundle_any->reveal(), FALSE];
+    $data[] = [$entity_second_own->reveal(), 'view', $user_view_bundle_any->reveal(), FALSE];
+    $data[] = [$entity_second_own_bundle->reveal(), 'view', $user_view_bundle_any->reveal(), FALSE];
+
+    $data[] = [$entity_first_other->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+    $data[] = [$entity_first_own->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+    $data[] = [$entity_first_own_bundle->reveal(), 'view', $user_view_bundle_own->reveal(), TRUE];
+    $data[] = [$entity_second_other->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+    $data[] = [$entity_second_own->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+    $data[] = [$entity_second_own_bundle->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+
+
     return $data;
   }
 
@@ -182,14 +225,14 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
    * @return \Prophecy\Prophecy\ObjectProphecy
    *   The entity mock.
    */
-  protected function buildMockEntity(EntityTypeInterface $entity_type, $owner_id = NULL) {
+  protected function buildMockEntity(EntityTypeInterface $entity_type, $owner_id = NULL, $bundle = NULL) {
     $langcode = LanguageInterface::LANGCODE_NOT_SPECIFIED;
     $entity = $this->prophesize(ContentEntityInterface::class);
     if ($owner_id) {
       $entity->willImplement(EntityOwnerInterface::class);
       $entity->getOwnerId()->willReturn($owner_id);
     }
-    $entity->bundle()->willReturn($entity_type->id());
+    $entity->bundle()->willReturn($bundle ?: $entity_type->id());
     $entity->isNew()->willReturn(FALSE);
     $entity->uuid()->willReturn('fake uuid');
     $entity->id()->willReturn('fake id');
@@ -202,6 +245,14 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $entity->getCacheMaxAge()->willReturn(Cache::PERMANENT);
 
     return $entity;
+  }
+
+  protected function buildMockUser($uid, $permission) {
+    $account = $this->prophesize(AccountInterface::class);
+    $account->id()->willReturn($uid);
+    $account->hasPermission($permission)->willReturn(TRUE);
+    $account->hasPermission(Argument::any())->willReturn(FALSE);
+    return $account;
   }
 
 }
