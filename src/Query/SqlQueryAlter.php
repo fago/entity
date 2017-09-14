@@ -114,15 +114,15 @@ class SqlQueryAlter {
           $table_name = $table_mapping->getDedicatedDataTableName($field_storage_definition);
         }
 
-        $table_name = static::ensureTable($select, $table_name, $entity_type);
+        $table_alias = static::ensureTable($select, $table_name, $entity_type);
 
         // @todo we need support for non main properties?
         // @todo we need support for revision queries?
         // @todo What do we do with the langcode value?
-  
+
         $field_column_name = $table_mapping->getFieldColumnName($field_storage_definition, $field_storage_definition->getMainPropertyName());
 
-        $sql_condition->condition("{$table_name}.{$field_column_name}", $cond['value'], $cond['operator']);
+        $sql_condition->condition("{$table_alias}.{$field_column_name}", $cond['value'], $cond['operator']);
       }
     }
     return $sql_condition;

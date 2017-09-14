@@ -72,10 +72,10 @@ class PerBundleQueryAccessHandler implements EntityHandlerInterface, QueryAccess
 
     $bundle_info = $this->bundleInfo->getBundleInfo($entity_type_id);
     $bundle_key = $this->entityType->getKey('bundle');
+    $has_conditions = FALSE;
     if ($this->entityType->entityClassImplements(EntityOwnerInterface::class)) {
       $uid_key = $this->entityType->getKey('uid');
 
-      $has_conditions = FALSE;
 
       // View own $entity_type permission.
       if ($account->hasPermission("$operation own ${entity_type_id}")) {
@@ -102,32 +102,24 @@ class PerBundleQueryAccessHandler implements EntityHandlerInterface, QueryAccess
           $has_conditions = TRUE;
         }
       }
-
-      // When we couldn't apply any conditions we need to deny access, as otherwise we return all
-      // results.
-      if (!$has_conditions) {
-        $condition->condition($this->entityType->getKey('id'), NULL, 'IS NULL');
-      }
     }
     else {
+      // View any $bundle permission
       $bundles_with_view_any_permission = array_filter(array_keys($bundle_info),
         function ($bundle) use ($account, $operation, $entity_type_id) {
           return $account->hasPermission("$operation any $bundle $entity_type_id");
         });
       if ($bundles_with_view_any_permission) {
+        $has_conditions = TRUE;
         $condition->condition($bundle_key, $bundles_with_view_any_permission);
-      }
-      else {
-        // @fixme
-        // We need to deny access in that case.
-        // $condition->condition('1', '0');
-        // $condition->condition($this->entityType->getKey('id'), NULL, 'IS NULL');
       }
     }
 
-    // @todo In the future take into account EntityPublishedInterface, just like
-    // \Drupal\node\Plugin\views\filter\Status::query does.
-    // if ($this->entityType instanceof EntityPublishedInterface) { }
+    // When we couldn't apply any conditions we need to deny access, as otherwise we return all
+    // results.
+    if (!$has_conditions) {
+      $condition->condition($this->entityType->getKey('id'), NULL, 'IS NULL');
+    }
 
     return $condition;
   }
