@@ -8,6 +8,7 @@ use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityPublishedInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\Language;
@@ -128,45 +129,87 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
 
     // Per bundle permissions.
     $entity_first_other = $this->buildMockEntity($entity_type->reveal(), 9999, 'first');
-    $entity_first_own = $this->buildMockEntity($entity_type->reveal(), 9, 'first');
+    $entity_first_own = $this->buildMockEntity($entity_type->reveal(), 10, 'first');
     $entity_first_own_bundle = $this->buildMockEntity($entity_type->reveal(), 12, 'first');
 
     $entity_second_other = $this->buildMockEntity($entity_type->reveal(), 9999, 'second');
-    $entity_second_own = $this->buildMockEntity($entity_type->reveal(), 9, 'second');
+    $entity_second_own = $this->buildMockEntity($entity_type->reveal(), 10, 'second');
     $entity_second_own_bundle = $this->buildMockEntity($entity_type->reveal(), 12, 'second');
     
-    $user_view_any = $this->buildMockUser(9, 'view own green_entity');
-    $user_view_own = $this->buildMockUser(10, 'view any green_entity');
+    $user_view_any = $this->buildMockUser(9, 'view any green_entity');
+    $user_view_own = $this->buildMockUser(10, 'view own green_entity');
     $user_view_bundle_any = $this->buildMockUser(11, 'view any first green_entity');
     $user_view_bundle_own = $this->buildMockUser(12, 'view own first green_entity');
 
-    $data[] = [$entity_first_other->reveal(), 'view', $user_view_any->reveal(), FALSE];
-    $data[] = [$entity_first_own->reveal(), 'view', $user_view_any->reveal(), TRUE];
-    $data[] = [$entity_first_own_bundle->reveal(), 'view', $user_view_any->reveal(), FALSE];
-    $data[] = [$entity_second_other->reveal(), 'view', $user_view_any->reveal(), FALSE];
-    $data[] = [$entity_second_own->reveal(), 'view', $user_view_any->reveal(), TRUE];
-    $data[] = [$entity_second_own_bundle->reveal(), 'view', $user_view_any->reveal(), FALSE];
+    $data['entity_first_other user_view_any'] = [$entity_first_other->reveal(), 'view', $user_view_any->reveal(), TRUE];
+    $data['entity_first_own user_view_any'] = [$entity_first_own->reveal(), 'view', $user_view_any->reveal(), TRUE];
+    $data['entity_first_own_bundle user_view_any'] = [$entity_first_own_bundle->reveal(), 'view', $user_view_any->reveal(), TRUE];
+    $data['entity_second_other user_view_any'] = [$entity_second_other->reveal(), 'view', $user_view_any->reveal(), TRUE];
+    $data['entity_second_own user_view_any'] = [$entity_second_own->reveal(), 'view', $user_view_any->reveal(), TRUE];
+    $data['entity_second_own_bundle user_view_any'] = [$entity_second_own_bundle->reveal(), 'view', $user_view_any->reveal(), TRUE];
 
-    $data[] = [$entity_first_other->reveal(), 'view', $user_view_own->reveal(), TRUE];
-    $data[] = [$entity_first_own->reveal(), 'view', $user_view_own->reveal(), TRUE];
-    $data[] = [$entity_first_own_bundle->reveal(), 'view', $user_view_own->reveal(), TRUE];
-    $data[] = [$entity_second_other->reveal(), 'view', $user_view_own->reveal(), TRUE];
-    $data[] = [$entity_second_own->reveal(), 'view', $user_view_own->reveal(), TRUE];
-    $data[] = [$entity_second_own_bundle->reveal(), 'view', $user_view_own->reveal(), TRUE];
+    $data['entity_first_other user_view_own'] = [$entity_first_other->reveal(), 'view', $user_view_own->reveal(), FALSE];
+    $data['entity_first_own user_view_own'] = [$entity_first_own->reveal(), 'view', $user_view_own->reveal(), TRUE];
+    $data['entity_first_own_bundle user_view_own'] = [$entity_first_own_bundle->reveal(), 'view', $user_view_own->reveal(), FALSE];
+    $data['entity_second_other user_view_own'] = [$entity_second_other->reveal(), 'view', $user_view_own->reveal(), FALSE];
+    $data['entity_second_own user_view_own'] = [$entity_second_own->reveal(), 'view', $user_view_own->reveal(), TRUE];
+    $data['entity_second_own_bundle user_view_own'] = [$entity_second_own_bundle->reveal(), 'view', $user_view_own->reveal(), FALSE];
 
-    $data[] = [$entity_first_other->reveal(), 'view', $user_view_bundle_any->reveal(), TRUE];
-    $data[] = [$entity_first_own->reveal(), 'view', $user_view_bundle_any->reveal(), TRUE];
-    $data[] = [$entity_first_own_bundle->reveal(), 'view', $user_view_bundle_any->reveal(), TRUE];
-    $data[] = [$entity_second_other->reveal(), 'view', $user_view_bundle_any->reveal(), FALSE];
-    $data[] = [$entity_second_own->reveal(), 'view', $user_view_bundle_any->reveal(), FALSE];
-    $data[] = [$entity_second_own_bundle->reveal(), 'view', $user_view_bundle_any->reveal(), FALSE];
+    $data['entity_first_other user_view_bundle_any'] = [$entity_first_other->reveal(), 'view', $user_view_bundle_any->reveal(), TRUE];
+    $data['entity_first_own user_view_bundle_any'] = [$entity_first_own->reveal(), 'view', $user_view_bundle_any->reveal(), TRUE];
+    $data['entity_first_own_bundle user_view_bundle_any'] = [$entity_first_own_bundle->reveal(), 'view', $user_view_bundle_any->reveal(), TRUE];
+    $data['entity_second_other user_view_bundle_any'] = [$entity_second_other->reveal(), 'view', $user_view_bundle_any->reveal(), FALSE];
+    $data['entity_second_own user_view_bundle_any'] = [$entity_second_own->reveal(), 'view', $user_view_bundle_any->reveal(), FALSE];
+    $data['entity_second_own_bundle user_view_bundle_any'] = [$entity_second_own_bundle->reveal(), 'view', $user_view_bundle_any->reveal(), FALSE];
 
-    $data[] = [$entity_first_other->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
-    $data[] = [$entity_first_own->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
-    $data[] = [$entity_first_own_bundle->reveal(), 'view', $user_view_bundle_own->reveal(), TRUE];
-    $data[] = [$entity_second_other->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
-    $data[] = [$entity_second_own->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
-    $data[] = [$entity_second_own_bundle->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+    $data['entity_first_other user_view_bundle_any'] = [$entity_first_other->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+    $data['entity_first_own user_view_bundle_any'] = [$entity_first_own->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+    $data['entity_first_own_bundle user_view_bundle_any'] = [$entity_first_own_bundle->reveal(), 'view', $user_view_bundle_own->reveal(), TRUE];
+    $data['entity_second_other user_view_bundle_any'] = [$entity_second_other->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+    $data['entity_second_own user_view_bundle_any'] = [$entity_second_own->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+    $data['entity_second_own_bundle user_view_bundle_any'] = [$entity_second_own_bundle->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+
+    // Test the unpublished permissions.
+    $entity_first_other_up = $this->buildMockEntity($entity_type->reveal(), 9999, 'first', FALSE);
+    $entity_first_own_up = $this->buildMockEntity($entity_type->reveal(), 14, 'first', FALSE);
+    $entity_first_own_bundle_up = $this->buildMockEntity($entity_type->reveal(), 16, 'first', FALSE);
+
+    $entity_second_other_up = $this->buildMockEntity($entity_type->reveal(), 9999, 'second', FALSE);
+    $entity_second_own_up = $this->buildMockEntity($entity_type->reveal(), 14, 'second', FALSE);
+    $entity_second_own_bundle_up = $this->buildMockEntity($entity_type->reveal(), 16, 'second', FALSE);
+
+    $user_view_any_up = $this->buildMockUser(13, 'view any unpublished green_entity');
+    $user_view_own_up = $this->buildMockUser(14, 'view own unpublished green_entity');
+    $user_view_bundle_any_up = $this->buildMockUser(15, 'view any unpublished first green_entity');
+    $user_view_bundle_own_up = $this->buildMockUser(16, 'view own unpublished first green_entity');
+
+    $data['entity_first_other_up user_view_any'] = [$entity_first_other_up->reveal(), 'view', $user_view_any_up->reveal(), TRUE];
+    $data['entity_first_own_up user_view_any'] = [$entity_first_own_up->reveal(), 'view', $user_view_any_up->reveal(), TRUE];
+    $data['entity_first_own_bundle_up user_view_any'] = [$entity_first_own_bundle_up->reveal(), 'view', $user_view_any_up->reveal(), TRUE];
+    $data['entity_second_other_up user_view_any'] = [$entity_second_other_up->reveal(), 'view', $user_view_any_up->reveal(), TRUE];
+    $data['entity_second_own_up user_view_any'] = [$entity_second_own_up->reveal(), 'view', $user_view_any_up->reveal(), TRUE];
+    $data['entity_second_own_bundle_up user_view_any'] = [$entity_second_own_bundle_up->reveal(), 'view', $user_view_any_up->reveal(), TRUE];
+
+    $data['entity_first_other_up user_view_own_up'] = [$entity_first_other_up->reveal(), 'view', $user_view_own_up->reveal(), FALSE];
+    $data['entity_first_own_up user_view_own_up'] = [$entity_first_own_up->reveal(), 'view', $user_view_own_up->reveal(), TRUE];
+    $data['entity_first_own_bundle_up user_view_own_up'] = [$entity_first_own_bundle_up->reveal(), 'view', $user_view_own_up->reveal(), FALSE];
+    $data['entity_second_other_up user_view_own_up'] = [$entity_second_other_up->reveal(), 'view', $user_view_own_up->reveal(), FALSE];
+    $data['entity_second_own_up user_view_own_up'] = [$entity_second_own_up->reveal(), 'view', $user_view_own_up->reveal(), TRUE];
+    $data['entity_second_own_bundle_up user_view_own_up'] = [$entity_second_own_bundle_up->reveal(), 'view', $user_view_own_up->reveal(), FALSE];
+
+    $data['entity_first_other_up user_view_bundle_any_up'] = [$entity_first_other_up->reveal(), 'view', $user_view_bundle_any_up->reveal(), TRUE];
+    $data['entity_first_own_up user_view_bundle_any_up'] = [$entity_first_own_up->reveal(), 'view', $user_view_bundle_any_up->reveal(), TRUE];
+    $data['entity_first_own_bundle_up user_view_bundle_any_up'] = [$entity_first_own_bundle_up->reveal(), 'view', $user_view_bundle_any_up->reveal(), TRUE];
+    $data['entity_second_other_up user_view_bundle_any_up'] = [$entity_second_other_up->reveal(), 'view', $user_view_bundle_any_up->reveal(), FALSE];
+    $data['entity_second_own_up user_view_bundle_any_up'] = [$entity_second_own_up->reveal(), 'view', $user_view_bundle_any_up->reveal(), FALSE];
+    $data['entity_second_own_bundle_up user_view_bundle_any_up'] = [$entity_second_own_bundle_up->reveal(), 'view', $user_view_bundle_any_up->reveal(), FALSE];
+
+    $data['entity_first_other_up user_view_bundle_own_up'] = [$entity_first_other_up->reveal(), 'view', $user_view_bundle_own_up->reveal(), FALSE];
+    $data['entity_first_own_up user_view_bundle_own_up'] = [$entity_first_own_up->reveal(), 'view', $user_view_bundle_own_up->reveal(), FALSE];
+    $data['entity_first_own_bundle_up user_view_bundle_own_up'] = [$entity_first_own_bundle_up->reveal(), 'view', $user_view_bundle_own_up->reveal(), TRUE];
+    $data['entity_second_other_up user_view_bundle_own_up'] = [$entity_second_other_up->reveal(), 'view', $user_view_bundle_own_up->reveal(), FALSE];
+    $data['entity_second_own_up user_view_bundle_own_up'] = [$entity_second_own_up->reveal(), 'view', $user_view_bundle_own_up->reveal(), FALSE];
+    $data['entity_second_own_bundle_up user_view_bundle_own_up'] = [$entity_second_own_bundle_up->reveal(), 'view', $user_view_bundle_own_up->reveal(), FALSE];
 
 
     return $data;
@@ -225,13 +268,22 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
    * @return \Prophecy\Prophecy\ObjectProphecy
    *   The entity mock.
    */
-  protected function buildMockEntity(EntityTypeInterface $entity_type, $owner_id = NULL, $bundle = NULL) {
+  protected function buildMockEntity(EntityTypeInterface $entity_type, $owner_id = NULL, $bundle = NULL, $published = NULL) {
     $langcode = LanguageInterface::LANGCODE_NOT_SPECIFIED;
     $entity = $this->prophesize(ContentEntityInterface::class);
+    if (isset($published)) {
+      $entity->willImplement(EntityPublishedInterface::class);
+    }
     if ($owner_id) {
       $entity->willImplement(EntityOwnerInterface::class);
+    }
+    if (isset($published)) {
+      $entity->isPublished()->willReturn($published);
+    }
+    if ($owner_id) {
       $entity->getOwnerId()->willReturn($owner_id);
     }
+
     $entity->bundle()->willReturn($bundle ?: $entity_type->id());
     $entity->isNew()->willReturn(FALSE);
     $entity->uuid()->willReturn('fake uuid');
@@ -243,6 +295,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $entity->getCacheContexts()->willReturn([]);
     $entity->getCacheTags()->willReturn([]);
     $entity->getCacheMaxAge()->willReturn(Cache::PERMANENT);
+
 
     return $entity;
   }
