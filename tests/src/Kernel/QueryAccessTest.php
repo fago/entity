@@ -12,6 +12,9 @@ use Drupal\views\Views;
  * Tests query_access handlers.
  *
  * @group entity
+ *
+ * @see \Drupal\entity\Query\QueryAccessHandler
+ * @see \Drupal\entity\Query\SqlQueryAlter
  */
 class QueryAccessTest extends KernelTestBase {
 
@@ -34,6 +37,7 @@ class QueryAccessTest extends KernelTestBase {
 
   public function testAccess() {
     $other_user = $this->createUser();
+    $admin_user = $this->createUser(['administer entity_query_access_test']);
     $user_view_any = $this->createUser(['view any entity_query_access_test']);
     $user_view_own = $this->createUser(['view own entity_query_access_test']);
     $user_view_bundle_any = $this->createUser(['view any first entity_query_access_test']);
@@ -75,6 +79,12 @@ class QueryAccessTest extends KernelTestBase {
     $second_entity_own->save();
 
     $entityTypeManager = \Drupal::entityTypeManager();
+
+    $query = $entityTypeManager->getStorage('entity_query_access_test')->getQuery();
+    \Drupal::currentUser()->setAccount($admin_user);
+    $result = $query->execute();
+    sort($result);
+    $this->assertEquals([$first_entity_other->id(), $first_entity_own->id(), $first_entity_3->id(), $second_entity_other->id(), $second_entity_own->id()], array_values($result));
 
     $query = $entityTypeManager->getStorage('entity_query_access_test')->getQuery();
     \Drupal::currentUser()->setAccount($user_view_any);

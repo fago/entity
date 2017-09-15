@@ -63,6 +63,11 @@ class QueryAccessHandler implements EntityHandlerInterface, QueryAccessHandlerIn
     
     // No conditions are needed when the user can access all entities anyway.
     $entity_type_id = $this->entityType->id();
+
+    if ($account->hasPermission("administer {$entity_type_id}")) {
+      return;
+    }
+
      if ($account->hasPermission("$operation any {$entity_type_id}")) {
       return;
     }
