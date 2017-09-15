@@ -68,7 +68,7 @@ class EntityPermissionProviderTest extends UnitTestCase {
     $entity_type->id()->willReturn('green_entity');
     $entity_type->getSingularLabel()->willReturn('green entity');
     $entity_type->getPluralLabel()->willReturn('green entities');
-    $entity_type->isSubclassOf(EntityOwnerInterface::class)->willReturn(FALSE);
+    $entity_type->entityClassImplements(EntityOwnerInterface::class)->willReturn(FALSE);
     $entity_type->getPermissionGranularity()->willReturn('entity_type');
     $expected_permissions = [
       'administer green_entity' => 'Administer green entities',
@@ -86,7 +86,7 @@ class EntityPermissionProviderTest extends UnitTestCase {
     $entity_type->id()->willReturn('blue_entity');
     $entity_type->getSingularLabel()->willReturn('blue entity');
     $entity_type->getPluralLabel()->willReturn('blue entities');
-    $entity_type->isSubclassOf(EntityOwnerInterface::class)->willReturn(TRUE);
+    $entity_type->entityClassImplements(EntityOwnerInterface::class)->willReturn(TRUE);
     $entity_type->getPermissionGranularity()->willReturn('entity_type');
     $expected_permissions = [
       'administer blue_entity' => 'Administer blue entities',
@@ -107,7 +107,7 @@ class EntityPermissionProviderTest extends UnitTestCase {
     $entity_type->id()->willReturn('white_entity');
     $entity_type->getSingularLabel()->willReturn('white entity');
     $entity_type->getPluralLabel()->willReturn('white entities');
-    $entity_type->isSubclassOf(EntityOwnerInterface::class)->willReturn(FALSE);
+    $entity_type->entityClassImplements(EntityOwnerInterface::class)->willReturn(FALSE);
     $entity_type->getPermissionGranularity()->willReturn('bundle');
     $expected_permissions = [
       'administer white_entity' => 'Administer white entities',
@@ -116,9 +116,13 @@ class EntityPermissionProviderTest extends UnitTestCase {
       'create first white_entity' => 'First: Create white entities',
       'update first white_entity' => 'First: Update white entities',
       'delete first white_entity' => 'First: Delete white entities',
+      'view any first white_entity' => 'First: View any white entities',
+      'view any unpublished first white_entity' => 'First: View any unpublished white entities',
       'create second white_entity' => 'Second: Create white entities',
       'update second white_entity' => 'Second: Update white entities',
       'delete second white_entity' => 'Second: Delete white entities',
+      'view any second white_entity' => 'Second: View any white entities',
+      'view any unpublished second white_entity' => 'Second: View any unpublished white entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 
@@ -128,7 +132,7 @@ class EntityPermissionProviderTest extends UnitTestCase {
     $entity_type->id()->willReturn('black_entity');
     $entity_type->getSingularLabel()->willReturn('black entity');
     $entity_type->getPluralLabel()->willReturn('black entities');
-    $entity_type->isSubclassOf(EntityOwnerInterface::class)->willReturn(TRUE);
+    $entity_type->entityClassImplements(EntityOwnerInterface::class)->willReturn(TRUE);
     $entity_type->getPermissionGranularity()->willReturn('bundle');
     $expected_permissions = [
       'administer black_entity' => 'Administer black entities',
@@ -140,6 +144,10 @@ class EntityPermissionProviderTest extends UnitTestCase {
       'update own third black_entity' => 'Third: Update own black entities',
       'delete any third black_entity' => 'Third: Delete any black entity',
       'delete own third black_entity' => 'Third: Delete own black entities',
+      'view any third black_entity' => 'Third: View any black entities',
+      'view own third black_entity' => 'Third: View own black entities',
+      'view any unpublished third black_entity' => 'Third: View any unpublished black entities',
+      'view own unpublished third black_entity' => 'Third: View own unpublished black entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 
