@@ -29,8 +29,9 @@ function entity_query_entity_query_alter(Select $query) {
  * Implements hook_query_TAG_alter().
  */
 function entity_query_views_alter(Select $select) {
-  if ($entity_type = _entity_get_entity_type_id_from_table(reset($select->getTables())['table'])) {
-
+  $tables_info = $select->getTables();
+  $table_info = reset($tables_info);
+  if ($entity_type = _entity_get_entity_type_id_from_table($table_info['table'])) {
     SqlQueryAlter::create(\Drupal::getContainer())->queryAlter($select, $entity_type);
   }
 }

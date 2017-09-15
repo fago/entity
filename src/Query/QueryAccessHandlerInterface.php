@@ -9,7 +9,7 @@ use Drupal\Core\Session\AccountInterface;
  *
  * To add a query access handler use
  * @code
- *   query_access = "\Drupal\entity\Query\PerBundleQueryAccessHandler"
+ *   query_access = "\Drupal\entity\Query\QueryAccessHandler"
  * @code
  * in your entity annotation.
  *

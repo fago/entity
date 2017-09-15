@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @todo Take into account \Drupal\Core\Entity\EntityPublishedInterface
  */
-class PerBundleQueryAccessHandler implements EntityHandlerInterface, QueryAccessHandlerInterface {
+class QueryAccessHandler implements EntityHandlerInterface, QueryAccessHandlerInterface {
 
   /**
    * The entity type.
@@ -60,9 +60,6 @@ class PerBundleQueryAccessHandler implements EntityHandlerInterface, QueryAccess
     //   || (*.bundle = bundle1 and (operation any bundle1 == 1))
     //   || (*.bundle = bundle1 and *.uid = account.uid and (operation any bundle1 == 1))
     //   || (*.bundle = bundle2 and (operation any bundle2 == 1))
-    
-    // We can though take a couple of shortcuts by checking things in PHP which don't vary per
-    // entity.
     
     // No conditions are needed when the user can access all entities anyway.
     $entity_type_id = $this->entityType->id();

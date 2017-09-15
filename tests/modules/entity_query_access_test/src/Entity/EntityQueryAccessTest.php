@@ -14,7 +14,7 @@ use Drupal\entity_test\Entity\EntityTest;
  *     "access" = "\Drupal\entity_test\EntityTestAccessControlHandler",
  *     "views_data" = "\Drupal\views\EntityViewsData",
  *     "view_builder" = "\Drupal\entity_test\EntityTestViewBuilder",
- *     "query_access" = "\Drupal\entity\Query\PerBundleQueryAccessHandler",
+ *     "query_access" = "\Drupal\entity\Query\QueryAccessHandler",
  *     "access" = "\Drupal\entity\EntityAccessControlHandler",
  *     "permission_provider" = "\Drupal\entity\EntityPermissionProvider",
  *   },
