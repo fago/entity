@@ -5,6 +5,7 @@ namespace Drupal\entity;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityAccessControlHandler as CoreEntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityPublishedInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\user\EntityOwnerInterface;
 
@@ -51,9 +52,11 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
    *   The access result.
    */
   protected function checkEntityPermissions(EntityInterface $entity, $operation, AccountInterface $account) {
+    $unpublished_string = $operation === 'view' && $entity instanceof EntityPublishedInterface && !$entity->isPublished() ? ' unpublished' : '';
+
     return AccessResult::allowedIfHasPermissions($account, [
-      "$operation {$entity->getEntityTypeId()}",
-      "$operation {$entity->bundle()} {$entity->getEntityTypeId()}",
+      "$operation$unpublished_string {$entity->getEntityTypeId()}",
+      "$operation$unpublished_string {$entity->bundle()} {$entity->getEntityTypeId()}",
     ], 'OR');
   }
 
@@ -72,19 +75,21 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
    *   The access result.
    */
   protected function checkEntityOwnerPermissions(EntityInterface $entity, $operation, AccountInterface $account) {
+    $unpublished_string = $operation === 'view' && $entity instanceof EntityPublishedInterface && !$entity->isPublished() ? ' unpublished' : '';
+
     /** @var \Drupal\Core\Entity\EntityInterface|\Drupal\user\EntityOwnerInterface $entity */
     if (($account->id() == $entity->getOwnerId())) {
       $result = AccessResult::allowedIfHasPermissions($account, [
-        "$operation own {$entity->getEntityTypeId()}",
-        "$operation any {$entity->getEntityTypeId()}",
-        "$operation own {$entity->bundle()} {$entity->getEntityTypeId()}",
-        "$operation any {$entity->bundle()} {$entity->getEntityTypeId()}",
+        "$operation own$unpublished_string {$entity->getEntityTypeId()}",
+        "$operation any$unpublished_string {$entity->getEntityTypeId()}",
+        "$operation own$unpublished_string {$entity->bundle()} {$entity->getEntityTypeId()}",
+        "$operation any$unpublished_string {$entity->bundle()} {$entity->getEntityTypeId()}",
       ], 'OR');
     }
     else {
       $result = AccessResult::allowedIfHasPermissions($account, [
-        "$operation any {$entity->getEntityTypeId()}",
-        "$operation any {$entity->bundle()} {$entity->getEntityTypeId()}",
+        "$operation any$unpublished_string {$entity->getEntityTypeId()}",
+        "$operation any$unpublished_string {$entity->bundle()} {$entity->getEntityTypeId()}",
       ], 'OR');
     }
 
