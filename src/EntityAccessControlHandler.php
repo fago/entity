@@ -15,8 +15,7 @@ use Drupal\user\EntityOwnerInterface;
  *
  * @see \Drupal\entity\EntityPermissionProvider
  *
- * Note: Using this entity access controller makes your access cacheable per
- * user.
+ * Note: this access control handler will cause pages to be cached per user.
  */
 class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
 
