@@ -81,6 +81,20 @@ class BundlePluginTest extends KernelTestBase {
     $second_entity->save();
     $second_entity = EntityTestBundlePlugin::load($second_entity->id());
     $this->assertEquals('admin@example.com', $second_entity->second_mail->value);
+
+    // Also test entity queries.
+    $result = \Drupal::entityTypeManager()->getStorage('entity_test_bundle_plugin')
+      ->getQuery()
+      ->condition('second_mail', 'admin@example.com')
+      ->execute();
+    $this->assertEquals([$second_entity->id() => $second_entity->id()], $result);
+
+    $result = \Drupal::entityTypeManager()->getStorage('entity_test_bundle_plugin')
+      ->getQuery()
+      ->condition('type', 'first')
+      ->execute();
+    $this->assertEquals([$first_entity->id() => $first_entity->id()], $result);
+
   }
 
   /**
