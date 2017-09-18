@@ -11,6 +11,7 @@ use Drupal\Core\Plugin\PluginBase;
  * @BundlePluginTest(
  *   id = "first",
  *   label = @Translation("First"),
+ *   description = @Translation("Some description"),
  * )
  */
 class First extends PluginBase implements BundlePluginTestInterface {

@@ -51,6 +51,8 @@ class BundlePluginTest extends KernelTestBase {
     $this->assertEquals(2, count($bundle_info));
     $this->assertArrayHasKey('first', $bundle_info);
     $this->assertArrayHasKey('second', $bundle_info);
+    $this->assertEquals('First', $bundle_info['first']['label']);
+    $this->assertEquals('Some description', $bundle_info['first']['description']);
 
     /** @var \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager */
     $entity_field_manager = \Drupal::service('entity_field.manager');
