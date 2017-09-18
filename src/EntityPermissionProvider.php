@@ -77,28 +77,14 @@ class EntityPermissionProvider implements EntityPermissionProviderInterface, Ent
       'title' => $this->t('Access the @type overview page', ['@type' => $plural_label]),
     ];
     // View permissions are the same for both granularities.
-    if ($has_owner) {
-      $permissions["view any {$entity_type_id}"] = [
-        'title' => $this->t('View any @type', [
-          '@type' => $singular_label,
-        ]),
-      ];
-      $permissions["view own {$entity_type_id}"] = [
-        'title' => $this->t('View own @type', [
-          '@type' => $plural_label,
-        ]),
-      ];
-      if ($entity_type->entityClassImplements(EntityPublishedInterface::class)) {
-        $permissions["view own unpublished {$entity_type_id}"] = [
-          'title' => $this->t('View own unpublished @type', [
-            '@type' => $plural_label,
-          ]),
-        ];
-      }
-    }
-    else {
-      $permissions["view {$entity_type_id}"] = [
-        'title' => $this->t('View @type', [
+    $permissions["view {$entity_type_id}"] = [
+      'title' => $this->t('View @type', [
+        '@type' => $plural_label,
+      ]),
+    ];
+    if ($has_owner && $entity_type->entityClassImplements(EntityPublishedInterface::class)) {
+      $permissions["view own unpublished {$entity_type_id}"] = [
+        'title' => $this->t('View own unpublished @type', [
           '@type' => $plural_label,
         ]),
       ];
@@ -230,18 +216,6 @@ class EntityPermissionProvider implements EntityPermissionProviderInterface, Ent
             '@type' => $plural_label,
           ]),
         ];
-        $permissions["view any {$bundle_name} {$entity_type_id}"] = [
-          'title' => $this->t('@bundle: View any @type', [
-            '@bundle' => $bundle_info['label'],
-            '@type' => $plural_label,
-          ]),
-        ];
-        $permissions["view own {$bundle_name} {$entity_type_id}"] = [
-          'title' => $this->t('@bundle: View own @type', [
-            '@bundle' => $bundle_info['label'],
-            '@type' => $plural_label,
-          ]),
-        ];
       }
       else {
         $permissions["update {$bundle_name} {$entity_type_id}"] = [
@@ -252,12 +226,6 @@ class EntityPermissionProvider implements EntityPermissionProviderInterface, Ent
         ];
         $permissions["delete {$bundle_name} {$entity_type_id}"] = [
           'title' => $this->t('@bundle: Delete @type', [
-            '@bundle' => $bundle_info['label'],
-            '@type' => $plural_label,
-          ]),
-        ];
-        $permissions["view any {$bundle_name} {$entity_type_id}"] = [
-          'title' => $this->t('@bundle: View any @type', [
             '@bundle' => $bundle_info['label'],
             '@type' => $plural_label,
           ]),

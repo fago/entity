@@ -94,8 +94,7 @@ class EntityPermissionProviderTest extends UnitTestCase {
     $expected_permissions = [
       'administer blue_entity' => 'Administer blue entities',
       'access blue_entity overview' => 'Access the blue entities overview page',
-      'view any blue_entity' => 'View any blue entity',
-      'view own blue_entity' => 'View own blue entities',
+      'view blue_entity' => 'View blue entities',
       'create blue_entity' => 'Create blue entities',
       'update any blue_entity' => 'Update any blue entity',
       'update own blue_entity' => 'Update own blue entities',
@@ -120,11 +119,9 @@ class EntityPermissionProviderTest extends UnitTestCase {
       'create first white_entity' => 'First: Create white entities',
       'update first white_entity' => 'First: Update white entities',
       'delete first white_entity' => 'First: Delete white entities',
-      'view any first white_entity' => 'First: View any white entities',
       'create second white_entity' => 'Second: Create white entities',
       'update second white_entity' => 'Second: Update white entities',
       'delete second white_entity' => 'Second: Delete white entities',
-      'view any second white_entity' => 'Second: View any white entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 
@@ -140,15 +137,12 @@ class EntityPermissionProviderTest extends UnitTestCase {
     $expected_permissions = [
       'administer black_entity' => 'Administer black entities',
       'access black_entity overview' => 'Access the black entities overview page',
-      'view any black_entity' => 'View any black entity',
-      'view own black_entity' => 'View own black entities',
+      'view black_entity' => 'View black entities',
       'create third black_entity' => 'Third: Create black entities',
       'update any third black_entity' => 'Third: Update any black entity',
       'update own third black_entity' => 'Third: Update own black entities',
       'delete any third black_entity' => 'Third: Delete any black entity',
       'delete own third black_entity' => 'Third: Delete own black entities',
-      'view any third black_entity' => 'Third: View any black entities',
-      'view own third black_entity' => 'Third: View own black entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 
@@ -164,16 +158,13 @@ class EntityPermissionProviderTest extends UnitTestCase {
     $expected_permissions = [
       'administer black_entity' => 'Administer black entities',
       'access black_entity overview' => 'Access the black entities overview page',
-      'view any black_entity' => 'View any black entity',
-      'view own black_entity' => 'View own black entities',
+      'view black_entity' => 'View black entities',
       'view own unpublished black_entity' => 'View own unpublished black entities',
       'create third black_entity' => 'Third: Create black entities',
       'update any third black_entity' => 'Third: Update any black entity',
       'update own third black_entity' => 'Third: Update own black entities',
       'delete any third black_entity' => 'Third: Delete any black entity',
       'delete own third black_entity' => 'Third: Delete own black entities',
-      'view any third black_entity' => 'Third: View any black entities',
-      'view own third black_entity' => 'Third: View own black entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 
