@@ -15,6 +15,7 @@ use Drupal\Core\Language\Language;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\entity\EntityAccessControlHandler;
+use Drupal\entity\EntityPermissionProvider;
 use Drupal\Tests\UnitTestCase;
 use Drupal\user\EntityOwnerInterface;
 use Prophecy\Argument;
@@ -81,6 +82,8 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $entity_type = $this->prophesize(ContentEntityTypeInterface::class);
     $entity_type->id()->willReturn('green_entity');
     $entity_type->getAdminPermission()->willReturn('administer green_entity');
+    $entity_type->hasHandlerClass('permission_provider')->willReturn(TRUE);
+    $entity_type->getHandlerClass('permission_provider')->willReturn(EntityPermissionProvider::class);
 
     // User with the admin permission can do anything.
     $entity = $this->buildMockEntity($entity_type->reveal());
@@ -178,17 +181,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $entity_second_own_up = $this->buildMockEntity($entity_type->reveal(), 14, 'second', FALSE);
     $entity_second_own_bundle_up = $this->buildMockEntity($entity_type->reveal(), 16, 'second', FALSE);
 
-    $user_view_any_up = $this->buildMockUser(13, 'view any unpublished green_entity');
     $user_view_own_up = $this->buildMockUser(14, 'view own unpublished green_entity');
-    $user_view_bundle_any_up = $this->buildMockUser(15, 'view any unpublished first green_entity');
-    $user_view_bundle_own_up = $this->buildMockUser(16, 'view own unpublished first green_entity');
-
-    $data['entity_first_other_up user_view_any'] = [$entity_first_other_up->reveal(), 'view', $user_view_any_up->reveal(), TRUE];
-    $data['entity_first_own_up user_view_any'] = [$entity_first_own_up->reveal(), 'view', $user_view_any_up->reveal(), TRUE];
-    $data['entity_first_own_bundle_up user_view_any'] = [$entity_first_own_bundle_up->reveal(), 'view', $user_view_any_up->reveal(), TRUE];
-    $data['entity_second_other_up user_view_any'] = [$entity_second_other_up->reveal(), 'view', $user_view_any_up->reveal(), TRUE];
-    $data['entity_second_own_up user_view_any'] = [$entity_second_own_up->reveal(), 'view', $user_view_any_up->reveal(), TRUE];
-    $data['entity_second_own_bundle_up user_view_any'] = [$entity_second_own_bundle_up->reveal(), 'view', $user_view_any_up->reveal(), TRUE];
 
     $data['entity_first_other_up user_view_own_up'] = [$entity_first_other_up->reveal(), 'view', $user_view_own_up->reveal(), FALSE];
     $data['entity_first_own_up user_view_own_up'] = [$entity_first_own_up->reveal(), 'view', $user_view_own_up->reveal(), TRUE];
@@ -196,21 +189,6 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $data['entity_second_other_up user_view_own_up'] = [$entity_second_other_up->reveal(), 'view', $user_view_own_up->reveal(), FALSE];
     $data['entity_second_own_up user_view_own_up'] = [$entity_second_own_up->reveal(), 'view', $user_view_own_up->reveal(), TRUE];
     $data['entity_second_own_bundle_up user_view_own_up'] = [$entity_second_own_bundle_up->reveal(), 'view', $user_view_own_up->reveal(), FALSE];
-
-    $data['entity_first_other_up user_view_bundle_any_up'] = [$entity_first_other_up->reveal(), 'view', $user_view_bundle_any_up->reveal(), TRUE];
-    $data['entity_first_own_up user_view_bundle_any_up'] = [$entity_first_own_up->reveal(), 'view', $user_view_bundle_any_up->reveal(), TRUE];
-    $data['entity_first_own_bundle_up user_view_bundle_any_up'] = [$entity_first_own_bundle_up->reveal(), 'view', $user_view_bundle_any_up->reveal(), TRUE];
-    $data['entity_second_other_up user_view_bundle_any_up'] = [$entity_second_other_up->reveal(), 'view', $user_view_bundle_any_up->reveal(), FALSE];
-    $data['entity_second_own_up user_view_bundle_any_up'] = [$entity_second_own_up->reveal(), 'view', $user_view_bundle_any_up->reveal(), FALSE];
-    $data['entity_second_own_bundle_up user_view_bundle_any_up'] = [$entity_second_own_bundle_up->reveal(), 'view', $user_view_bundle_any_up->reveal(), FALSE];
-
-    $data['entity_first_other_up user_view_bundle_own_up'] = [$entity_first_other_up->reveal(), 'view', $user_view_bundle_own_up->reveal(), FALSE];
-    $data['entity_first_own_up user_view_bundle_own_up'] = [$entity_first_own_up->reveal(), 'view', $user_view_bundle_own_up->reveal(), FALSE];
-    $data['entity_first_own_bundle_up user_view_bundle_own_up'] = [$entity_first_own_bundle_up->reveal(), 'view', $user_view_bundle_own_up->reveal(), TRUE];
-    $data['entity_second_other_up user_view_bundle_own_up'] = [$entity_second_other_up->reveal(), 'view', $user_view_bundle_own_up->reveal(), FALSE];
-    $data['entity_second_own_up user_view_bundle_own_up'] = [$entity_second_own_up->reveal(), 'view', $user_view_bundle_own_up->reveal(), FALSE];
-    $data['entity_second_own_bundle_up user_view_bundle_own_up'] = [$entity_second_own_bundle_up->reveal(), 'view', $user_view_bundle_own_up->reveal(), FALSE];
-
 
     return $data;
   }
@@ -227,6 +205,8 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $entity_type = $this->prophesize(ContentEntityTypeInterface::class);
     $entity_type->id()->willReturn('green_entity');
     $entity_type->getAdminPermission()->willReturn('administer green_entity');
+    $entity_type->hasHandlerClass('permission_provider')->willReturn(TRUE);
+    $entity_type->getHandlerClass('permission_provider')->willReturn(EntityPermissionProvider::class);
 
     // User with the admin permission.
     $account = $this->prophesize(AccountInterface::class);

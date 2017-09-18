@@ -88,6 +88,13 @@ class EntityPermissionProvider implements EntityPermissionProviderInterface, Ent
           '@type' => $plural_label,
         ]),
       ];
+      if ($entity_type->entityClassImplements(EntityPublishedInterface::class)) {
+        $permissions["view own unpublished {$entity_type_id}"] = [
+          'title' => $this->t('View own unpublished @type', [
+            '@type' => $plural_label,
+          ]),
+        ];
+      }
     }
     else {
       $permissions["view {$entity_type_id}"] = [
@@ -235,21 +242,6 @@ class EntityPermissionProvider implements EntityPermissionProviderInterface, Ent
             '@type' => $plural_label,
           ]),
         ];
-
-        if ($entity_type->entityClassImplements(EntityPublishedInterface::class)) {
-          $permissions["view any unpublished {$bundle_name} {$entity_type_id}"] = [
-            'title' => $this->t('@bundle: View any unpublished @type', [
-              '@bundle' => $bundle_info['label'],
-              '@type' => $plural_label,
-            ]),
-          ];
-          $permissions["view own unpublished {$bundle_name} {$entity_type_id}"] = [
-            'title' => $this->t('@bundle: View own unpublished @type', [
-              '@bundle' => $bundle_info['label'],
-              '@type' => $plural_label,
-            ]),
-          ];
-        }
       }
       else {
         $permissions["update {$bundle_name} {$entity_type_id}"] = [
@@ -270,14 +262,6 @@ class EntityPermissionProvider implements EntityPermissionProviderInterface, Ent
             '@type' => $plural_label,
           ]),
         ];
-        if ($entity_type->entityClassImplements(EntityPublishedInterface::class)) {
-          $permissions["view any unpublished {$bundle_name} {$entity_type_id}"] = [
-            'title' => $this->t('@bundle: View any unpublished @type', [
-              '@bundle' => $bundle_info['label'],
-              '@type' => $plural_label,
-            ]),
-          ];
-        }
       }
     }
 
