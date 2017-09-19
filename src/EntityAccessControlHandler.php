@@ -100,15 +100,15 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
           $permissions = [
             "view own unpublished {$entity->getEntityTypeId()}",
           ];
-          return AccessResult::allowedIfHasPermissions($account, $permissions)
-            ->cachePerUser();
+          return AccessResult::allowedIfHasPermissions($account, $permissions)->cachePerUser();
         }
-        return AccessResult::neutral()
-          ->cachePerUser();
+        return AccessResult::neutral()->cachePerUser();
       }
-      return AccessResult::allowedIfHasPermissions($account, [
-        "view {$entity->getEntityTypeId()}",
-      ]);
+      else {
+        return AccessResult::allowedIfHasPermissions($account, [
+          "view {$entity->getEntityTypeId()}",
+        ]);
+      }
     }
     else {
      if (($account->id() == $entity->getOwnerId())) {

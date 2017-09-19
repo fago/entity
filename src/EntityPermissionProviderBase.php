@@ -69,24 +69,23 @@ class EntityPermissionProviderBase implements EntityPermissionProviderInterface,
     return $permissions;
   }
 
+  /**
+   * Adds the provider and converts the titles to strings to allow sorting.
+   *
+   * @param array $permissions
+   *   The array of permissions
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   *   The entity type.
+   *
+   * @return array
+   *   An array of processed permissions.
+   */
   protected function processPermissions(array $permissions, EntityTypeInterface $entity_type) {
     foreach ($permissions as $name => $permission) {
       // Permissions are grouped by provider on admin/people/permissions.
       $permissions[$name]['provider'] = $entity_type->getProvider();
       // TranslatableMarkup objects don't sort properly.
       $permissions[$name]['title'] = (string) $permission['title'];
-    }
-    return $permissions;
-  }
-
-  protected function createUpdateDeletePermissions(EntityTypeInterface $entity_type) {
-    $permissions = [];
-    // Generate the other permissions based on granularity.
-    if ($entity_type->getPermissionGranularity() === 'entity_type') {
-      $permissions += $this->buildEntityTypePermissions($entity_type);
-    }
-    else {
-      $permissions += $this->buildBundlePermissions($entity_type);
     }
     return $permissions;
   }

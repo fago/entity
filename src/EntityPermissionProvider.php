@@ -24,7 +24,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * - create $bundle $entity_type
  *
  * This class does not support "view own ($bundle) $entity_type", because this
- * results in effective caching per user. If you need this usecase, please use
+ * results in caching per user. If you need this use case, please use
  * \Drupal\entity\UncacheableEntityPermissionProvider instead.
  *
  * Intended for content entity types, since config entity types usually rely
@@ -58,7 +58,13 @@ class EntityPermissionProvider extends EntityPermissionProviderBase {
       ]),
     ];
 
-    $permissions = array_merge($permissions, $this->createUpdateDeletePermissions($entity_type));
+    // Generate the other permissions based on granularity.
+    if ($entity_type->getPermissionGranularity() === 'entity_type') {
+      $permissions += $this->buildEntityTypePermissions($entity_type);
+    }
+    else {
+      $permissions += $this->buildBundlePermissions($entity_type);
+    }
 
     return $this->processPermissions($permissions, $entity_type);
   }
