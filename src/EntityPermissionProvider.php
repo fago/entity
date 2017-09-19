@@ -11,21 +11,33 @@ use Drupal\user\EntityOwnerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides generic entity permissions without generic "view own permissions".
+ * Provides generic entity permissions which are still cacheable.
+ * 
+ * This includes:
+ * 
+ * - administer $entity_type
+ * - access $entity_type overview
+ * - view $entity_type
+ * - view own unpublished $entity_type
+ * - update (own|any) ($bundle) $entity_type
+ * - delete (own|any) ($bundle) $entity_type
+ * - create $bundle $entity_type
  *
- * Supports both entity_type and bundle granularities.
+ * This class does not support "view own ($bundle) $entity_type", because this
+ * results in effective caching per user. If you need this usecase, please use
+ * \Drupal\entity\UncachableEntityPermissionProvider instead.
  *
  * Intended for content entity types, since config entity types usually rely
  * on a single "administer" permission.
  * Example annotation:
  * @code
  *  handlers = {
- *    "access" = "Drupal\entity\CacheableEntityAccessControlHandler",
+ *    "access" = "Drupal\entity\EntityAccessControlHandler",
  *    "permission_provider" = "Drupal\entity\EntityPermissionProvider",
  *  }
  * @endcode
  *
- * @see \Drupal\entity\UncachableEntityAccessControlHandler
+ * @see \Drupal\entity\EntityAccessControlHandler
  * @see \Drupal\entity\EntityPermissions
  */
 class EntityPermissionProvider implements EntityPermissionProviderInterface, EntityHandlerInterface {

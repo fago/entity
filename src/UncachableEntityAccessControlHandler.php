@@ -11,7 +11,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\user\EntityOwnerInterface;
 
 /**
- * Controls access based on the generic entity permissions.
+ * Controls access based on the uncachable entity permissions.
  *
  * @see \Drupal\entity\UncachableEntityPermissionProvider
  *

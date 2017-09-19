@@ -11,22 +11,35 @@ use Drupal\user\EntityOwnerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides generic entity permissions.
+ * Provides generic entity permissions which are cached per user.
+ * 
+ * This includes:
+ * 
+ * - administer $entity_type
+ * - access $entity_type overview
+ * - view an ($bundle) $entity_type
+ * - view own ($bundle) $entity_type
+ * - view own unpublished $entity_type
+ * - update (own|any) ($bundle) $entity_type
+ * - delete (own|any) ($bundle) $entity_type
+ * - create $bundle $entity_type
  *
- * Supports both entity_type and bundle granularities.
- * Supports entity ownership (own/any permissions).
+ * As this class supports "view own ($bundle) $entity_type" it is just cacheable
+ * per user, which might harm performance of sites. Given that please use 
+ * \Drupal\entity\EntityPermissionProvider unless you need the feature, or your
+ * entity type is not really user facing (commerce orders for example).
  *
  * Intended for content entity types, since config entity types usually rely
  * on a single "administer" permission.
  * Example annotation:
  * @code
  *  handlers = {
- *    "access" = "Drupal\entity\EntityAccessControlHandler",
- *    "permission_provider" = "Drupal\entity\EntityPermissionProvider",
+ *    "access" = "Drupal\entity\UncacheableEntityAccessControlHandler",
+ *    "permission_provider" = "Drupal\entity\UncacheableEntityPermissionProvider",
  *  }
  * @endcode
  *
- * @see \Drupal\entity\UncachableEntityAccessControlHandler
+ * @see \Drupal\entity\EntityAccessControlHandler
  * @see \Drupal\entity\EntityPermissions
  */
 class UncachableEntityPermissionProvider implements EntityPermissionProviderInterface, EntityHandlerInterface {

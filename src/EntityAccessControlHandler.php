@@ -14,9 +14,6 @@ use Drupal\user\EntityOwnerInterface;
  * Controls access based on the generic entity permissions.
  *
  * @see \Drupal\entity\UncachableEntityPermissionProvider
- *
- * Note: Using this entity access controller makes your access cacheable per
- * user.
  */
 class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
 
