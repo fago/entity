@@ -11,22 +11,21 @@ use Drupal\user\EntityOwnerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides generic entity permissions.
+ * Provides generic entity permissions without generic "view own permissions".
  *
  * Supports both entity_type and bundle granularities.
- * Supports entity ownership (own/any permissions).
  *
  * Intended for content entity types, since config entity types usually rely
  * on a single "administer" permission.
  * Example annotation:
  * @code
  *  handlers = {
- *    "access" = "Drupal\entity\EntityAccessControlHandler",
+ *    "access" = "Drupal\entity\CacheableEntityAccessControlHandler",
  *    "permission_provider" = "Drupal\entity\EntityPermissionProvider",
  *  }
  * @endcode
  *
- * @see \Drupal\entity\EntityAccessControlHandler
+ * @see \Drupal\entity\UncachableEntityAccessControlHandler
  * @see \Drupal\entity\EntityPermissions
  */
 class EntityPermissionProvider implements EntityPermissionProviderInterface, EntityHandlerInterface {
@@ -65,7 +64,6 @@ class EntityPermissionProvider implements EntityPermissionProviderInterface, Ent
   public function buildPermissions(EntityTypeInterface $entity_type) {
     $entity_type_id = $entity_type->id();
     $has_owner = $entity_type->entityClassImplements(EntityOwnerInterface::class);
-    $singular_label = $entity_type->getSingularLabel();
     $plural_label = $entity_type->getPluralLabel();
 
     $permissions = [];
@@ -89,8 +87,9 @@ class EntityPermissionProvider implements EntityPermissionProviderInterface, Ent
         ]),
       ];
     }
+
     // Generate the other permissions based on granularity.
-    if ($entity_type->getPermissionGranularity() == 'entity_type') {
+    if ($entity_type->getPermissionGranularity() === 'entity_type') {
       $permissions += $this->buildEntityTypePermissions($entity_type);
     }
     else {
