@@ -11,13 +11,13 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\user\EntityOwnerInterface;
 
 /**
- * Controls access based on the uncachable entity permissions.
+ * Controls access based on the uncacheable entity permissions.
  *
- * @see \Drupal\entity\UncachableEntityPermissionProvider
+ * @see \Drupal\entity\UncacheableEntityPermissionProvider
  *
  * Note: this access control handler will cause pages to be cached per user.
  */
-class UncachableEntityAccessControlHandler extends CoreEntityAccessControlHandler {
+class UncacheableEntityAccessControlHandler extends CoreEntityAccessControlHandler {
 
   /**
    * {@inheritdoc}
@@ -25,7 +25,7 @@ class UncachableEntityAccessControlHandler extends CoreEntityAccessControlHandle
   public function __construct(EntityTypeInterface $entity_type) {
     parent::__construct($entity_type);
 
-    if (!$entity_type->hasHandlerClass('permission_provider') || !is_a($entity_type->getHandlerClass('permission_provider'), UncachableEntityPermissionProvider::class, TRUE)) {
+    if (!$entity_type->hasHandlerClass('permission_provider') || !is_a($entity_type->getHandlerClass('permission_provider'), UncacheableEntityPermissionProvider::class, TRUE)) {
       throw new \Exception("This entity access control handler requires the entity permissions provider: {EntityPermissionProvider::class}");
     }
   }

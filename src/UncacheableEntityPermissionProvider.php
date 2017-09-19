@@ -42,7 +42,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @see \Drupal\entity\EntityAccessControlHandler
  * @see \Drupal\entity\EntityPermissions
  */
-class UncachableEntityPermissionProvider extends EntityPermissionProviderBase {
+class UncacheableEntityPermissionProvider extends EntityPermissionProviderBase {
 
   /**
    * {@inheritdoc}

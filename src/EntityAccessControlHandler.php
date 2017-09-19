@@ -13,7 +13,7 @@ use Drupal\user\EntityOwnerInterface;
 /**
  * Controls access based on the generic entity permissions.
  *
- * @see \Drupal\entity\UncachableEntityPermissionProvider
+ * @see \Drupal\entity\UncacheableEntityPermissionProvider
  */
 class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
 

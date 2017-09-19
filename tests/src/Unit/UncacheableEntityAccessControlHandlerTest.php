@@ -14,8 +14,8 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\entity\UncachableEntityAccessControlHandler;
-use Drupal\entity\UncachableEntityPermissionProvider;
+use Drupal\entity\UncacheableEntityAccessControlHandler;
+use Drupal\entity\UncacheableEntityPermissionProvider;
 use Drupal\Tests\UnitTestCase;
 use Drupal\user\EntityOwnerInterface;
 use Prophecy\Argument;
@@ -52,7 +52,7 @@ class UncacheableEntityAccessControlHandlerTest extends UnitTestCase {
    * @dataProvider accessProvider
    */
   public function testAccess(EntityInterface $entity, $operation, $account, $allowed) {
-    $handler = new UncachableEntityAccessControlHandler($entity->getEntityType());
+    $handler = new UncacheableEntityAccessControlHandler($entity->getEntityType());
     $handler->setStringTranslation($this->getStringTranslationStub());
     $result = $handler->access($entity, $operation, $account);
     $this->assertEquals($allowed, $result);
@@ -64,7 +64,7 @@ class UncacheableEntityAccessControlHandlerTest extends UnitTestCase {
    * @dataProvider createAccessProvider
    */
   public function testCreateAccess(EntityTypeInterface $entity_type, $bundle, $account, $allowed) {
-    $handler = new UncachableEntityAccessControlHandler($entity_type);
+    $handler = new UncacheableEntityAccessControlHandler($entity_type);
     $handler->setStringTranslation($this->getStringTranslationStub());
     $result = $handler->createAccess($bundle, $account);
     $this->assertEquals($allowed, $result);
@@ -83,7 +83,7 @@ class UncacheableEntityAccessControlHandlerTest extends UnitTestCase {
     $entity_type->id()->willReturn('green_entity');
     $entity_type->getAdminPermission()->willReturn('administer green_entity');
     $entity_type->hasHandlerClass('permission_provider')->willReturn(TRUE);
-    $entity_type->getHandlerClass('permission_provider')->willReturn(UncachableEntityPermissionProvider::class);
+    $entity_type->getHandlerClass('permission_provider')->willReturn(UncacheableEntityPermissionProvider::class);
 
     // User with the admin permission can do anything.
     $entity = $this->buildMockEntity($entity_type->reveal());
@@ -214,7 +214,7 @@ class UncacheableEntityAccessControlHandlerTest extends UnitTestCase {
     $entity_type->id()->willReturn('green_entity');
     $entity_type->getAdminPermission()->willReturn('administer green_entity');
     $entity_type->hasHandlerClass('permission_provider')->willReturn(TRUE);
-    $entity_type->getHandlerClass('permission_provider')->willReturn(UncachableEntityPermissionProvider::class);
+    $entity_type->getHandlerClass('permission_provider')->willReturn(UncacheableEntityPermissionProvider::class);
 
     // User with the admin permission.
     $account = $this->prophesize(AccountInterface::class);

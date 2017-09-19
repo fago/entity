@@ -6,15 +6,15 @@ use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityPublishedInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\entity\UncachableEntityPermissionProvider;
+use Drupal\entity\UncacheableEntityPermissionProvider;
 use Drupal\Tests\UnitTestCase;
 use Drupal\user\EntityOwnerInterface;
 
 /**
- * @coversDefaultClass \Drupal\entity\UncachableEntityPermissionProvider
+ * @coversDefaultClass \Drupal\entity\UncacheableEntityPermissionProvider
  * @group entity
  */
-class UncachableEntityPermissionProviderTest extends UnitTestCase {
+class UncacheableEntityPermissionProviderTest extends UnitTestCase {
 
   /**
    * The entity permission provider.
@@ -40,7 +40,7 @@ class UncachableEntityPermissionProviderTest extends UnitTestCase {
     $entity_type_bundle_info->getBundleInfo('pink_entity')->willReturn([
       'third' => ['label' => 'Third'],
     ]);
-    $this->permissionProvider = new UncachableEntityPermissionProvider($entity_type_bundle_info->reveal());
+    $this->permissionProvider = new UncacheableEntityPermissionProvider($entity_type_bundle_info->reveal());
     $this->permissionProvider->setStringTranslation($this->getStringTranslationStub());
   }
 

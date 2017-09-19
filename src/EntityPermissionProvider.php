@@ -25,7 +25,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * This class does not support "view own ($bundle) $entity_type", because this
  * results in effective caching per user. If you need this usecase, please use
- * \Drupal\entity\UncachableEntityPermissionProvider instead.
+ * \Drupal\entity\UncacheableEntityPermissionProvider instead.
  *
  * Intended for content entity types, since config entity types usually rely
  * on a single "administer" permission.
