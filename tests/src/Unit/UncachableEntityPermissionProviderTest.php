@@ -37,6 +37,9 @@ class UncachableEntityPermissionProviderTest extends UnitTestCase {
     $entity_type_bundle_info->getBundleInfo('black_entity')->willReturn([
       'third' => ['label' => 'Third'],
     ]);
+    $entity_type_bundle_info->getBundleInfo('pink_entity')->willReturn([
+      'third' => ['label' => 'Third'],
+    ]);
     $this->permissionProvider = new UncachableEntityPermissionProvider($entity_type_bundle_info->reveal());
     $this->permissionProvider->setStringTranslation($this->getStringTranslationStub());
   }
@@ -116,14 +119,14 @@ class UncachableEntityPermissionProviderTest extends UnitTestCase {
     $expected_permissions = [
       'administer white_entity' => 'Administer white entities',
       'access white_entity overview' => 'Access the white entities overview page',
-      'view any white_entity' => 'View any white entities',
       'create first white_entity' => 'First: Create white entities',
       'update first white_entity' => 'First: Update white entities',
       'delete first white_entity' => 'First: Delete white entities',
-      'view any first white_entity' => 'First: View any white entities',
       'create second white_entity' => 'Second: Create white entities',
       'update second white_entity' => 'Second: Update white entities',
       'delete second white_entity' => 'Second: Delete white entities',
+      'view any white_entity' => 'View any white entities',
+      'view any first white_entity' => 'First: View any white entities',
       'view any second white_entity' => 'Second: View any white entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
@@ -140,13 +143,13 @@ class UncachableEntityPermissionProviderTest extends UnitTestCase {
     $expected_permissions = [
       'administer black_entity' => 'Administer black entities',
       'access black_entity overview' => 'Access the black entities overview page',
-      'view any black_entity' => 'View any black entities',
-      'view own black_entity' => 'View own black entities',
       'create third black_entity' => 'Third: Create black entities',
       'update any third black_entity' => 'Third: Update any black entity',
       'update own third black_entity' => 'Third: Update own black entities',
       'delete any third black_entity' => 'Third: Delete any black entity',
       'delete own third black_entity' => 'Third: Delete own black entities',
+      'view any black_entity' => 'View any black entities',
+      'view own black_entity' => 'View own black entities',
       'view any third black_entity' => 'Third: View any black entities',
       'view own third black_entity' => 'Third: View own black entities',
     ];
@@ -155,25 +158,25 @@ class UncachableEntityPermissionProviderTest extends UnitTestCase {
     // Content entity type with bundles and owner and entity published.
     $entity_type = $this->prophesize(ContentEntityTypeInterface::class);
     $entity_type->getProvider()->willReturn('entity_module_test');
-    $entity_type->id()->willReturn('black_entity');
-    $entity_type->getSingularLabel()->willReturn('black entity');
-    $entity_type->getPluralLabel()->willReturn('black entities');
+    $entity_type->id()->willReturn('pink_entity');
+    $entity_type->getSingularLabel()->willReturn('pink entity');
+    $entity_type->getPluralLabel()->willReturn('pink entities');
     $entity_type->entityClassImplements(EntityOwnerInterface::class)->willReturn(TRUE);
     $entity_type->entityClassImplements(EntityPublishedInterface::class)->willReturn(TRUE);
     $entity_type->getPermissionGranularity()->willReturn('bundle');
     $expected_permissions = [
-      'administer black_entity' => 'Administer black entities',
-      'access black_entity overview' => 'Access the black entities overview page',
-      'view own unpublished black_entity' => 'View own unpublished black entities',
-      'view any black_entity' => 'View any black entities',
-      'view own black_entity' => 'View own black entities',
-      'create third black_entity' => 'Third: Create black entities',
-      'update any third black_entity' => 'Third: Update any black entity',
-      'update own third black_entity' => 'Third: Update own black entities',
-      'delete any third black_entity' => 'Third: Delete any black entity',
-      'delete own third black_entity' => 'Third: Delete own black entities',
-      'view any third black_entity' => 'Third: View any black entities',
-      'view own third black_entity' => 'Third: View own black entities',
+      'administer pink_entity' => 'Administer pink entities',
+      'access pink_entity overview' => 'Access the pink entities overview page',
+      'view own unpublished pink_entity' => 'View own unpublished pink entities',
+      'create third pink_entity' => 'Third: Create pink entities',
+      'update any third pink_entity' => 'Third: Update any pink entity',
+      'update own third pink_entity' => 'Third: Update own pink entities',
+      'delete any third pink_entity' => 'Third: Delete any pink entity',
+      'delete own third pink_entity' => 'Third: Delete own pink entities',
+      'view any pink_entity' => 'View any pink entities',
+      'view own pink_entity' => 'View own pink entities',
+      'view any third pink_entity' => 'Third: View any pink entities',
+      'view own third pink_entity' => 'Third: View own pink entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 
