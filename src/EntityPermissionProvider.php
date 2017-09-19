@@ -58,14 +58,6 @@ class EntityPermissionProvider extends EntityPermissionProviderBase {
       ]),
     ];
 
-    // Generate the other permissions based on granularity.
-    if ($entity_type->getPermissionGranularity() === 'entity_type') {
-      $permissions += $this->buildEntityTypePermissions($entity_type);
-    }
-    else {
-      $permissions += $this->buildBundlePermissions($entity_type);
-    }
-
     return $this->processPermissions($permissions, $entity_type);
   }
 

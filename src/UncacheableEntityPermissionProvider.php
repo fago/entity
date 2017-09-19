@@ -45,23 +45,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class UncacheableEntityPermissionProvider extends EntityPermissionProviderBase {
 
   /**
-   * {@inheritdoc}
-   */
-  public function buildPermissions(EntityTypeInterface $entity_type) {
-    $permissions = parent::buildPermissions($entity_type);
-
-    // Generate the other permissions based on granularity.
-    if ($entity_type->getPermissionGranularity() === 'entity_type') {
-      $permissions += $this->buildEntityTypePermissions($entity_type);
-    }
-    else {
-      $permissions += $this->buildBundlePermissions($entity_type);
-    }
-
-    return $this->processPermissions($permissions, $entity_type);
-  }
-
-  /**
    * Builds permissions for the entity_type granularity.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
