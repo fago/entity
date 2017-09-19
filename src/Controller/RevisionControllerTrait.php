@@ -132,8 +132,11 @@ trait RevisionControllerTrait {
     foreach ($entity_revisions as $revision) {
       $row = [];
       /** @var \Drupal\Core\Entity\ContentEntityInterface $revision */
-      if ($revision->hasTranslation($langcode) && $revision->getTranslation($langcode)
-          ->isRevisionTranslationAffected()
+      if (empty($translatable)) {
+        $translatable = $revision->getEntityType()->isTranslatable();
+      }
+      if (!$translatable || ($revision->hasTranslation($langcode) && $revision->getTranslation($langcode)
+          ->isRevisionTranslationAffected())
       ) {
         $row[] = $this->getRevisionDescription($revision, $revision->isDefaultRevision());
 
