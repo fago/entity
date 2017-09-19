@@ -51,13 +51,15 @@ class BundlePluginUninstallValidator implements ModuleUninstallValidatorInterfac
       });
 
       if (!empty($bundles_filtered_by_module)) {
-        $bundles_with_content = array_filter($bundles_filtered_by_module, function ($bundle_info, $bundle_id) use ($entity_type) {
+        $bundle_keys_with_content = array_filter(array_keys($bundles_filtered_by_module), function ($bundle) use ($entity_type) {
           $result = $this->entityTypeManager->getStorage($entity_type->id())->getQuery()
-            ->condition($entity_type->getKey('bundle'), $bundle_id)
+            ->condition($entity_type->getKey('bundle'), $bundle)
             ->range(0, 1)
             ->execute();
           return !empty($result);
-        }, ARRAY_FILTER_USE_BOTH);
+        });
+
+        $bundles_with_content = array_intersect_key($bundles_filtered_by_module, array_flip($bundle_keys_with_content));
   
         foreach ($bundles_with_content as $bundle) {
           $reasons[] = $this->t('There is data for the bundle @bundle on the entity type @entity_type. Please remove all content before uninstalling the module.', [
