@@ -162,6 +162,16 @@ class UncachableEntityPermissionProvider implements EntityPermissionProviderInte
           '@type' => $plural_label,
         ]),
       ];
+      $permissions["view any {$entity_type_id}"] = [
+        'title' => $this->t('View any @type', [
+          '@type' => $plural_label,
+        ]),
+      ];
+      $permissions["view own {$entity_type_id}"] = [
+        'title' => $this->t('View own @type', [
+          '@type' => $plural_label,
+        ]),
+      ];
     }
     else {
       $permissions["update {$entity_type_id}"] = [
@@ -171,6 +181,11 @@ class UncachableEntityPermissionProvider implements EntityPermissionProviderInte
       ];
       $permissions["delete {$entity_type_id}"] = [
         'title' => $this->t('Delete @type', [
+          '@type' => $plural_label,
+        ]),
+      ];
+      $permissions["view any {$entity_type_id}"] = [
+        'title' => $this->t('View any @type', [
           '@type' => $plural_label,
         ]),
       ];
@@ -196,6 +211,20 @@ class UncachableEntityPermissionProvider implements EntityPermissionProviderInte
     $plural_label = $entity_type->getPluralLabel();
 
     $permissions = [];
+
+    $permissions["view any {$entity_type_id}"] = [
+      'title' => $this->t('View any @type', [
+        '@type' => $plural_label,
+      ]),
+    ];
+    if ($has_owner) {
+      $permissions["view own {$entity_type_id}"] = [
+        'title' => $this->t('View own @type', [
+          '@type' => $plural_label,
+        ]),
+      ];
+    }
+
     foreach ($bundles as $bundle_name => $bundle_info) {
       $permissions["create {$bundle_name} {$entity_type_id}"] = [
         'title' => $this->t('@bundle: Create @type', [
@@ -229,6 +258,18 @@ class UncachableEntityPermissionProvider implements EntityPermissionProviderInte
             '@type' => $plural_label,
           ]),
         ];
+        $permissions["view any {$bundle_name} {$entity_type_id}"] = [
+          'title' => $this->t('@bundle: View any @type', [
+            '@bundle' => $bundle_info['label'],
+            '@type' => $plural_label,
+          ]),
+        ];
+        $permissions["view own {$bundle_name} {$entity_type_id}"] = [
+          'title' => $this->t('@bundle: View own @type', [
+            '@bundle' => $bundle_info['label'],
+            '@type' => $plural_label,
+          ]),
+        ];
       }
       else {
         $permissions["update {$bundle_name} {$entity_type_id}"] = [
@@ -239,6 +280,12 @@ class UncachableEntityPermissionProvider implements EntityPermissionProviderInte
         ];
         $permissions["delete {$bundle_name} {$entity_type_id}"] = [
           'title' => $this->t('@bundle: Delete @type', [
+            '@bundle' => $bundle_info['label'],
+            '@type' => $plural_label,
+          ]),
+        ];
+        $permissions["view any {$bundle_name} {$entity_type_id}"] = [
+          'title' => $this->t('@bundle: View any @type', [
             '@bundle' => $bundle_info['label'],
             '@type' => $plural_label,
           ]),
