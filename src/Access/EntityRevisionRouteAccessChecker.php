@@ -103,8 +103,10 @@ class EntityRevisionRouteAccessChecker implements AccessInterface {
     $cid = $entity->getRevisionId() . ':' . $langcode . ':' . $account->id() . ':' . $operation;
 
     if (!isset($this->accessCache[$cid])) {
+      $admin_permission = $entity_type->getAdminPermission();
+
       // Perform basic permission checks first.
-      if (!$account->hasPermission($map[$operation]) && !$account->hasPermission($type_map[$operation]) && !$account->hasPermission('administer nodes')) {
+      if (!$account->hasPermission($map[$operation]) && !$account->hasPermission($type_map[$operation]) && ($admin_permission && !$account->hasPermission($admin_permission))) {
         $this->accessCache[$cid] = FALSE;
         return FALSE;
       }
@@ -113,6 +115,8 @@ class EntityRevisionRouteAccessChecker implements AccessInterface {
         $this->accessCache[$cid] = TRUE;
       }
       else {
+        // Entity access handlers are generally not aware of the "list" operation.
+        $operation = $operation == 'list' ? 'view' : $operation;
         // First check the access to the default revision and finally, if the
         // node passed in is not the default revision then access to that, too.
         $this->accessCache[$cid] = $entity_access->access($entity_storage->load($entity->id()), $operation, $account) && ($entity->isDefaultRevision() || $entity_access->access($entity, $operation, $account));
