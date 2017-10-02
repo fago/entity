@@ -14,7 +14,6 @@ use Drupal\entity_test\Entity\EntityTest;
  *   id = "entity_query_access_test",
  *   label = @Translation("entity test query access"),
  *   handlers = {
- *     "access" = "\Drupal\entity_test\EntityTestAccessControlHandler",
  *     "views_data" = "\Drupal\views\EntityViewsData",
  *     "view_builder" = "\Drupal\entity_test\EntityTestViewBuilder",
  *     "query_access" = "\Drupal\entity\Query\QueryAccessHandler",

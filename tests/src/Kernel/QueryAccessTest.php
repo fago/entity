@@ -9,7 +9,7 @@ use Drupal\views\Tests\ViewResultAssertionTrait;
 use Drupal\views\Views;
 
 /**
- * Tests query_access handlers.
+ * Test the cacheable query_access.
  *
  * @group entity
  *
