@@ -6,15 +6,15 @@ use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityPublishedInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\entity\EntityPermissionProvider;
+use Drupal\entity\UncacheableEntityPermissionProvider;
 use Drupal\Tests\UnitTestCase;
 use Drupal\user\EntityOwnerInterface;
 
 /**
- * @coversDefaultClass \Drupal\entity\EntityPermissionProvider
+ * @coversDefaultClass \Drupal\entity\UncacheableEntityPermissionProvider
  * @group entity
  */
-class EntityPermissionProviderTest extends UnitTestCase {
+class UncacheableEntityPermissionProviderTest extends UnitTestCase {
 
   /**
    * The entity permission provider.
@@ -40,7 +40,7 @@ class EntityPermissionProviderTest extends UnitTestCase {
     $entity_type_bundle_info->getBundleInfo('pink_entity')->willReturn([
       'third' => ['label' => 'Third'],
     ]);
-    $this->permissionProvider = new EntityPermissionProvider($entity_type_bundle_info->reveal());
+    $this->permissionProvider = new UncacheableEntityPermissionProvider($entity_type_bundle_info->reveal());
     $this->permissionProvider->setStringTranslation($this->getStringTranslationStub());
   }
 
@@ -81,7 +81,7 @@ class EntityPermissionProviderTest extends UnitTestCase {
       'create green_entity' => 'Create green entities',
       'update green_entity' => 'Update green entities',
       'delete green_entity' => 'Delete green entities',
-      'view green_entity' => 'View green entities',
+      'view any green_entity' => 'View any green entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 
@@ -102,7 +102,8 @@ class EntityPermissionProviderTest extends UnitTestCase {
       'update own blue_entity' => 'Update own blue entities',
       'delete any blue_entity' => 'Delete any blue entity',
       'delete own blue_entity' => 'Delete own blue entities',
-      'view blue_entity' => 'View blue entities',
+      'view any blue_entity' => 'View any blue entities',
+      'view own blue_entity' => 'View own blue entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 
@@ -124,7 +125,9 @@ class EntityPermissionProviderTest extends UnitTestCase {
       'create second white_entity' => 'Second: Create white entities',
       'update second white_entity' => 'Second: Update white entities',
       'delete second white_entity' => 'Second: Delete white entities',
-      'view white_entity' => 'View white entities',
+      'view any white_entity' => 'View any white entities',
+      'view any first white_entity' => 'First: View any white entities',
+      'view any second white_entity' => 'Second: View any white entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 
@@ -145,7 +148,10 @@ class EntityPermissionProviderTest extends UnitTestCase {
       'update own third black_entity' => 'Third: Update own black entities',
       'delete any third black_entity' => 'Third: Delete any black entity',
       'delete own third black_entity' => 'Third: Delete own black entities',
-      'view black_entity' => 'View black entities',
+      'view any black_entity' => 'View any black entities',
+      'view own black_entity' => 'View own black entities',
+      'view any third black_entity' => 'Third: View any black entities',
+      'view own third black_entity' => 'Third: View own black entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 
@@ -167,7 +173,10 @@ class EntityPermissionProviderTest extends UnitTestCase {
       'update own third pink_entity' => 'Third: Update own pink entities',
       'delete any third pink_entity' => 'Third: Delete any pink entity',
       'delete own third pink_entity' => 'Third: Delete own pink entities',
-      'view pink_entity' => 'View pink entities',
+      'view any pink_entity' => 'View any pink entities',
+      'view own pink_entity' => 'View own pink entities',
+      'view any third pink_entity' => 'Third: View any pink entities',
+      'view own third pink_entity' => 'Third: View own pink entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 

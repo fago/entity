@@ -14,8 +14,8 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\entity\EntityAccessControlHandler;
-use Drupal\entity\EntityPermissionProvider;
+use Drupal\entity\UncacheableEntityAccessControlHandler;
+use Drupal\entity\UncacheableEntityPermissionProvider;
 use Drupal\Tests\UnitTestCase;
 use Drupal\user\EntityOwnerInterface;
 use Prophecy\Argument;
@@ -24,7 +24,7 @@ use Prophecy\Argument;
  * @coversDefaultClass \Drupal\entity\EntityAccessControlHandler
  * @group entity
  */
-class EntityAccessControlHandlerTest extends UnitTestCase {
+class UncacheableEntityAccessControlHandlerTest extends UnitTestCase {
 
   /**
    * {@inheritdoc}
@@ -52,7 +52,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
    * @dataProvider accessProvider
    */
   public function testAccess(EntityInterface $entity, $operation, $account, $allowed) {
-    $handler = new EntityAccessControlHandler($entity->getEntityType());
+    $handler = new UncacheableEntityAccessControlHandler($entity->getEntityType());
     $handler->setStringTranslation($this->getStringTranslationStub());
     $result = $handler->access($entity, $operation, $account);
     $this->assertEquals($allowed, $result);
@@ -64,7 +64,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
    * @dataProvider createAccessProvider
    */
   public function testCreateAccess(EntityTypeInterface $entity_type, $bundle, $account, $allowed) {
-    $handler = new EntityAccessControlHandler($entity_type);
+    $handler = new UncacheableEntityAccessControlHandler($entity_type);
     $handler->setStringTranslation($this->getStringTranslationStub());
     $result = $handler->createAccess($bundle, $account);
     $this->assertEquals($allowed, $result);
@@ -83,7 +83,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $entity_type->id()->willReturn('green_entity');
     $entity_type->getAdminPermission()->willReturn('administer green_entity');
     $entity_type->hasHandlerClass('permission_provider')->willReturn(TRUE);
-    $entity_type->getHandlerClass('permission_provider')->willReturn(EntityPermissionProvider::class);
+    $entity_type->getHandlerClass('permission_provider')->willReturn(UncacheableEntityPermissionProvider::class);
 
     // User with the admin permission can do anything.
     $entity = $this->buildMockEntity($entity_type->reveal());
@@ -130,6 +130,48 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $data[] = [$entity->reveal(), 'update', $second_account->reveal(), FALSE];
     $data[] = [$entity->reveal(), 'update', $third_account->reveal(), TRUE];
 
+    // Per bundle permissions.
+    $entity_first_other = $this->buildMockEntity($entity_type->reveal(), 9999, 'first');
+    $entity_first_own = $this->buildMockEntity($entity_type->reveal(), 10, 'first');
+    $entity_first_own_bundle = $this->buildMockEntity($entity_type->reveal(), 12, 'first');
+
+    $entity_second_other = $this->buildMockEntity($entity_type->reveal(), 9999, 'second');
+    $entity_second_own = $this->buildMockEntity($entity_type->reveal(), 10, 'second');
+    $entity_second_own_bundle = $this->buildMockEntity($entity_type->reveal(), 12, 'second');
+    
+    $user_view_any = $this->buildMockUser(9, 'view any green_entity');
+    $user_view_own = $this->buildMockUser(10, 'view own green_entity');
+    $user_view_bundle_any = $this->buildMockUser(11, 'view any first green_entity');
+    $user_view_bundle_own = $this->buildMockUser(12, 'view own first green_entity');
+
+    $data['entity_first_other user_view_any'] = [$entity_first_other->reveal(), 'view', $user_view_any->reveal(), TRUE];
+    $data['entity_first_own user_view_any'] = [$entity_first_own->reveal(), 'view', $user_view_any->reveal(), TRUE];
+    $data['entity_first_own_bundle user_view_any'] = [$entity_first_own_bundle->reveal(), 'view', $user_view_any->reveal(), TRUE];
+    $data['entity_second_other user_view_any'] = [$entity_second_other->reveal(), 'view', $user_view_any->reveal(), TRUE];
+    $data['entity_second_own user_view_any'] = [$entity_second_own->reveal(), 'view', $user_view_any->reveal(), TRUE];
+    $data['entity_second_own_bundle user_view_any'] = [$entity_second_own_bundle->reveal(), 'view', $user_view_any->reveal(), TRUE];
+
+    $data['entity_first_other user_view_own'] = [$entity_first_other->reveal(), 'view', $user_view_own->reveal(), FALSE];
+    $data['entity_first_own user_view_own'] = [$entity_first_own->reveal(), 'view', $user_view_own->reveal(), TRUE];
+    $data['entity_first_own_bundle user_view_own'] = [$entity_first_own_bundle->reveal(), 'view', $user_view_own->reveal(), FALSE];
+    $data['entity_second_other user_view_own'] = [$entity_second_other->reveal(), 'view', $user_view_own->reveal(), FALSE];
+    $data['entity_second_own user_view_own'] = [$entity_second_own->reveal(), 'view', $user_view_own->reveal(), TRUE];
+    $data['entity_second_own_bundle user_view_own'] = [$entity_second_own_bundle->reveal(), 'view', $user_view_own->reveal(), FALSE];
+
+    $data['entity_first_other user_view_bundle_any'] = [$entity_first_other->reveal(), 'view', $user_view_bundle_any->reveal(), TRUE];
+    $data['entity_first_own user_view_bundle_any'] = [$entity_first_own->reveal(), 'view', $user_view_bundle_any->reveal(), TRUE];
+    $data['entity_first_own_bundle user_view_bundle_any'] = [$entity_first_own_bundle->reveal(), 'view', $user_view_bundle_any->reveal(), TRUE];
+    $data['entity_second_other user_view_bundle_any'] = [$entity_second_other->reveal(), 'view', $user_view_bundle_any->reveal(), FALSE];
+    $data['entity_second_own user_view_bundle_any'] = [$entity_second_own->reveal(), 'view', $user_view_bundle_any->reveal(), FALSE];
+    $data['entity_second_own_bundle user_view_bundle_any'] = [$entity_second_own_bundle->reveal(), 'view', $user_view_bundle_any->reveal(), FALSE];
+
+    $data['entity_first_other user_view_bundle_any'] = [$entity_first_other->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+    $data['entity_first_own user_view_bundle_any'] = [$entity_first_own->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+    $data['entity_first_own_bundle user_view_bundle_any'] = [$entity_first_own_bundle->reveal(), 'view', $user_view_bundle_own->reveal(), TRUE];
+    $data['entity_second_other user_view_bundle_any'] = [$entity_second_other->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+    $data['entity_second_own user_view_bundle_any'] = [$entity_second_own->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+    $data['entity_second_own_bundle user_view_bundle_any'] = [$entity_second_own_bundle->reveal(), 'view', $user_view_bundle_own->reveal(), FALSE];
+
     // Test the unpublished permissions.
     $entity_first_other_up = $this->buildMockEntity($entity_type->reveal(), 9999, 'first', FALSE);
     $entity_first_own_up = $this->buildMockEntity($entity_type->reveal(), 14, 'first', FALSE);
@@ -172,7 +214,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $entity_type->id()->willReturn('green_entity');
     $entity_type->getAdminPermission()->willReturn('administer green_entity');
     $entity_type->hasHandlerClass('permission_provider')->willReturn(TRUE);
-    $entity_type->getHandlerClass('permission_provider')->willReturn(EntityPermissionProvider::class);
+    $entity_type->getHandlerClass('permission_provider')->willReturn(UncacheableEntityPermissionProvider::class);
 
     // User with the admin permission.
     $account = $this->prophesize(AccountInterface::class);

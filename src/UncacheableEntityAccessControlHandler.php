@@ -11,11 +11,13 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\user\EntityOwnerInterface;
 
 /**
- * Controls access based on the generic entity permissions.
+ * Controls access based on the uncacheable entity permissions.
  *
  * @see \Drupal\entity\UncacheableEntityPermissionProvider
+ *
+ * Note: this access control handler will cause pages to be cached per user.
  */
-class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
+class UncacheableEntityAccessControlHandler extends CoreEntityAccessControlHandler {
 
   /**
    * {@inheritdoc}
@@ -23,7 +25,7 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
   public function __construct(EntityTypeInterface $entity_type) {
     parent::__construct($entity_type);
 
-    if (!$entity_type->hasHandlerClass('permission_provider') || !is_a($entity_type->getHandlerClass('permission_provider'), EntityPermissionProvider::class, TRUE)) {
+    if (!$entity_type->hasHandlerClass('permission_provider') || !is_a($entity_type->getHandlerClass('permission_provider'), UncacheableEntityPermissionProvider::class, TRUE)) {
       throw new \Exception("This entity access control handler requires the entity permissions provider: {EntityPermissionProvider::class}");
     }
   }
@@ -65,18 +67,10 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
    *   The access result.
    */
   protected function checkEntityPermissions(EntityInterface $entity, $operation, AccountInterface $account) {
-    if ($operation === 'view') {
-      $permissions = [
-        "view {$entity->getEntityTypeId()}"
-      ];
-    }
-    else {
-      $permissions = [
-        "$operation {$entity->getEntityTypeId()}",
-        "$operation {$entity->bundle()} {$entity->getEntityTypeId()}",
-      ];
-    }
-    return AccessResult::allowedIfHasPermissions($account, $permissions, 'OR');
+    return AccessResult::allowedIfHasPermissions($account, [
+      "$operation {$entity->getEntityTypeId()}",
+      "$operation {$entity->bundle()} {$entity->getEntityTypeId()}",
+    ], 'OR');
   }
 
   /**
@@ -94,39 +88,31 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
    *   The access result.
    */
   protected function checkEntityOwnerPermissions(EntityInterface $entity, $operation, AccountInterface $account) {
-    if ($operation === 'view') {
-      if ($entity instanceof EntityPublishedInterface && !$entity->isPublished()) {
-        if (($account->id() == $entity->getOwnerId())) {
-          $permissions = [
-            "view own unpublished {$entity->getEntityTypeId()}",
-          ];
-          return AccessResult::allowedIfHasPermissions($account, $permissions)->cachePerUser();
-        }
-        return AccessResult::neutral()->cachePerUser();
+    /** @var \Drupal\Core\Entity\EntityInterface|\Drupal\user\EntityOwnerInterface $entity */
+    if (($account->id() == $entity->getOwnerId())) {
+      if ($operation === 'view' && $entity instanceof EntityPublishedInterface && !$entity->isPublished()) {
+        $permissions = [
+          "view own unpublished {$entity->getEntityTypeId()}",
+        ];
       }
       else {
-        return AccessResult::allowedIfHasPermissions($account, [
-          "view {$entity->getEntityTypeId()}",
-        ]);
-      }
-    }
-    else {
-     if (($account->id() == $entity->getOwnerId())) {
-        $result = AccessResult::allowedIfHasPermissions($account, [
+        $permissions = [
           "$operation own {$entity->getEntityTypeId()}",
           "$operation any {$entity->getEntityTypeId()}",
           "$operation own {$entity->bundle()} {$entity->getEntityTypeId()}",
           "$operation any {$entity->bundle()} {$entity->getEntityTypeId()}",
-        ], 'OR');
+        ];
       }
-      else {
-        $result = AccessResult::allowedIfHasPermissions($account, [
-          "$operation any {$entity->getEntityTypeId()}",
-          "$operation any {$entity->bundle()} {$entity->getEntityTypeId()}",
-        ], 'OR');
-      }
-      return $result;
+      $result = AccessResult::allowedIfHasPermissions($account, $permissions, 'OR');
     }
+    else {
+      $result = AccessResult::allowedIfHasPermissions($account, [
+        "$operation any {$entity->getEntityTypeId()}",
+        "$operation any {$entity->bundle()} {$entity->getEntityTypeId()}",
+      ], 'OR');
+    }
+
+    return $result->cachePerUser();
   }
 
   /**
