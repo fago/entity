@@ -2,6 +2,10 @@
 
 namespace Drupal\entity\Query;
 
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableDependencyInterface;
+use Drupal\Core\Cache\RefinableCacheableDependencyTrait;
+
 /**
  * Value object to encode a condition to a query.
  *
@@ -32,7 +36,9 @@ namespace Drupal\entity\Query;
  *   )
  * @endcode
  */
-class Condition implements \Countable {
+class Condition implements \Countable, CacheableDependencyInterface {
+
+  use RefinableCacheableDependencyTrait;
 
   /**
    * Array of conditions.
@@ -106,6 +112,45 @@ class Condition implements \Countable {
    */
   public function count() {
     return count($this->conditions);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheTags() {
+    $tags = $this->cacheTags;
+    foreach ($this->conditions as $condition) {
+      if ($condition['field'] instanceof Condition) {
+        $tags = array_merge($tags, $condition['field']->getCacheTags());
+      }
+    }
+    return Cache::mergeTags($tags, []);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheContexts() {
+    $cache_contexts = $this->cacheContexts;
+    foreach ($this->conditions as $condition) {
+      if ($condition['field'] instanceof Condition) {
+        $cache_contexts = array_merge($cache_contexts, $condition['field']->getCacheContexts());
+      }
+    }
+    return Cache::mergeContexts($cache_contexts);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheMaxAge() {
+    $max_age = $this->cacheMaxAge;
+    foreach ($this->conditions as $condition) {
+      if ($condition['field'] instanceof Condition) {
+        $max_age = Cache::mergeMaxAges($max_age, $condition['field']->getCacheMaxAge());
+      }
+    }
+    return $max_age;
   }
 
 }

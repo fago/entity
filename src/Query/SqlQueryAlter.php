@@ -2,6 +2,7 @@
 
 namespace Drupal\entity\Query;
 
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Database\Query\Select;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -68,7 +69,10 @@ class SqlQueryAlter {
 
         $query->condition($sql_condition);
       }
+
+      $this->applyCacheability(CacheableMetadata::createFromObject($condition));
     }
+
   }
 
   /**
@@ -125,7 +129,23 @@ class SqlQueryAlter {
         $sql_condition->condition("{$table_alias}.{$field_column_name}", $cond['value'], $cond['operator']);
       }
     }
+
     return $sql_condition;
+  }
+
+  /**
+   * Applies the cacheablity metadata to the current request.
+   *
+   * @param \Drupal\Core\Cache\CacheableMetadata $cacheableMetadata
+   */
+  protected function applyCacheability(CacheableMetadata $cacheableMetadata) {
+    $request = \Drupal::requestStack()->getCurrentRequest();
+    $renderer = \Drupal::service('renderer');
+    if ($request->isMethodCacheable() && $renderer->hasRenderContext()) {
+      $build = [];
+      $cacheableMetadata->applyTo($build);
+      $renderer->render($build);
+    }
   }
 
 }

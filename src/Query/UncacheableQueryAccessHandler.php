@@ -64,11 +64,12 @@ class UncacheableQueryAccessHandler implements EntityHandlerInterface, QueryAcce
     // No conditions are needed when the user can access all entities anyway.
     $entity_type_id = $this->entityType->id();
 
+    $condition->addCacheContexts(['user.permissions']);
     if ($account->hasPermission("administer {$entity_type_id}")) {
       return;
     }
 
-     if ($account->hasPermission("$operation any {$entity_type_id}")) {
+    if ($account->hasPermission("$operation any {$entity_type_id}")) {
       return;
     }
 
@@ -82,6 +83,7 @@ class UncacheableQueryAccessHandler implements EntityHandlerInterface, QueryAcce
       // View own $entity_type permission.
       if ($account->hasPermission("$operation own ${entity_type_id}")) {
         $has_conditions = TRUE;
+        $condition->addCacheContexts(['user']);
         $condition->condition($uid_key, $account->id());
       }
 
@@ -91,12 +93,15 @@ class UncacheableQueryAccessHandler implements EntityHandlerInterface, QueryAcce
       });
       if ($bundles_with_view_any_permission) {
         $has_conditions = TRUE;
+        $condition->addCacheContexts(['user.permissions']);
         $condition->condition($bundle_key, $bundles_with_view_any_permission);
       }
 
       // View own $bundle permission
       foreach (array_keys($bundle_info) as $bundle) {
         if ($account->hasPermission("$operation own $bundle $entity_type_id")) {
+          $condition->addCacheContexts(['user.permissions']);
+          $condition->addCacheContexts(['user']);
           $inner_condition = (new Condition('AND'))
             ->condition($bundle_key, $bundle)
             ->condition($uid_key, $account->id());
@@ -113,6 +118,7 @@ class UncacheableQueryAccessHandler implements EntityHandlerInterface, QueryAcce
         });
       if ($bundles_with_view_any_permission) {
         $has_conditions = TRUE;
+        $condition->addCacheContexts(['user.permissions']);
         $condition->condition($bundle_key, $bundles_with_view_any_permission);
       }
     }
