@@ -8,7 +8,7 @@ namespace Drupal\entity\Query;
  * Query access handlers can use them to filter entities based upon certain access rules.
  *
  * Some examples following:
- * 
+ *
  * Filter by the bundle property.
  * @code
  *   $condition->condition('bundle', ['article', 'page'])
@@ -22,7 +22,7 @@ namespace Drupal\entity\Query;
  *       ->condition('uid', $user->id())
  *   )
  * @endcode
- * 
+ *
  * Filter by bundle property OR uid.
  * @code
  *   $condition->condition(
@@ -93,6 +93,8 @@ class Condition implements \Countable {
   }
 
   /**
+   * Returns the conjunction, either OR or AND.
+   *
    * @return string
    */
   public function getConjunction() {

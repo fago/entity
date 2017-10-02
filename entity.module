@@ -93,7 +93,7 @@ function entity_module_preuninstall($module) {
 /**
  * Implements hook_query_TAG_alter().
  *
- * Enables to take into account query_access handlers for entity queries.
+ * Takes into account query_access handlers for entity queries.
  */
 function entity_query_entity_query_alter(Select $query) {
   $entity_type_id = $query->getMetaData('entity_type');
@@ -109,6 +109,8 @@ function entity_query_entity_query_alter(Select $query) {
 
 /**
  * Implements hook_query_TAG_alter().
+ *
+ * Takes into account query_access handlers for views queries.
  */
 function entity_query_views_alter(Select $select) {
   $tables_info = $select->getTables();

@@ -3,6 +3,7 @@
 namespace Drupal\entity\Query;
 
 use Drupal\Core\Entity\EntityHandlerInterface;
+use Drupal\Core\Entity\EntityPublishedInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -10,10 +11,10 @@ use Drupal\user\EntityOwnerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * Query access handler which mimics \Drupal\entity\EntityPermissionProvider.
+ *
  * @see \Drupal\entity\EntityAccessControlHandler
  * @see \Drupal\entity\EntityPermissionProvider
- *
- * @todo Take into account \Drupal\Core\Entity\EntityPublishedInterface
  */
 class QueryAccessHandler implements EntityHandlerInterface, QueryAccessHandlerInterface {
 
@@ -68,52 +69,28 @@ class QueryAccessHandler implements EntityHandlerInterface, QueryAccessHandlerIn
       return;
     }
 
-     if ($account->hasPermission("$operation any {$entity_type_id}")) {
-      return;
-    }
-
-    $bundle_info = $this->bundleInfo->getBundleInfo($entity_type_id);
-    $bundle_key = $this->entityType->getKey('bundle');
     $has_conditions = FALSE;
-    if ($this->entityType->entityClassImplements(EntityOwnerInterface::class)) {
-      $uid_key = $this->entityType->getKey('uid');
 
+    if ($this->entityType->entityClassImplements(EntityPublishedInterface::class) && $this->entityType->entityClassImplements(EntityOwnerInterface::class)) {
 
-      // View own $entity_type permission.
-      if ($account->hasPermission("$operation own ${entity_type_id}")) {
+      if ($account->hasPermission("$operation {$entity_type_id}")) {
         $has_conditions = TRUE;
-        $condition->condition($uid_key, $account->id());
-      }
+        $condition->condition($this->entityType->getKey('published'), 1);
 
-      // View any $bundle permission
-      $bundles_with_view_any_permission = array_filter(array_keys($bundle_info), function ($bundle) use ($account, $operation, $entity_type_id) {
-        return $account->hasPermission("$operation any $bundle $entity_type_id");
-      });
-      if ($bundles_with_view_any_permission) {
-        $has_conditions = TRUE;
-        $condition->condition($bundle_key, $bundles_with_view_any_permission);
-      }
-
-      // View own $bundle permission
-      foreach (array_keys($bundle_info) as $bundle) {
-        if ($account->hasPermission("$operation own $bundle $entity_type_id")) {
-          $inner_condition = (new Condition('AND'))
-            ->condition($bundle_key, $bundle)
-            ->condition($uid_key, $account->id());
-          $condition->condition($inner_condition);
-          $has_conditions = TRUE;
+        if ($account->hasPermission("$operation own unpublished {$entity_type_id}")) {
+          $condition->condition($this->entityType->getKey('uid'), $account->id());
         }
       }
     }
-    else {
-      // View any $bundle permission
-      $bundles_with_view_any_permission = array_filter(array_keys($bundle_info),
-        function ($bundle) use ($account, $operation, $entity_type_id) {
-          return $account->hasPermission("$operation any $bundle $entity_type_id");
-        });
-      if ($bundles_with_view_any_permission) {
+    elseif ($this->entityType->entityClassImplements(EntityPublishedInterface::class)) {
+      if ($account->hasPermission("$operation {$entity_type_id}")) {
         $has_conditions = TRUE;
-        $condition->condition($bundle_key, $bundles_with_view_any_permission);
+        $condition->condition($this->entityType->getKey('published'), 1);
+      }
+    }
+    else {
+      if ($account->hasPermission("$operation {$entity_type_id}")) {
+        $has_conditions = TRUE;
       }
     }
 

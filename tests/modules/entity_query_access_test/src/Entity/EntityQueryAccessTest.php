@@ -2,6 +2,9 @@
 
 namespace Drupal\entity_query_access_test\Entity;
 
+use Drupal\Core\Entity\EntityPublishedInterface;
+use Drupal\Core\Entity\EntityPublishedTrait;
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\entity_test\Entity\EntityTest;
 
 /**
@@ -28,9 +31,19 @@ use Drupal\entity_test\Entity\EntityTest;
  *     "bundle" = "type",
  *     "langcode" = "langcode",
  *     "uid" = "user_id",
+ *     "published" = "status",
  *   }
  * )
  */
-class EntityQueryAccessTest extends EntityTest {
+class EntityQueryAccessTest extends EntityTest implements EntityPublishedInterface {
+
+  use EntityPublishedTrait;
+
+  public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
+    $fields = parent::baseFieldDefinitions($entity_type);
+
+    return $fields + static::publishedBaseFieldDefinitions($entity_type);
+  }
+
 
 }
