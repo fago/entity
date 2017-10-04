@@ -64,6 +64,8 @@ class SqlQueryAlter {
       $condition = $query_access->conditions('view', $this->currentUser);
 
       if (count($condition)) {
+        // @Todo In case the query has an OR condition right now, this check
+        //   would basically fail.
         $sql_condition = $query->conditionGroupFactory($condition->getConjunction());
         $sql_condition = $this->applyCondition($entity_type, $table_mapping, $query, $sql_condition, $condition);
 
