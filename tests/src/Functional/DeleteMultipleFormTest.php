@@ -60,7 +60,7 @@ class DeleteMultipleFormTest extends BrowserTestBase {
       $selection[$entity->id()][$langcode] = $langcode;
     }
     // Add the selection to the tempstore just like DeleteAction would.
-    $tempstore = \Drupal::service('user.private_tempstore')->get('entity_delete_multiple_confirm');
+    $tempstore = \Drupal::service('tempstore.private')->get('entity_delete_multiple_confirm');
     $tempstore->set($this->account->id(), $selection);
 
     $this->drupalGet('/entity_test_enhanced/delete');
