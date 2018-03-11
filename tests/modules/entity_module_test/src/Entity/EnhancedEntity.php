@@ -11,7 +11,14 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *
  * @ContentEntityType(
  *   id = "entity_test_enhanced",
- *   label = @Translation("Entity test with enhancements"),
+ *   label = @Translation("Enhanced entity"),
+ *   label_collection = @Translation("Enhanced entities"),
+ *   label_singular = @Translation("enhanced entity"),
+ *   label_plural = @Translation("enhanced entities"),
+ *   label_count = @PluralTranslation(
+ *     singular = "@count enhanced entity",
+ *     plural = "@count enhanced entities",
+ *   ),
  *   handlers = {
  *     "storage" = "\Drupal\Core\Entity\Sql\SqlContentEntityStorage",
  *     "access" = "\Drupal\Core\Entity\EntityAccessControlHandler",

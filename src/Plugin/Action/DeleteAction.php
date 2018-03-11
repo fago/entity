@@ -71,13 +71,13 @@ class DeleteAction extends ActionBase implements ContainerFactoryPluginInterface
    * {@inheritdoc}
    */
   public function executeMultiple(array $entities) {
-    /** @var \Drupal\Core\Entity\ContentEntityInterface[] $entities */
+    /** @var \Drupal\Core\Entity\EntityInterface[] $entities */
     $selection = [];
     foreach ($entities as $entity) {
       $langcode = $entity->language()->getId();
       $selection[$entity->id()][$langcode] = $langcode;
     }
-    $this->tempStore->set($this->currentUser->id(), $selection);
+    $this->tempStore->set($this->currentUser->id() . ':' . $this->getPluginDefinition()['type'], $selection);
   }
 
   /**
