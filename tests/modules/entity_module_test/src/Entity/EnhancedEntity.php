@@ -24,8 +24,8 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *     "access" = "\Drupal\Core\Entity\EntityAccessControlHandler",
  *     "permission_provider" = "\Drupal\entity\EntityPermissionProvider",
  *     "form" = {
- *       "add" = "\Drupal\entity\Form\RevisionableContentEntityForm",
- *       "edit" = "\Drupal\entity\Form\RevisionableContentEntityForm",
+ *       "add" = "\Drupal\Core\Entity\ContentEntityForm",
+ *       "edit" = "\Drupal\Core\Entity\ContentEntityForm",
  *       "delete" = "\Drupal\Core\Entity\EntityDeleteForm",
  *     },
  *     "route_provider" = {
