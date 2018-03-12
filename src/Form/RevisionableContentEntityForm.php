@@ -3,8 +3,8 @@
 namespace Drupal\entity\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;
+use Drupal\Core\Entity\RevisionableEntityBundleInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\entity\Entity\RevisionableEntityBundleInterface;
 
 /**
  * Extends the base entity form with revision support in the UI.
