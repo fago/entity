@@ -33,6 +33,9 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *       "revision" = "\Drupal\entity\Routing\RevisionRouteProvider",
  *       "delete-multiple" = "\Drupal\entity\Routing\DeleteMultipleRouteProvider",
  *     },
+ *     "local_action_provider" = {
+ *       "collection" = "\Drupal\entity\Menu\EntityCollectionLocalActionProvider",
+ *     },
  *     "list_builder" = "\Drupal\Core\Entity\EntityListBuilder",
  *   },
  *   base_table = "entity_test_enhanced",
