@@ -1,0 +1,12 @@
+<?php
+
+/**
+ * Implements hook_entity_bundle_info().
+ */
+function entity_query_access_test_entity_bundle_info() {
+  $bundles['entity_query_access_test']['first']['label'] = t('First');
+  $bundles['entity_query_access_test']['second']['label'] = t('Second');
+  $bundles['entity_uncacheable_query_access']['first']['label'] = t('First');
+  $bundles['entity_uncacheable_query_access']['second']['label'] = t('Second');
+  return $bundles;
+}
