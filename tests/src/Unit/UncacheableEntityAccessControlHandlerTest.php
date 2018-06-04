@@ -122,7 +122,7 @@ class UncacheableEntityAccessControlHandlerTest extends UnitTestCase {
     $second_entity = $this->buildMockEntity($entity_type->reveal(), 12, 'first');
     $third_entity = $this->buildMockEntity($entity_type->reveal(), 9999, 'second');
     $fourth_entity = $this->buildMockEntity($entity_type->reveal(), 10, 'second');
-    $fifth_entity = $this->buildMockEntity($entity_type->reveal(), 13, 'second', FALSE);
+    $fifth_entity = $this->buildMockEntity($entity_type->reveal(), 13, 'first', FALSE);
 
     // The first user can view the two entities of bundle "first".
     $data[] = [$first_entity->reveal(), 'view', $first_user->reveal(), TRUE];
