@@ -128,7 +128,7 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
         ];
       }
 
-      $result = AccessResult::allowedIfHasPermissions($account, $permissions, 'OR');
+      $result = AccessResult::allowedIfHasPermissions($account, $permissions, 'OR')->cachePerUser();
     }
 
     return $result;
