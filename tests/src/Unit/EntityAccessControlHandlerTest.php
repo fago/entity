@@ -175,29 +175,19 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $entity_type->getHandlerClass('permission_provider')->willReturn(EntityPermissionProvider::class);
 
     // User with the admin permission.
-    $account = $this->prophesize(AccountInterface::class);
-    $account->id()->willReturn(6);
-    $account->hasPermission('administer green_entity')->willReturn(TRUE);
+    $account = $this->buildMockUser('6', 'administer green_entity');
     $data[] = [$entity_type->reveal(), NULL, $account->reveal(), TRUE];
 
     // Ordinary user.
-    $account = $this->prophesize(AccountInterface::class);
-    $account->id()->willReturn(6);
-    $account->hasPermission('create green_entity')->willReturn(TRUE);
-    $account->hasPermission(Argument::any())->willReturn(FALSE);
+    $account = $this->buildMockUser('6', 'create green_entity');
     $data[] = [$entity_type->reveal(), NULL, $account->reveal(), TRUE];
 
     // Ordinary user, entity with a bundle.
-    $account = $this->prophesize(AccountInterface::class);
-    $account->id()->willReturn(6);
-    $account->hasPermission('create first_bundle green_entity')->willReturn(TRUE);
-    $account->hasPermission(Argument::any())->willReturn(FALSE);
+    $account = $this->buildMockUser('6', 'create first_bundle green_entity');
     $data[] = [$entity_type->reveal(), 'first_bundle', $account->reveal(), TRUE];
 
     // User with no permissions.
-    $account = $this->prophesize(AccountInterface::class);
-    $account->id()->willReturn(6);
-    $account->hasPermission(Argument::any())->willReturn(FALSE);
+    $account = $this->buildMockUser('6', 'access content');
     $data[] = [$entity_type->reveal(), NULL, $account->reveal(), FALSE];
 
     return $data;
@@ -210,6 +200,10 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
    *   The entity type.
    * @param string $owner_id
    *   The owner ID.
+   * @param string $bundle
+   *   The bundle.
+   * @param bool $published
+   *   Whether the entity is published.
    *
    * @return \Prophecy\Prophecy\ObjectProphecy
    *   The entity mock.
@@ -242,15 +236,26 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $entity->getCacheTags()->willReturn([]);
     $entity->getCacheMaxAge()->willReturn(Cache::PERMANENT);
 
-
     return $entity;
   }
 
+  /**
+   * Builds a mock user.
+   *
+   * @param int $uid
+   *   The user ID.
+   * @param string $permission
+   *   The permission to grant.
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   *   The user mock.
+   */
   protected function buildMockUser($uid, $permission) {
     $account = $this->prophesize(AccountInterface::class);
     $account->id()->willReturn($uid);
     $account->hasPermission($permission)->willReturn(TRUE);
     $account->hasPermission(Argument::any())->willReturn(FALSE);
+
     return $account;
   }
 
