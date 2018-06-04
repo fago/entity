@@ -56,9 +56,11 @@ class EntityPermissionProviderBase implements EntityPermissionProviderInterface,
       'title' => $this->t('Administer @type', ['@type' => $plural_label]),
       'restrict access' => TRUE,
     ];
-    $permissions["access {$entity_type_id} overview"] = [
-      'title' => $this->t('Access the @type overview page', ['@type' => $plural_label]),
-    ];
+    if ($entity_type->hasLinkTemplate('collection')) {
+      $permissions["access {$entity_type_id} overview"] = [
+        'title' => $this->t('Access the @type overview page', ['@type' => $plural_label]),
+      ];
+    }
     if ($has_owner && $entity_type->entityClassImplements(EntityPublishedInterface::class)) {
       $permissions["view own unpublished {$entity_type_id}"] = [
         'title' => $this->t('View own unpublished @type', [

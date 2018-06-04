@@ -21,7 +21,7 @@ use Drupal\user\EntityOwnerInterface;
 use Prophecy\Argument;
 
 /**
- * @coversDefaultClass \Drupal\entity\UncacheableEntityAccessControlHandlerTest
+ * @coversDefaultClass \Drupal\entity\UncacheableEntityAccessControlHandler
  * @group entity
  */
 class UncacheableEntityAccessControlHandlerTest extends UnitTestCase {
