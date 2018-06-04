@@ -64,17 +64,11 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
    *   The access result.
    */
   protected function checkEntityPermissions(EntityInterface $entity, $operation, AccountInterface $account) {
-    if ($operation === 'view') {
-      $permissions = [
-        "view {$entity->getEntityTypeId()}",
-      ];
-    }
-    else {
-      $permissions = [
-        "$operation {$entity->getEntityTypeId()}",
-        "$operation {$entity->bundle()} {$entity->getEntityTypeId()}",
-      ];
-    }
+    $permissions = [
+      "$operation {$entity->getEntityTypeId()}",
+      "$operation {$entity->bundle()} {$entity->getEntityTypeId()}",
+    ];
+
     return AccessResult::allowedIfHasPermissions($account, $permissions, 'OR');
   }
 
@@ -109,7 +103,8 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
       else {
         $result = AccessResult::allowedIfHasPermissions($account, [
           "view {$entity->getEntityTypeId()}",
-        ]);
+          "view {$entity->bundle()} {$entity->getEntityTypeId()}",
+        ], 'OR');
       }
     }
     else {

@@ -125,6 +125,8 @@ class EntityPermissionProviderTest extends UnitTestCase {
       'update second white_entity' => 'Second: Update white entities',
       'delete second white_entity' => 'Second: Delete white entities',
       'view white_entity' => 'View white entities',
+      'view first white_entity' => 'First: View white entities',
+      'view second white_entity' => 'Second: View white entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 
@@ -146,6 +148,7 @@ class EntityPermissionProviderTest extends UnitTestCase {
       'delete any third black_entity' => 'Third: Delete any black entity',
       'delete own third black_entity' => 'Third: Delete own black entities',
       'view black_entity' => 'View black entities',
+      'view third black_entity' => 'Third: View black entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 
@@ -168,6 +171,7 @@ class EntityPermissionProviderTest extends UnitTestCase {
       'delete any third pink_entity' => 'Third: Delete any pink entity',
       'delete own third pink_entity' => 'Third: Delete own pink entities',
       'view pink_entity' => 'View pink entities',
+      'view third pink_entity' => 'Third: View pink entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 

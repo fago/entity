@@ -12,7 +12,7 @@ use Drupal\user\EntityOwnerInterface;
  *
  * - administer $entity_type
  * - access $entity_type overview
- * - view an ($bundle) $entity_type
+ * - view any ($bundle) $entity_type
  * - view own ($bundle) $entity_type
  * - view own unpublished $entity_type
  * - update (own|any) ($bundle) $entity_type
