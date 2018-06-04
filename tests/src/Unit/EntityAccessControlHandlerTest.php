@@ -91,7 +91,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $data[] = [$entity->reveal(), 'update', $admin_user->reveal(), TRUE];
     $data[] = [$entity->reveal(), 'delete', $admin_user->reveal(), TRUE];
 
-    // Update, delete, view permissions, entity without an owner.
+    // View, Update, delete permissions, entity without an owner.
     $second_entity = $this->buildMockEntity($entity_type->reveal());
     foreach (['view', 'update', 'delete'] as $operation) {
       $first_user = $this->buildMockUser(6, $operation . ' green_entity');

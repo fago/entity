@@ -5,10 +5,12 @@ namespace Drupal\entity;
 use Drupal\Core\Entity\EntityTypeInterface;
 
 /**
- * Provides generic entity permissions which are still cacheable.
+ * Provides generic entity permissions.
  *
- * This includes:
+ * Intended for content entity types, since config entity types usually rely
+ * on a single "administer" permission.
  *
+ * Provided permissions:
  * - administer $entity_type
  * - access $entity_type overview
  * - view ($bundle) $entity_type
@@ -17,12 +19,11 @@ use Drupal\Core\Entity\EntityTypeInterface;
  * - delete (own|any) ($bundle) $entity_type
  * - create $bundle $entity_type
  *
- * This class does not support "view own ($bundle) $entity_type", because this
- * results in caching per user. If you need this use case, please use
- * \Drupal\entity\UncacheableEntityPermissionProvider instead.
+ * Does not provide "view own ($bundle) $entity_type" permissions, because
+ * they require caching pages per user. Please use
+ * \Drupal\entity\UncacheableEntityPermissionProvider if those permissions
+ * are necessary.
  *
- * Intended for content entity types, since config entity types usually rely
- * on a single "administer" permission.
  * Example annotation:
  * @code
  *  handlers = {

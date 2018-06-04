@@ -26,7 +26,7 @@ class UncacheableEntityAccessControlHandler extends CoreEntityAccessControlHandl
     parent::__construct($entity_type);
 
     if (!$entity_type->hasHandlerClass('permission_provider') || !is_a($entity_type->getHandlerClass('permission_provider'), UncacheableEntityPermissionProvider::class, TRUE)) {
-      throw new \Exception("This entity access control handler requires the entity permissions provider: {EntityPermissionProvider::class}");
+      throw new \Exception('\Drupal\entity\UncacheableEntityAccessControlHandler requires the \Drupal\entity\UncacheableEntityPermissionProvider permission provider.');
     }
   }
 

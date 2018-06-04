@@ -24,7 +24,7 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
     parent::__construct($entity_type);
 
     if (!$entity_type->hasHandlerClass('permission_provider') || !is_a($entity_type->getHandlerClass('permission_provider'), EntityPermissionProvider::class, TRUE)) {
-      throw new \Exception("This entity access control handler requires the entity permissions provider: {EntityPermissionProvider::class}");
+      throw new \Exception('\Drupal\entity\EntityAccessControlHandler requires the \Drupal\entity\EntityPermissionProvider permission provider.');
     }
   }
 
