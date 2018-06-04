@@ -55,5 +55,4 @@ class EntityPermissionProvider extends EntityPermissionProviderBase {
     return $this->processPermissions($permissions, $entity_type);
   }
 
-
 }

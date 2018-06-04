@@ -82,7 +82,7 @@ class EntityPermissionProviderBase implements EntityPermissionProviderInterface,
    * Adds the provider and converts the titles to strings to allow sorting.
    *
    * @param array $permissions
-   *   The array of permissions
+   *   The array of permissions.
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type.
    *

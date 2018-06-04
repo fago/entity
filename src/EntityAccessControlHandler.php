@@ -28,7 +28,6 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
     }
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -67,7 +66,7 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
   protected function checkEntityPermissions(EntityInterface $entity, $operation, AccountInterface $account) {
     if ($operation === 'view') {
       $permissions = [
-        "view {$entity->getEntityTypeId()}"
+        "view {$entity->getEntityTypeId()}",
       ];
     }
     else {
@@ -94,39 +93,45 @@ class EntityAccessControlHandler extends CoreEntityAccessControlHandler {
    *   The access result.
    */
   protected function checkEntityOwnerPermissions(EntityInterface $entity, $operation, AccountInterface $account) {
+    /** @var \Drupal\user\EntityOwnerInterface $entity */
     if ($operation === 'view') {
       if ($entity instanceof EntityPublishedInterface && !$entity->isPublished()) {
-        if (($account->id() == $entity->getOwnerId())) {
-          $permissions = [
-            "view own unpublished {$entity->getEntityTypeId()}",
-          ];
-          return AccessResult::allowedIfHasPermissions($account, $permissions)->cachePerUser();
+        if ($account->id() != $entity->getOwnerId()) {
+          // There's no permission for viewing other user's unpublished entity.
+          return AccessResult::neutral()->cachePerUser();
         }
-        return AccessResult::neutral()->cachePerUser();
+
+        $permissions = [
+          "view own unpublished {$entity->getEntityTypeId()}",
+        ];
+        $result = AccessResult::allowedIfHasPermissions($account, $permissions)->cachePerUser();
       }
       else {
-        return AccessResult::allowedIfHasPermissions($account, [
+        $result = AccessResult::allowedIfHasPermissions($account, [
           "view {$entity->getEntityTypeId()}",
         ]);
       }
     }
     else {
-     if (($account->id() == $entity->getOwnerId())) {
-        $result = AccessResult::allowedIfHasPermissions($account, [
+      if ($account->id() == $entity->getOwnerId()) {
+        $permissions = [
           "$operation own {$entity->getEntityTypeId()}",
           "$operation any {$entity->getEntityTypeId()}",
           "$operation own {$entity->bundle()} {$entity->getEntityTypeId()}",
           "$operation any {$entity->bundle()} {$entity->getEntityTypeId()}",
-        ], 'OR');
+        ];
       }
       else {
-        $result = AccessResult::allowedIfHasPermissions($account, [
+        $permissions = [
           "$operation any {$entity->getEntityTypeId()}",
           "$operation any {$entity->bundle()} {$entity->getEntityTypeId()}",
-        ], 'OR');
+        ];
       }
-      return $result;
+
+      $result = AccessResult::allowedIfHasPermissions($account, $permissions, 'OR');
     }
+
+    return $result;
   }
 
   /**

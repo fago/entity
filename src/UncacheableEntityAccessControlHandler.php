@@ -30,7 +30,6 @@ class UncacheableEntityAccessControlHandler extends CoreEntityAccessControlHandl
     }
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -89,7 +88,7 @@ class UncacheableEntityAccessControlHandler extends CoreEntityAccessControlHandl
    */
   protected function checkEntityOwnerPermissions(EntityInterface $entity, $operation, AccountInterface $account) {
     /** @var \Drupal\Core\Entity\EntityInterface|\Drupal\user\EntityOwnerInterface $entity */
-    if (($account->id() == $entity->getOwnerId())) {
+    if ($account->id() == $entity->getOwnerId()) {
       if ($operation === 'view' && $entity instanceof EntityPublishedInterface && !$entity->isPublished()) {
         $permissions = [
           "view own unpublished {$entity->getEntityTypeId()}",
