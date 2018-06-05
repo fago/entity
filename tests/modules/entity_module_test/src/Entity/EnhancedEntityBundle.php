@@ -15,6 +15,9 @@ use Drupal\Core\Entity\RevisionableEntityBundleInterface;
  *   admin_permission = "administer entity_test_enhanced",
  *   config_prefix = "entity_test_enhanced_bundle",
  *   bundle_of = "entity_test_enhanced",
+ *   handlers = {
+ *     "access" = "\Drupal\entity\BundleEntityAccessControlHandler",
+ *   },
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label"
