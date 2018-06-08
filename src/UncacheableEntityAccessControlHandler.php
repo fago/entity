@@ -3,12 +3,10 @@
 namespace Drupal\entity;
 
 use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Entity\EntityAccessControlHandler as CoreEntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityPublishedInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\user\EntityOwnerInterface;
 
 /**
  * Controls access based on the uncacheable entity permissions.

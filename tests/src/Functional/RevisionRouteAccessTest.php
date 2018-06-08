@@ -23,7 +23,7 @@ class RevisionRouteAccessTest extends BrowserTestBase {
   /**
    * The current user.
    *
-   * @var \Drupal\Core\Session\AccountInterface;
+   * @var \Drupal\Core\Session\AccountInterface
    */
   protected $account;
 

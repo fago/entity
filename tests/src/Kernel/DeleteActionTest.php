@@ -11,6 +11,7 @@ use Drupal\KernelTests\KernelTestBase;
 
 /**
  * Tests the delete entity action.
+ *
  * @group entity
  */
 class DeleteActionTest extends KernelTestBase {
@@ -25,8 +26,9 @@ class DeleteActionTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['action', 'node', 'entity_module_test', 'entity',
-                            'user', 'system'];
+  public static $modules = [
+    'action', 'node', 'entity_module_test', 'entity', 'user', 'system',
+  ];
 
   /**
    * {@inheritdoc}
