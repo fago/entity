@@ -1,5 +1,8 @@
 <?php
 
+use Drupal\Core\Database\Query\Select;
+use Drupal\entity\Query\SqlQueryAlter;
+
 /**
  * @file
  * Provides expanded entity APIs.
@@ -85,4 +88,52 @@ function entity_module_preuninstall($module) {
   foreach (entity_get_bundle_plugin_entity_types() as $entity_type) {
     \Drupal::service('entity.bundle_plugin_installer')->uninstallBundles($entity_type, [$module]);
   }
+}
+
+/**
+ * Implements hook_query_TAG_alter().
+ *
+ * Takes into account query_access handlers for entity queries.
+ */
+function entity_query_entity_query_alter(Select $query) {
+  $entity_type_id = $query->getMetaData('entity_type');
+  if (!$query->hasTag($entity_type_id . '_access')) {
+    return;
+  }
+
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $entity_type = $entity_type_manager->getDefinition($entity_type_id);
+
+  SqlQueryAlter::create(\Drupal::getContainer())->queryAlter($query, $entity_type);
+}
+
+/**
+ * Implements hook_query_TAG_alter().
+ *
+ * Takes into account query_access handlers for views queries.
+ */
+function entity_query_views_alter(Select $select) {
+  $tables_info = $select->getTables();
+  $table_info = reset($tables_info);
+  if ($entity_type = _entity_get_entity_type_id_from_table($table_info['table'])) {
+    SqlQueryAlter::create(\Drupal::getContainer())->queryAlter($select, $entity_type);
+  }
+}
+
+/**
+ * Determine the entity type of a query based upon the table name.
+ *
+ * @param string $table_name
+ *   The table name.
+ *
+ * @return \Drupal\Core\Entity\EntityTypeInterface|null
+ *   The entity type or NULL, if we couldn't find it.
+ */
+function _entity_get_entity_type_id_from_table($table_name) {
+  foreach (\Drupal::entityTypeManager()->getDefinitions() as $entity_type) {
+    if ($entity_type->getBaseTable() === $table_name || $entity_type->getDataTable() === $table_name || $entity_type->getRevisionTable() === $table_name || $entity_type->getRevisionDataTable() === $table_name) {
+      return $entity_type;
+    }
+  }
+  return NULL;
 }
