@@ -15,24 +15,46 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SqlQueryAlter {
 
-  /** @var  \Drupal\Core\Entity\EntityFieldManagerInterface */
+  /**
+   * The entity field manager.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
   protected $entityFieldManager;
 
-  /** @var \Drupal\Core\Session\AccountInterface */
-  protected $currentUser;
-
-  /** @var \Drupal\Core\Entity\EntityTypeManagerInterface */
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
   protected $entityTypeManager;
 
   /**
-   * SqlQueryAlter constructor.
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
    */
-  public function __construct(EntityFieldManagerInterface $entityFieldManager, EntityTypeManagerInterface $entityTypeManager, AccountInterface $currentUser) {
-    $this->entityFieldManager = $entityFieldManager;
-    $this->currentUser = $currentUser;
-    $this->entityTypeManager = $entityTypeManager;
+  protected $currentUser;
+
+  /**
+   * Constructs a new SqlQueryAlter object.
+   *
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\Core\Session\AccountInterface $current_user
+   *   The current user.
+   */
+  public function __construct(EntityFieldManagerInterface $entity_field_manager, EntityTypeManagerInterface $entity_type_manager, AccountInterface $current_user) {
+    $this->entityFieldManager = $entity_field_manager;
+    $this->entityTypeManager = $entity_type_manager;
+    $this->currentUser = $current_user;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_field.manager'), $container->get('entity_type.manager'), $container->get('current_user')
@@ -51,7 +73,6 @@ class SqlQueryAlter {
    */
   public function queryAlter(Select $query, EntityTypeInterface $entity_type) {
     $entity_type_id = $entity_type->id();
-
     $storage = $this->entityTypeManager->getStorage($entity_type_id);
     if (!$storage instanceof SqlContentEntityStorage) {
       return;
@@ -61,14 +82,11 @@ class SqlQueryAlter {
     if ($entity_type->hasHandlerClass('query_access')) {
       /** @var \Drupal\entity\Query\QueryAccessHandlerInterface $query_access */
       $query_access = $this->entityTypeManager->getHandler($entity_type_id, 'query_access');
-      $condition = $query_access->conditions('view', $this->currentUser);
+      $condition = $query_access->buildConditions('view', $this->currentUser);
 
       if (count($condition)) {
-        // @Todo In case the query has an OR condition right now, this check
-        //   would basically fail.
         $sql_condition = $query->conditionGroupFactory($condition->getConjunction());
         $sql_condition = $this->applyCondition($entity_type, $table_mapping, $query, $sql_condition, $condition);
-
         $query->condition($sql_condition);
       }
 
@@ -96,21 +114,22 @@ class SqlQueryAlter {
   }
 
   /**
-   * Apply the entity conditions recursively to the sql condition.
+   * Apply the entity conditions recursively to the SQL condition.
    *
    * @return \Drupal\Core\Database\Query\Condition
+   *   The modified SQL condition.
    */
-  protected function applyCondition(EntityTypeInterface $entity_type, DefaultTableMapping $table_mapping, Select $select, SqlCondition $sql_condition, Condition $condition) {
+  protected function applyCondition(EntityTypeInterface $entity_type, DefaultTableMapping $table_mapping, Select $select, SqlCondition $sql_condition, ConditionGroup $condition) {
     $entity_type_id = $entity_type->id();
     $field_storage_definitions = $this->entityFieldManager->getFieldStorageDefinitions($entity_type_id);
 
-    foreach ($condition->conditions() as $cond) {
+    foreach ($condition->getConditions() as $cond) {
       // Support nested conditions.
-      if ($cond['field'] instanceof Condition) {
-        $sql_condition->condition($this->applyCondition($entity_type, $table_mapping, $select, $sql_condition->conditionGroupFactory($cond['field']->getConjunction()), $cond['field']));
+      if ($cond instanceof ConditionGroup) {
+        $sql_condition->condition($this->applyCondition($entity_type, $table_mapping, $select, $sql_condition->conditionGroupFactory($cond->getConjunction()), $cond));
       }
       else {
-        $field_storage_definition = $field_storage_definitions[$cond['field']];
+        $field_storage_definition = $field_storage_definitions[$cond->getField()];
 
         // Determine the real table and column before applying the condition.
         if ($field_storage_definition->isBaseField()) {
@@ -124,11 +143,10 @@ class SqlQueryAlter {
 
         // @todo we need support for non main properties?
         // @todo we need support for revision queries?
-        // @todo What do we do with the langcode value?
 
         $field_column_name = $table_mapping->getFieldColumnName($field_storage_definition, $field_storage_definition->getMainPropertyName());
 
-        $sql_condition->condition("{$table_alias}.{$field_column_name}", $cond['value'], $cond['operator']);
+        $sql_condition->condition("{$table_alias}.{$field_column_name}", $cond->getValue(), $cond->getOperator());
       }
     }
 
@@ -138,14 +156,15 @@ class SqlQueryAlter {
   /**
    * Applies the cacheablity metadata to the current request.
    *
-   * @param \Drupal\Core\Cache\CacheableMetadata $cacheableMetadata
+   * @param \Drupal\Core\Cache\CacheableMetadata $cacheable_metadata
+   *   The cacheability metadata.
    */
-  protected function applyCacheability(CacheableMetadata $cacheableMetadata) {
+  protected function applyCacheability(CacheableMetadata $cacheable_metadata) {
     $request = \Drupal::requestStack()->getCurrentRequest();
     $renderer = \Drupal::service('renderer');
     if ($request->isMethodCacheable() && $renderer->hasRenderContext()) {
       $build = [];
-      $cacheableMetadata->applyTo($build);
+      $cacheable_metadata->applyTo($build);
       $renderer->render($build);
     }
   }

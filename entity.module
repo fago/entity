@@ -93,24 +93,21 @@ function entity_module_preuninstall($module) {
 /**
  * Implements hook_query_TAG_alter().
  *
- * Takes into account query_access handlers for entity queries.
+ * Performs access filtering for entity queries.
  */
 function entity_query_entity_query_alter(Select $query) {
   $entity_type_id = $query->getMetaData('entity_type');
-  if (!$query->hasTag($entity_type_id . '_access')) {
-    return;
+  if ($query->hasTag($entity_type_id . '_access')) {
+    $entity_type_manager = \Drupal::entityTypeManager();
+    $entity_type = $entity_type_manager->getDefinition($entity_type_id);
+    SqlQueryAlter::create(\Drupal::getContainer())->queryAlter($query, $entity_type);
   }
-
-  $entity_type_manager = \Drupal::entityTypeManager();
-  $entity_type = $entity_type_manager->getDefinition($entity_type_id);
-
-  SqlQueryAlter::create(\Drupal::getContainer())->queryAlter($query, $entity_type);
 }
 
 /**
  * Implements hook_query_TAG_alter().
  *
- * Takes into account query_access handlers for views queries.
+ * Performs access filtering for views queries.
  */
 function entity_query_views_alter(Select $select) {
   $tables_info = $select->getTables();
@@ -127,11 +124,17 @@ function entity_query_views_alter(Select $select) {
  *   The table name.
  *
  * @return \Drupal\Core\Entity\EntityTypeInterface|null
- *   The entity type or NULL, if we couldn't find it.
+ *   The entity type, or NULL if unknown.
  */
 function _entity_get_entity_type_id_from_table($table_name) {
   foreach (\Drupal::entityTypeManager()->getDefinitions() as $entity_type) {
-    if ($entity_type->getBaseTable() === $table_name || $entity_type->getDataTable() === $table_name || $entity_type->getRevisionTable() === $table_name || $entity_type->getRevisionDataTable() === $table_name) {
+    $tables = [
+      $entity_type->getBaseTable(),
+      $entity_type->getDataTable(),
+      $entity_type->getRevisionTable(),
+      $entity_type->getRevisionDataTable(),
+    ];
+    if (in_array($table_name, $tables)) {
       return $entity_type;
     }
   }

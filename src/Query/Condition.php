@@ -2,155 +2,112 @@
 
 namespace Drupal\entity\Query;
 
-use Drupal\Core\Cache\Cache;
-use Drupal\Core\Cache\CacheableDependencyInterface;
-use Drupal\Core\Cache\RefinableCacheableDependencyTrait;
-
 /**
- * Value object to encode a condition to a query.
- *
- * Query access handlers can use them to filter entities based upon certain access rules.
- *
- * Some examples following:
- *
- * Filter by the bundle property.
- * @code
- *   $condition->condition('bundle', ['article', 'page'])
- * @endcode
- *
- * Filter by bundle property AND uid.
- * @code
- *   $condition->condition(
- *     (new Condition('AND))
- *       ->conditon('bundle', 'article')
- *       ->condition('uid', $user->id())
- *   )
- * @endcode
- *
- * Filter by bundle property OR uid.
- * @code
- *   $condition->condition(
- *     (new Condition('OR))
- *       ->conditon('bundle', 'article')
- *       ->condition('uid', $user->id())
- *   )
- * @endcode
+ * Represents a single access condition.
  */
-class Condition implements \Countable, CacheableDependencyInterface {
-
-  use RefinableCacheableDependencyTrait;
+final class Condition {
 
   /**
-   * Array of conditions.
+   * The supported operators.
    *
    * @var array
    */
-  protected $conditions = [];
+  protected static $supportedOperators = [
+    '=', '<>', '<', '<=', '>', '>=', 'BETWEEN', 'NOT BETWEEN',
+    'IN', 'NOT IN', 'IS NULL', 'IS NOT NULL',
+  ];
 
   /**
-   * The conjunction of this condition group. The value is one of the following:
-   *
-   * - AND (default)
-   * - OR
+   * The field.
    *
    * @var string
    */
-  protected $conjunction;
+  protected $field;
 
   /**
-   * Condition constructor.
+   * The value.
    *
-   * @param string $conjunction
+   * @var mixed
    */
-  public function __construct($conjunction = 'AND') {
-    $this->conjunction = $conjunction;
-  }
+  protected $value;
 
   /**
-   * Adds a condition.
+   * The operator.
    *
-   * @param string|\Drupal\Core\Entity\Query\ConditionInterface $field
-   *   The condition. Either the field name (base field or configurable field)
-   *   or a nested condition object.
+   * @var string
+   */
+  protected $operator;
+
+  /**
+   * Constructs a new Condition object.
+   *
+   * @param string $field
+   *   The field, with an optional column name. E.g: 'uid', 'address.locality'.
    * @param mixed $value
+   *   The value.
    * @param string $operator
-   * @param string $langcode
-   *
-   * @return static
+   *   The operator.
+   *   Possible values: =, <>, <, <=, >, >=, BETWEEN, NOT BETWEEN,
+   *                   IN, NOT IN, IS NULL, IS NOT NULL.
    */
-  public function condition($field, $value = NULL, $operator = NULL, $langcode = NULL) {
-    $this->conditions[] = [
-      'field' => $field,
-      'value' => $value,
-      'operator' => $operator,
-      'langcode' => $langcode,
-    ];
+  public function __construct($field, $value, $operator = NULL) {
+    // Provide a default based on the data type of the value.
+    if (!isset($operator)) {
+      $operator = is_array($value) ? 'IN' : '=';
+    }
+    // Validate the selected operator.
+    if (!in_array($operator, self::$supportedOperators)) {
+      throw new \InvalidArgumentException(sprintf('Unrecognized operator "%s".', $operator));
+    }
 
-    return $this;
+    $this->field = $field;
+    $this->value = $value;
+    $this->operator = $operator;
   }
 
   /**
-   * Returns all conditions which got provided.
-   *
-   * @return array[]
+   * {@inheritdoc}
    */
-  public function conditions() {
-    return $this->conditions;
+  public function getField() {
+    return $this->field;
   }
 
   /**
-   * Returns the conjunction, either OR or AND.
+   * {@inheritdoc}
+   */
+  public function getValue() {
+    return $this->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOperator() {
+    return $this->operator;
+  }
+
+  /**
+   * Gets the string representation of the condition.
+   *
+   * Used for debugging purposes.
    *
    * @return string
+   *   The string representation of the condition.
    */
-  public function getConjunction() {
-    return $this->conjunction;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function count() {
-    return count($this->conditions);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCacheTags() {
-    $tags = $this->cacheTags;
-    foreach ($this->conditions as $condition) {
-      if ($condition['field'] instanceof Condition) {
-        $tags = array_merge($tags, $condition['field']->getCacheTags());
-      }
+  public function __toString() {
+    if (in_array($this->operator, ['IS NULL', 'IS NOT NULL'])) {
+      return "{$this->field} {$this->operator}";
     }
-    return Cache::mergeTags($tags, []);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCacheContexts() {
-    $cache_contexts = $this->cacheContexts;
-    foreach ($this->conditions as $condition) {
-      if ($condition['field'] instanceof Condition) {
-        $cache_contexts = array_merge($cache_contexts, $condition['field']->getCacheContexts());
+    else {
+      if (is_array($this->value)) {
+        $value = "['" . implode("', '", $this->value) . "']";
       }
-    }
-    return Cache::mergeContexts($cache_contexts);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCacheMaxAge() {
-    $max_age = $this->cacheMaxAge;
-    foreach ($this->conditions as $condition) {
-      if ($condition['field'] instanceof Condition) {
-        $max_age = Cache::mergeMaxAges($max_age, $condition['field']->getCacheMaxAge());
+      else {
+        $value = "'" . $this->value . "'";
       }
+
+      return "{$this->field} {$this->operator} $value";
     }
-    return $max_age;
   }
 
 }

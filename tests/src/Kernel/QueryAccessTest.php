@@ -4,7 +4,6 @@ namespace Drupal\Tests\entity\Kernel;
 
 use Drupal\entity_query_access_test\Entity\EntityQueryAccessTest;
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\Tests\user\Traits\UserCreationTrait;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\views\Tests\ViewResultAssertionTrait;
