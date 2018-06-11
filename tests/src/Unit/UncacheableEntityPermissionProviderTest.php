@@ -81,7 +81,7 @@ class UncacheableEntityPermissionProviderTest extends UnitTestCase {
       'create green_entity' => 'Create green entities',
       'update green_entity' => 'Update green entities',
       'delete green_entity' => 'Delete green entities',
-      'view any green_entity' => 'View any green entities',
+      'view green_entity' => 'View green entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 
@@ -127,9 +127,9 @@ class UncacheableEntityPermissionProviderTest extends UnitTestCase {
       'create second white_entity' => 'Second: Create white entities',
       'update second white_entity' => 'Second: Update white entities',
       'delete second white_entity' => 'Second: Delete white entities',
-      'view any white_entity' => 'View any white entities',
-      'view any first white_entity' => 'First: View any white entities',
-      'view any second white_entity' => 'Second: View any white entities',
+      'view white_entity' => 'View white entities',
+      'view first white_entity' => 'First: View white entities',
+      'view second white_entity' => 'Second: View white entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 
