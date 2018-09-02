@@ -53,18 +53,16 @@ class QueryAccessHandlerTest extends EntityKernelTestBase {
     // User with no permissions.
     $user = $this->createUser([], ['access content']);
     $conditions = $this->handler->getConditions('view', $user);
-    $expected_conditions = [
-      new Condition('id', NULL, 'IS NULL'),
-    ];
-    $this->assertEquals(1, $conditions->count());
-    $this->assertEquals($expected_conditions, $conditions->getConditions());
+    $this->assertEquals(0, $conditions->count());
     $this->assertEquals(['user.permissions'], $conditions->getCacheContexts());
+    $this->assertTrue($conditions->isAlwaysFalse());
 
     // Admin permission.
     $user = $this->createUser([], ['administer entity_query_access_test']);
     $conditions = $this->handler->getConditions('view', $user);
     $this->assertEquals(0, $conditions->count());
     $this->assertEquals(['user.permissions'], $conditions->getCacheContexts());
+    $this->assertFalse($conditions->isAlwaysFalse());
 
     // View permission.
     $user = $this->createUser([], ["view entity_query_access_test"]);
@@ -75,6 +73,7 @@ class QueryAccessHandlerTest extends EntityKernelTestBase {
     $this->assertEquals(1, $conditions->count());
     $this->assertEquals($expected_conditions, $conditions->getConditions());
     $this->assertEquals(['user.permissions'], $conditions->getCacheContexts());
+    $this->assertFalse($conditions->isAlwaysFalse());
 
     // View permission for the first bundle.
     $user = $this->createUser([], [
@@ -89,6 +88,7 @@ class QueryAccessHandlerTest extends EntityKernelTestBase {
     $this->assertEquals(2, $conditions->count());
     $this->assertEquals($expected_conditions, $conditions->getConditions());
     $this->assertEquals(['user.permissions'], $conditions->getCacheContexts());
+    $this->assertFalse($conditions->isAlwaysFalse());
   }
 
   /**
@@ -99,24 +99,23 @@ class QueryAccessHandlerTest extends EntityKernelTestBase {
       // User with no permissions.
       $user = $this->createUser([], ['access content']);
       $conditions = $this->handler->getConditions($operation, $user);
-      $expected_conditions = [
-        new Condition('id', NULL, 'IS NULL'),
-      ];
-      $this->assertEquals(1, $conditions->count());
-      $this->assertEquals($expected_conditions, $conditions->getConditions());
+      $this->assertEquals(0, $conditions->count());
       $this->assertEquals(['user.permissions'], $conditions->getCacheContexts());
+      $this->assertTrue($conditions->isAlwaysFalse());
 
       // Admin permission.
       $user = $this->createUser([], ['administer entity_query_access_test']);
       $conditions = $this->handler->getConditions($operation, $user);
       $this->assertEquals(0, $conditions->count());
       $this->assertEquals(['user.permissions'], $conditions->getCacheContexts());
+      $this->assertFalse($conditions->isAlwaysFalse());
 
       // Any permission.
       $user = $this->createUser([], ["$operation any entity_query_access_test"]);
       $conditions = $this->handler->getConditions($operation, $user);
       $this->assertEquals(0, $conditions->count());
       $this->assertEquals(['user.permissions'], $conditions->getCacheContexts());
+      $this->assertFalse($conditions->isAlwaysFalse());
 
       // Own permission.
       $user = $this->createUser([], ["$operation own entity_query_access_test"]);
@@ -127,6 +126,7 @@ class QueryAccessHandlerTest extends EntityKernelTestBase {
       $this->assertEquals(1, $conditions->count());
       $this->assertEquals($expected_conditions, $conditions->getConditions());
       $this->assertEquals(['user', 'user.permissions'], $conditions->getCacheContexts());
+      $this->assertFalse($conditions->isAlwaysFalse());
 
       // Any permission for the first bundle, own permission for the second.
       $user = $this->createUser([], [
@@ -144,6 +144,7 @@ class QueryAccessHandlerTest extends EntityKernelTestBase {
       $this->assertEquals(2, $conditions->count());
       $this->assertEquals($expected_conditions, $conditions->getConditions());
       $this->assertEquals(['user', 'user.permissions'], $conditions->getCacheContexts());
+      $this->assertFalse($conditions->isAlwaysFalse());
     }
   }
 

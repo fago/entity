@@ -86,7 +86,10 @@ class SqlQueryAlter {
       $query_access = $this->entityTypeManager->getHandler($entity_type_id, 'query_access');
       $conditions = $query_access->getConditions('view', $this->currentUser);
 
-      if (count($conditions)) {
+      if ($conditions->isAlwaysFalse()) {
+        $query->where('1 = 0');
+      }
+      elseif (count($conditions)) {
         $sql_condition = $query->conditionGroupFactory($conditions->getConjunction());
         $sql_condition = $this->applyCondition($entity_type, $table_mapping, $query, $sql_condition, $conditions);
         $query->condition($sql_condition);

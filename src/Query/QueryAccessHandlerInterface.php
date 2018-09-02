@@ -24,6 +24,9 @@ interface QueryAccessHandlerInterface {
   /**
    * Gets the conditions for the given operation and user.
    *
+   * The "entity.query_access.$entity_type_id" event is fired to allow other
+   * modules to alter the conditions.
+   *
    * @param string $operation
    *   The access operation. One of "view", "update" or "delete".
    * @param \Drupal\Core\Session\AccountInterface $account

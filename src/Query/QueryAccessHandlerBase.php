@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\user\EntityOwnerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Provides common logic for query access handlers.
@@ -33,6 +34,13 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
   protected $bundleInfo;
 
   /**
+   * The event dispatcher.
+   *
+   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+   */
+  protected $eventDispatcher;
+
+  /**
    * The current user.
    *
    * @var \Drupal\Core\Session\AccountInterface
@@ -46,12 +54,15 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
    *   The entity type.
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $bundle_info
    *   The entity type bundle info.
+   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
+   *   The event dispatcher.
    * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The current user.
    */
-  public function __construct(EntityTypeInterface $entity_type, EntityTypeBundleInfoInterface $bundle_info, AccountInterface $current_user) {
+  public function __construct(EntityTypeInterface $entity_type, EntityTypeBundleInfoInterface $bundle_info, EventDispatcherInterface $event_dispatcher, AccountInterface $current_user) {
     $this->entityType = $entity_type;
     $this->bundleInfo = $bundle_info;
+    $this->eventDispatcher = $event_dispatcher;
     $this->currentUser = $current_user;
   }
 
@@ -62,6 +73,7 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
     return new static(
       $entity_type,
       $container->get('entity_type.bundle.info'),
+      $container->get('event_dispatcher'),
       $container->get('current_user')
     );
   }
@@ -71,7 +83,12 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
    */
   public function getConditions($operation, AccountInterface $account = NULL) {
     $account = $account ?: $this->currentUser;
+    $entity_type_id = $this->entityType->id();
     $conditions = $this->buildConditions($operation, $account);
+
+    // Allow other modules to modify the conditions before they are used.
+    $event = new QueryAccessEvent($conditions, $operation, $account);
+    $this->eventDispatcher->dispatch("entity.query_access.{$entity_type_id}", $event);
 
     return $conditions;
   }
@@ -89,7 +106,6 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
    */
   public function buildConditions($operation, AccountInterface $account) {
     $entity_type_id = $this->entityType->id();
-
     if ($account->hasPermission("administer {$entity_type_id}")) {
       // The user has full access to all operations, no conditions needed.
       $conditions = new ConditionGroup('OR');
@@ -124,7 +140,7 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
       // Falsify the query to ensure no results are returned.
       $conditions = new ConditionGroup('OR');
       $conditions->addCacheContexts(['user.permissions']);
-      $conditions->addCondition($this->entityType->getKey('id'), NULL, 'IS NULL');
+      $conditions->alwaysFalse();
     }
 
     return $conditions;

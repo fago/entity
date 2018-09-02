@@ -52,6 +52,13 @@ final class ConditionGroup implements \Countable, RefinableCacheableDependencyIn
   protected $conditions = [];
 
   /**
+   * Whether the condition group is always FALSE.
+   *
+   * @var bool
+   */
+  protected $alwaysFalse = FALSE;
+
+  /**
    * Constructs a new ConditionGroup object.
    *
    * @param string $conjunction
@@ -115,6 +122,32 @@ final class ConditionGroup implements \Countable, RefinableCacheableDependencyIn
       $this->conditions[] = new Condition($field, $value, $operator);
     }
 
+    return $this;
+  }
+
+  /**
+   * Gets whether the condition group is always FALSE.
+   *
+   * Used when the user doesn't have access to any entities, to ensure that a
+   * query returns no results.
+   *
+   * @return bool
+   *   Whether the condition group is always FALSE.
+   */
+  public function isAlwaysFalse() {
+    return $this->alwaysFalse;
+  }
+
+  /**
+   * Sets whether the condition group should always be FALSE.
+   *
+   * @param bool $always_false
+   *   Whether the condition group should always be FALSE.
+   *
+   * @return $this
+   */
+  public function alwaysFalse($always_false = TRUE) {
+    $this->alwaysFalse = $always_false;
     return $this;
   }
 
