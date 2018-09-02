@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\entity\Query;
+namespace Drupal\entity\QueryAccess;
 
 use Drupal\Core\Entity\EntityHandlerInterface;
 use Drupal\Core\Entity\EntityPublishedInterface;
@@ -14,8 +14,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Provides common logic for query access handlers.
  *
- * @see \Drupal\entity\Query\QueryAccessHandler
- * @see \Drupal\entity\Query\UncacheableQueryAccessHandler
+ * @see \Drupal\entity\QueryAccess\QueryAccessHandler
+ * @see \Drupal\entity\QueryAccess\UncacheableQueryAccessHandler
  */
 abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAccessHandlerInterface {
 
@@ -101,7 +101,7 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The user for which to restrict access.
    *
-   * @return \Drupal\entity\Query\ConditionGroup
+   * @return \Drupal\entity\QueryAccess\ConditionGroup
    *   The conditions.
    */
   public function buildConditions($operation, AccountInterface $account) {
@@ -154,7 +154,7 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The user for which to restrict access.
    *
-   * @return \Drupal\entity\Query\ConditionGroup|null
+   * @return \Drupal\entity\QueryAccess\ConditionGroup|null
    *   The conditions, or NULL if the user doesn't have access to any entity.
    */
   protected function buildEntityOwnerConditions($operation, AccountInterface $account) {
@@ -210,7 +210,7 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The user for which to restrict access.
    *
-   * @return \Drupal\entity\Query\ConditionGroup|null
+   * @return \Drupal\entity\QueryAccess\ConditionGroup|null
    *   The conditions, or NULL if the user doesn't have access to any entity.
    */
   protected function buildEntityConditions($operation, AccountInterface $account) {

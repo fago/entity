@@ -1,15 +1,14 @@
 <?php
 
-use Drupal\Core\Database\Query\Select;
-use Drupal\entity\Query\SqlQueryAlter;
-
 /**
  * @file
  * Provides expanded entity APIs.
  */
 
+use Drupal\Core\Database\Query\Select;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\entity\BundlePlugin\BundlePluginHandler;
+use Drupal\entity\QueryAccess\SqlQueryAlter;
 
 /**
  * Gets the entity types which use bundle plugins.

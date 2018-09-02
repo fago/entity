@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\entity\Query;
+namespace Drupal\entity\QueryAccess;
 
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Database\Query\Select;
@@ -82,7 +82,7 @@ class SqlQueryAlter {
     $table_mapping = $storage->getTableMapping();
 
     if ($entity_type->hasHandlerClass('query_access')) {
-      /** @var \Drupal\entity\Query\QueryAccessHandlerInterface $query_access */
+      /** @var \Drupal\entity\QueryAccess\QueryAccessHandlerInterface $query_access */
       $query_access = $this->entityTypeManager->getHandler($entity_type_id, 'query_access');
       $conditions = $query_access->getConditions('view', $this->currentUser);
 

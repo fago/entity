@@ -14,8 +14,8 @@ use Drupal\views\Views;
  *
  * @group entity
  *
- * @see \Drupal\entity\Query\QueryAccessHandler
- * @see \Drupal\entity\Query\SqlQueryAlter
+ * @see \Drupal\entity\QueryAccess\QueryAccessHandler
+ * @see \Drupal\entity\QueryAccess\SqlQueryAlter
  */
 class QueryAccessTest extends KernelTestBase {
 

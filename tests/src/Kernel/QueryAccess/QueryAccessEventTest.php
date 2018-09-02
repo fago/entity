@@ -1,8 +1,8 @@
 <?php
 
-namespace Drupal\Tests\entity\Kernel;
+namespace Drupal\Tests\entity\Kernel\QueryAccess;
 
-use Drupal\entity\Query\QueryAccessHandler;
+use Drupal\entity\QueryAccess\QueryAccessHandler;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
 
 /**
@@ -15,7 +15,7 @@ class QueryAccessEventTest extends EntityKernelTestBase {
   /**
    * The query access handler.
    *
-   * @var \Drupal\entity\Query\QueryAccessHandler
+   * @var \Drupal\entity\QueryAccess\QueryAccessHandler
    */
   protected $handler;
 

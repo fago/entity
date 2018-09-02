@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\entity\Query;
+namespace Drupal\entity\QueryAccess;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
@@ -47,7 +47,7 @@ final class ConditionGroup implements \Countable, RefinableCacheableDependencyIn
   /**
    * The conditions.
    *
-   * @var \Drupal\entity\Query\Condition[]|\Drupal\entity\Query\ConditionGroup[]
+   * @var \Drupal\entity\QueryAccess\Condition[]|\Drupal\entity\QueryAccess\ConditionGroup[]
    */
   protected $conditions = [];
 
@@ -81,7 +81,7 @@ final class ConditionGroup implements \Countable, RefinableCacheableDependencyIn
   /**
    * Gets all conditions and nested condition groups.
    *
-   * @return \Drupal\entity\Query\Condition[]|\Drupal\entity\Query\ConditionGroup[]
+   * @return \Drupal\entity\QueryAccess\Condition[]|\Drupal\entity\QueryAccess\ConditionGroup[]
    *   The conditions, where each one is either a Condition or a nested
    *   ConditionGroup. Returned by reference, to allow callers to replace
    *   or remove conditions.
@@ -93,7 +93,7 @@ final class ConditionGroup implements \Countable, RefinableCacheableDependencyIn
   /**
    * Adds a condition.
    *
-   * @param string|\Drupal\entity\Query\ConditionGroup $field
+   * @param string|\Drupal\entity\QueryAccess\ConditionGroup $field
    *   Either a condition group (for nested AND/OR conditions), or a
    *   field name with an optional column name. E.g: 'uid', 'address.locality'.
    * @param mixed $value

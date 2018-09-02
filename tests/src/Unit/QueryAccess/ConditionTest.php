@@ -1,12 +1,12 @@
 <?php
 
-namespace Drupal\Tests\entity\Unit\Query;
+namespace Drupal\Tests\entity\Unit\QueryAccess;
 
-use Drupal\entity\Query\Condition;
+use Drupal\entity\QueryAccess\Condition;
 use Drupal\Tests\UnitTestCase;
 
 /**
- * @coversDefaultClass \Drupal\entity\Query\Condition
+ * @coversDefaultClass \Drupal\entity\QueryAccess\Condition
  * @group entity
  */
 class ConditionTest extends UnitTestCase {

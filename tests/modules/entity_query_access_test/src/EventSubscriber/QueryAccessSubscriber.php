@@ -2,7 +2,7 @@
 
 namespace Drupal\entity_query_access_test\EventSubscriber;
 
-use Drupal\entity\Query\QueryAccessEvent;
+use Drupal\entity\QueryAccess\QueryAccessEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class QueryAccessSubscriber implements EventSubscriberInterface {
@@ -23,7 +23,7 @@ class QueryAccessSubscriber implements EventSubscriberInterface {
    * extend the conditions to cover additional factors, such as a custom entity
    * field.
    *
-   * @param \Drupal\entity\Query\QueryAccessEvent $event
+   * @param \Drupal\entity\QueryAccess\QueryAccessEvent $event
    *   The event.
    */
   public function onQueryAccess(QueryAccessEvent $event) {

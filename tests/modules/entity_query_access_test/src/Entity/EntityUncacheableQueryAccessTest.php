@@ -16,7 +16,7 @@ use Drupal\entity_test\Entity\EntityTest;
  *   handlers = {
  *     "views_data" = "\Drupal\views\EntityViewsData",
  *     "view_builder" = "\Drupal\entity_test\EntityTestViewBuilder",
- *     "query_access" = "\Drupal\entity\Query\UncacheableQueryAccessHandler",
+ *     "query_access" = "\Drupal\entity\QueryAccess\UncacheableQueryAccessHandler",
  *     "access" = "\Drupal\entity\UncacheableEntityAccessControlHandler",
  *     "permission_provider" = "\Drupal\entity\UncacheableEntityPermissionProvider",
  *   },

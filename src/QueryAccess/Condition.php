@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\entity\Query;
+namespace Drupal\entity\QueryAccess;
 
 /**
  * Represents a single access condition.

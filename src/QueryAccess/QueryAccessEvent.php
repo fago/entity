@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\entity\Query;
+namespace Drupal\entity\QueryAccess;
 
 use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\EventDispatcher\Event;
@@ -17,7 +17,7 @@ class QueryAccessEvent extends Event {
   /**
    * The conditions.
    *
-   * @var \Drupal\entity\Query\ConditionGroup
+   * @var \Drupal\entity\QueryAccess\ConditionGroup
    */
   protected $conditions;
 
@@ -38,7 +38,7 @@ class QueryAccessEvent extends Event {
   /**
    * Constructs a new QueryAccessEvent.
    *
-   * @param \Drupal\entity\Query\ConditionGroup $conditions
+   * @param \Drupal\entity\QueryAccess\ConditionGroup $conditions
    *   The conditions.
    * @param string $operation
    *   The operation. One of "view", "update" or "delete".
@@ -62,7 +62,7 @@ class QueryAccessEvent extends Event {
    * empty (count is 0), the user has full access, and the query doesn't
    * need to be restricted.
    *
-   * @return \Drupal\entity\Query\ConditionGroup
+   * @return \Drupal\entity\QueryAccess\ConditionGroup
    *   The conditions.
    */
   public function getConditions() {

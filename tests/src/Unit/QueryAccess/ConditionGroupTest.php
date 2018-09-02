@@ -1,13 +1,13 @@
 <?php
 
-namespace Drupal\Tests\entity\Unit;
+namespace Drupal\Tests\entity\Unit\QueryAccess;
 
-use Drupal\entity\Query\Condition;
-use Drupal\entity\Query\ConditionGroup;
+use Drupal\entity\QueryAccess\Condition;
+use Drupal\entity\QueryAccess\ConditionGroup;
 use Drupal\Tests\UnitTestCase;
 
 /**
- * @coversDefaultClass \Drupal\entity\Query\ConditionGroup
+ * @coversDefaultClass \Drupal\entity\QueryAccess\ConditionGroup
  * @group entity
  */
 class ConditionGroupTest extends UnitTestCase {

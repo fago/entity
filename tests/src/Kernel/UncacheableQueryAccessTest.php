@@ -14,9 +14,9 @@ use Drupal\views\Views;
  *
  * @group entity
  *
- * @see \Drupal\entity\Query\UncacheableQueryAccessHandler
+ * @see \Drupal\entity\QueryAccess\UncacheableQueryAccessHandler
  * @see \Drupal\entity\UncacheableQueryAccessHandler
- * @see \Drupal\entity\Query\SqlQueryAlter
+ * @see \Drupal\entity\QueryAccess\SqlQueryAlter
  */
 class UncacheableQueryAccessTest extends KernelTestBase {
 

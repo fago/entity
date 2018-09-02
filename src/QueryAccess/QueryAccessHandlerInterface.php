@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\entity\Query;
+namespace Drupal\entity\QueryAccess;
 
 use Drupal\Core\Session\AccountInterface;
 
@@ -9,7 +9,7 @@ use Drupal\Core\Session\AccountInterface;
  *
  * An entity defines a query access handler in its annotation:
  * @code
- *   query_access = "\Drupal\entity\Query\QueryAccessHandler"
+ *   query_access = "\Drupal\entity\QueryAccess\QueryAccessHandler"
  * @code
  * The handler builds a set of conditions which are then applied to a query
  * to filter it. For example, if the user #22 only has access to view
@@ -33,7 +33,7 @@ interface QueryAccessHandlerInterface {
    *   The user for which to restrict access, or NULL
    *   to assume the current user. Defaults to NULL.
    *
-   * @return \Drupal\entity\Query\ConditionGroup
+   * @return \Drupal\entity\QueryAccess\ConditionGroup
    *   The conditions.
    */
   public function getConditions($operation, AccountInterface $account = NULL);
