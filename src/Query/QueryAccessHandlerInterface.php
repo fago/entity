@@ -22,17 +22,17 @@ use Drupal\Core\Session\AccountInterface;
 interface QueryAccessHandlerInterface {
 
   /**
-   * Builds the conditions for the given operation and user.
+   * Gets the conditions for the given operation and user.
    *
    * @param string $operation
    *   The access operation. One of "view", "update" or "delete".
    * @param \Drupal\Core\Session\AccountInterface $account
-   *   The user session for which to restrict access, or NULL
+   *   The user for which to restrict access, or NULL
    *   to assume the current user. Defaults to NULL.
    *
    * @return \Drupal\entity\Query\ConditionGroup
    *   The conditions.
    */
-  public function buildConditions($operation, AccountInterface $account = NULL);
+  public function getConditions($operation, AccountInterface $account = NULL);
 
 }

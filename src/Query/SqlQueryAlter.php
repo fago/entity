@@ -57,7 +57,9 @@ class SqlQueryAlter {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity_field.manager'), $container->get('entity_type.manager'), $container->get('current_user')
+      $container->get('entity_field.manager'),
+      $container->get('entity_type.manager'),
+      $container->get('current_user')
     );
   }
 
@@ -82,17 +84,16 @@ class SqlQueryAlter {
     if ($entity_type->hasHandlerClass('query_access')) {
       /** @var \Drupal\entity\Query\QueryAccessHandlerInterface $query_access */
       $query_access = $this->entityTypeManager->getHandler($entity_type_id, 'query_access');
-      $condition = $query_access->buildConditions('view', $this->currentUser);
+      $conditions = $query_access->getConditions('view', $this->currentUser);
 
-      if (count($condition)) {
-        $sql_condition = $query->conditionGroupFactory($condition->getConjunction());
-        $sql_condition = $this->applyCondition($entity_type, $table_mapping, $query, $sql_condition, $condition);
+      if (count($conditions)) {
+        $sql_condition = $query->conditionGroupFactory($conditions->getConjunction());
+        $sql_condition = $this->applyCondition($entity_type, $table_mapping, $query, $sql_condition, $conditions);
         $query->condition($sql_condition);
       }
 
-      $this->applyCacheability(CacheableMetadata::createFromObject($condition));
+      $this->applyCacheability(CacheableMetadata::createFromObject($conditions));
     }
-
   }
 
   /**

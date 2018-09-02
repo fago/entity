@@ -20,9 +20,8 @@ class QueryAccessHandler extends QueryAccessHandlerBase {
       // EntityPermissionProvider doesn't provide own/any view permissions.
       return $this->buildEntityConditions($operation, $account);
     }
-    else {
-      return parent::buildEntityOwnerConditions($operation, $account);
-    }
+
+    return parent::buildEntityOwnerConditions($operation, $account);
   }
 
 }

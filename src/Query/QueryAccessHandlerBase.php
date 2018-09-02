@@ -40,7 +40,7 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
   protected $currentUser;
 
   /**
-   * Constructs a new UncacheableQueryAccessHandler object.
+   * Constructs a new QueryAccessHandlerBase object.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type.
@@ -69,8 +69,25 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
   /**
    * {@inheritdoc}
    */
-  public function buildConditions($operation, AccountInterface $account = NULL) {
+  public function getConditions($operation, AccountInterface $account = NULL) {
     $account = $account ?: $this->currentUser;
+    $conditions = $this->buildConditions($operation, $account);
+
+    return $conditions;
+  }
+
+  /**
+   * Builds the conditions for the given operation and user.
+   *
+   * @param string $operation
+   *   The access operation. One of "view", "update" or "delete".
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   The user for which to restrict access.
+   *
+   * @return \Drupal\entity\Query\ConditionGroup
+   *   The conditions.
+   */
+  public function buildConditions($operation, AccountInterface $account) {
     $entity_type_id = $this->entityType->id();
 
     if ($account->hasPermission("administer {$entity_type_id}")) {
@@ -119,7 +136,7 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
    * @param string $operation
    *   The access operation. One of "view", "update" or "delete".
    * @param \Drupal\Core\Session\AccountInterface $account
-   *   The user session for which to restrict access.
+   *   The user for which to restrict access.
    *
    * @return \Drupal\entity\Query\ConditionGroup|null
    *   The conditions, or NULL if the user doesn't have access to any entity.
@@ -175,7 +192,7 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
    * @param string $operation
    *   The access operation. One of "view", "update" or "delete".
    * @param \Drupal\Core\Session\AccountInterface $account
-   *   The user session for which to restrict access.
+   *   The user for which to restrict access.
    *
    * @return \Drupal\entity\Query\ConditionGroup|null
    *   The conditions, or NULL if the user doesn't have access to any entity.

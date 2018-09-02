@@ -3,7 +3,7 @@
 namespace Drupal\entity\Query;
 
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Cache\CacheableDependencyInterface;
+use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Cache\RefinableCacheableDependencyTrait;
 
 /**
@@ -33,16 +33,9 @@ use Drupal\Core\Cache\RefinableCacheableDependencyTrait;
  *   );
  * @endcode
  */
-final class ConditionGroup implements \Countable, CacheableDependencyInterface {
+final class ConditionGroup implements \Countable, RefinableCacheableDependencyInterface {
 
   use RefinableCacheableDependencyTrait;
-
-  /**
-   * The conditions.
-   *
-   * @var \Drupal\entity\Query\Condition[]|\Drupal\entity\Query\ConditionGroup[]
-   */
-  protected $conditions = [];
 
   /**
    * The conjunction.
@@ -50,6 +43,13 @@ final class ConditionGroup implements \Countable, CacheableDependencyInterface {
    * @var string
    */
   protected $conjunction;
+
+  /**
+   * The conditions.
+   *
+   * @var \Drupal\entity\Query\Condition[]|\Drupal\entity\Query\ConditionGroup[]
+   */
+  protected $conditions = [];
 
   /**
    * Constructs a new ConditionGroup object.
@@ -69,6 +69,18 @@ final class ConditionGroup implements \Countable, CacheableDependencyInterface {
    */
   public function getConjunction() {
     return $this->conjunction;
+  }
+
+  /**
+   * Gets all conditions and nested condition groups.
+   *
+   * @return \Drupal\entity\Query\Condition[]|\Drupal\entity\Query\ConditionGroup[]
+   *   The conditions, where each one is either a Condition or a nested
+   *   ConditionGroup. Returned by reference, to allow callers to replace
+   *   or remove conditions.
+   */
+  public function &getConditions() {
+    return $this->conditions;
   }
 
   /**
@@ -104,18 +116,6 @@ final class ConditionGroup implements \Countable, CacheableDependencyInterface {
     }
 
     return $this;
-  }
-
-  /**
-   * Gets all conditions and nested condition groups.
-   *
-   * @return \Drupal\entity\Query\Condition[]|\Drupal\entity\Query\ConditionGroup[]
-   *   The conditions, where each one is either a Condition or a nested
-   *   ConditionGroup. Returned by reference, to allow callers to replace
-   *   or remove conditions.
-   */
-  public function &getConditions() {
-    return $this->conditions;
   }
 
   /**
