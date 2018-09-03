@@ -122,13 +122,35 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
 
     $conditions = NULL;
     if ($operation == 'view' && $this->entityType->entityClassImplements(EntityPublishedInterface::class)) {
+      $uid_key = $this->entityType->getKey('uid');
       $published_key = $this->entityType->getKey('published');
+      $published_conditions = NULL;
+      $unpublished_conditions = NULL;
+
       if ($entity_conditions) {
         // Restrict the existing conditions to published entities only.
-        $conditions = new ConditionGroup('AND');
-        $conditions->addCacheContexts(['user.permissions']);
-        $conditions->addCondition($entity_conditions);
-        $conditions->addCondition($published_key, '1');
+        $published_conditions = new ConditionGroup('AND');
+        $published_conditions->addCacheContexts(['user.permissions']);
+        $published_conditions->addCondition($entity_conditions);
+        $published_conditions->addCondition($published_key, '1');
+      }
+      if ($account->hasPermission("view own unpublished $entity_type_id")) {
+        $unpublished_conditions = new ConditionGroup('AND');
+        $unpublished_conditions->addCacheContexts(['user']);
+        $unpublished_conditions->addCondition($uid_key, $account->id());
+        $unpublished_conditions->addCondition($published_key, '0');
+      }
+
+      if ($published_conditions && $unpublished_conditions) {
+        $conditions = new ConditionGroup('OR');
+        $conditions->addCondition($published_conditions);
+        $conditions->addCondition($unpublished_conditions);
+      }
+      elseif ($published_conditions) {
+        $conditions = $published_conditions;
+      }
+      elseif ($unpublished_conditions) {
+        $conditions = $unpublished_conditions;
       }
     }
     else {

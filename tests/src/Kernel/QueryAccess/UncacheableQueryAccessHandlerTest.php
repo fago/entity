@@ -109,6 +109,36 @@ class UncacheableQueryAccessHandlerTest extends EntityKernelTestBase {
     $this->assertEquals($expected_conditions, $conditions->getConditions());
     $this->assertEquals(['user', 'user.permissions'], $conditions->getCacheContexts());
     $this->assertFalse($conditions->isAlwaysFalse());
+
+    // View own unpublished permission.
+    $user = $this->createUser([], ["view own unpublished entity_uncacheable_query_access"]);
+    $conditions = $this->handler->buildConditions('view', $user);
+    $expected_conditions = [
+      new Condition('user_id', $user->id()),
+      new Condition('status', '0'),
+    ];
+    $this->assertEquals(2, $conditions->count());
+    $this->assertEquals($expected_conditions, $conditions->getConditions());
+    $this->assertEquals(['user'], $conditions->getCacheContexts());
+    $this->assertFalse($conditions->isAlwaysFalse());
+
+    // Both view any and view own unpublished permissions.
+    $user = $this->createUser([], [
+      "view any entity_uncacheable_query_access",
+      "view own unpublished entity_uncacheable_query_access",
+    ]);
+    $conditions = $this->handler->buildConditions('view', $user);
+    $expected_conditions = [
+      new Condition('status', '1'),
+      (new ConditionGroup('AND'))
+        ->addCondition('user_id', $user->id())
+        ->addCondition('status', '0')
+        ->addCacheContexts(['user']),
+    ];
+    $this->assertEquals(2, $conditions->count());
+    $this->assertEquals($expected_conditions, $conditions->getConditions());
+    $this->assertEquals(['user', 'user.permissions'], $conditions->getCacheContexts());
+    $this->assertFalse($conditions->isAlwaysFalse());
   }
 
   /**
