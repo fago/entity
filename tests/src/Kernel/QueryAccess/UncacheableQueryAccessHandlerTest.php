@@ -100,7 +100,7 @@ class UncacheableQueryAccessHandlerTest extends EntityKernelTestBase {
         ->addCondition('type', ['first'])
         ->addCondition((new ConditionGroup('AND'))
           ->addCondition('user_id', $user->id())
-          ->addCondition('type', 'second')
+          ->addCondition('type', ['second'])
         ),
       new Condition('status', '1'),
     ];
@@ -188,7 +188,7 @@ class UncacheableQueryAccessHandlerTest extends EntityKernelTestBase {
         new Condition('type', ['first']),
         (new ConditionGroup('AND'))
           ->addCondition('user_id', $user->id())
-          ->addCondition('type', 'second'),
+          ->addCondition('type', ['second']),
       ];
       $this->assertEquals('OR', $conditions->getConjunction());
       $this->assertEquals(2, $conditions->count());

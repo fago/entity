@@ -41,7 +41,7 @@ class QueryAccessEvent extends Event {
    * @param \Drupal\entity\QueryAccess\ConditionGroup $conditions
    *   The conditions.
    * @param string $operation
-   *   The operation. One of "view", "update" or "delete".
+   *   The operation. Usually one of "view", "update" or "delete".
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The user for which to restrict access.
    */
@@ -73,7 +73,7 @@ class QueryAccessEvent extends Event {
    * Gets the operation.
    *
    * @return string
-   *   The operation. One of "view", "update" or "delete".
+   *   The operation. Usually one of "view", "update" or "delete".
    */
   public function getOperation() {
     return $this->operation;

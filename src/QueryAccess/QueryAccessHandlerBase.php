@@ -97,7 +97,7 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
    * Builds the conditions for the given operation and user.
    *
    * @param string $operation
-   *   The access operation. One of "view", "update" or "delete".
+   *   The access operation. Usually one of "view", "update" or "delete".
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The user for which to restrict access.
    *
@@ -172,7 +172,7 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
    * Builds the conditions for entities that have an owner.
    *
    * @param string $operation
-   *   The access operation. One of "view", "update" or "delete".
+   *   The access operation. Usually one of "view", "update" or "delete".
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The user for which to restrict access.
    *
@@ -187,21 +187,9 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
     $conditions = new ConditionGroup('OR');
     $conditions->addCacheContexts(['user.permissions']);
     // Any $entity_type permission.
-    if ($account->hasPermission("$operation any {$entity_type_id}")) {
+    if ($account->hasPermission("$operation any $entity_type_id")) {
       // The user has full access, no conditions needed.
       return $conditions;
-    }
-
-    $bundles = array_keys($this->bundleInfo->getBundleInfo($entity_type_id));
-    $bundles_with_any_permission = [];
-    foreach ($bundles as $bundle) {
-      if ($account->hasPermission("$operation any $bundle $entity_type_id")) {
-        $bundles_with_any_permission[] = $bundle;
-      }
-    }
-    // Any $bundle permission.
-    if ($bundles_with_any_permission) {
-      $conditions->addCondition($bundle_key, $bundles_with_any_permission);
     }
 
     // Own $entity_type permission.
@@ -210,15 +198,28 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
       $conditions->addCondition($uid_key, $account->id());
     }
 
-    // Own $bundle permission.
+    $bundles = array_keys($this->bundleInfo->getBundleInfo($entity_type_id));
+    $bundles_with_any_permission = [];
+    $bundles_with_own_permission = [];
     foreach ($bundles as $bundle) {
-      if ($account->hasPermission("$operation own $bundle $entity_type_id")) {
-        $conditions->addCacheContexts(['user']);
-        $conditions->addCondition((new ConditionGroup('AND'))
-          ->addCondition($uid_key, $account->id())
-          ->addCondition($bundle_key, $bundle)
-        );
+      if ($account->hasPermission("$operation any $bundle $entity_type_id")) {
+        $bundles_with_any_permission[] = $bundle;
       }
+      if ($account->hasPermission("$operation own $bundle $entity_type_id")) {
+        $bundles_with_own_permission[] = $bundle;
+      }
+    }
+    // Any $bundle permission.
+    if ($bundles_with_any_permission) {
+      $conditions->addCondition($bundle_key, $bundles_with_any_permission);
+    }
+    // Own $bundle permission.
+    if ($bundles_with_own_permission) {
+      $conditions->addCacheContexts(['user']);
+      $conditions->addCondition((new ConditionGroup('AND'))
+        ->addCondition($uid_key, $account->id())
+        ->addCondition($bundle_key, $bundles_with_own_permission)
+      );
     }
 
     return $conditions->count() ? $conditions : NULL;
@@ -228,7 +229,7 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
    * Builds the conditions for entities that do not have an owner.
    *
    * @param string $operation
-   *   The access operation. One of "view", "update" or "delete".
+   *   The access operation. Usually one of "view", "update" or "delete".
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The user for which to restrict access.
    *
@@ -242,7 +243,7 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
     $conditions = new ConditionGroup('OR');
     $conditions->addCacheContexts(['user.permissions']);
     // The $entity_type permission.
-    if ($account->hasPermission("$operation {$entity_type_id}")) {
+    if ($account->hasPermission("$operation $entity_type_id")) {
       // The user has full access, no conditions needed.
       return $conditions;
     }
