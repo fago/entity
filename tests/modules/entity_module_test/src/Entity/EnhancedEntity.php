@@ -2,6 +2,8 @@
 
 namespace Drupal\entity_module_test\Entity;
 
+use Drupal\Core\Entity\EntityPublishedInterface;
+use Drupal\Core\Entity\EntityPublishedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\entity\Revision\RevisionableContentEntityBase;
@@ -51,6 +53,7 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *     "bundle" = "type",
  *     "revision" = "vid",
  *     "langcode" = "langcode",
+ *     "published" = "status",
  *   },
  *   links = {
  *     "add-page" = "/entity_test_enhanced/add",
@@ -65,13 +68,16 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *   },
  * )
  */
-class EnhancedEntity extends RevisionableContentEntityBase {
+class EnhancedEntity extends RevisionableContentEntityBase implements EntityPublishedInterface {
+
+  use EntityPublishedTrait;
 
   /**
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = parent::baseFieldDefinitions($entity_type);
+    $fields += static::publishedBaseFieldDefinitions($entity_type);
 
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel('Name')

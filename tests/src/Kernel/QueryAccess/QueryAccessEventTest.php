@@ -24,7 +24,7 @@ class QueryAccessEventTest extends EntityKernelTestBase {
    */
   public static $modules = [
     'entity',
-    'entity_query_access_test',
+    'entity_module_test',
   ];
 
   /**
@@ -33,13 +33,13 @@ class QueryAccessEventTest extends EntityKernelTestBase {
   protected function setUp() {
     parent::setUp();
 
-    $this->installEntitySchema('entity_query_access_test');
+    $this->installEntitySchema('entity_test_enhanced');
 
     // Create uid: 1 here so that it's skipped in test cases.
     $admin_user = $this->createUser();
 
     $entity_type_manager = $this->container->get('entity_type.manager');
-    $entity_type = $entity_type_manager->getDefinition('entity_query_access_test');
+    $entity_type = $entity_type_manager->getDefinition('entity_test_enhanced');
     $this->handler = QueryAccessHandler::createInstance($this->container, $entity_type);
   }
 
@@ -49,7 +49,7 @@ class QueryAccessEventTest extends EntityKernelTestBase {
   public function testEvent() {
     // By default, the first user should have full access, and the second
     // user should have no access. The QueryAccessSubscriber flips that.
-    $first_user = $this->createUser(['mail' => 'user1@example.com'], ['administer entity_query_access_test']);
+    $first_user = $this->createUser(['mail' => 'user1@example.com'], ['administer entity_test_enhanced']);
     $second_user = $this->createUser(['mail' => 'user2@example.com']);
 
     $conditions = $this->handler->getConditions('view', $first_user);

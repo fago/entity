@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\entity_query_access_test\EventSubscriber;
+namespace Drupal\entity_module_test\EventSubscriber;
 
 use Drupal\entity\QueryAccess\QueryAccessEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -12,7 +12,7 @@ class QueryAccessSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      'entity.query_access.entity_query_access_test' => 'onQueryAccess',
+      'entity.query_access.entity_test_enhanced' => 'onQueryAccess',
     ];
   }
 

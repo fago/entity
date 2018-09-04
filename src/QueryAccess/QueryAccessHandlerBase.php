@@ -106,6 +106,8 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
    */
   public function buildConditions($operation, AccountInterface $account) {
     $entity_type_id = $this->entityType->id();
+    $has_owner = $this->entityType->entityClassImplements(EntityOwnerInterface::class);
+
     if ($account->hasPermission("administer {$entity_type_id}")) {
       // The user has full access to all operations, no conditions needed.
       $conditions = new ConditionGroup('OR');
@@ -113,7 +115,7 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
       return $conditions;
     }
 
-    if ($this->entityType->entityClassImplements(EntityOwnerInterface::class)) {
+    if ($has_owner) {
       $entity_conditions = $this->buildEntityOwnerConditions($operation, $account);
     }
     else {
@@ -134,7 +136,7 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
         $published_conditions->addCondition($entity_conditions);
         $published_conditions->addCondition($published_key, '1');
       }
-      if ($account->hasPermission("view own unpublished $entity_type_id")) {
+      if ($has_owner && $account->hasPermission("view own unpublished $entity_type_id")) {
         $unpublished_conditions = new ConditionGroup('AND');
         $unpublished_conditions->addCacheContexts(['user']);
         $unpublished_conditions->addCondition($uid_key, $account->id());

@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\entity\Kernel;
 
-use Drupal\entity_query_access_test\Entity\EntityQueryAccessTest;
+use Drupal\entity_module_test\Entity\EnhancedEntity;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
@@ -21,7 +21,16 @@ class QueryAccessTest extends KernelTestBase {
 
   use ViewResultAssertionTrait;
 
-  public static $modules = ['entity', 'system', 'entity_test', 'entity_query_access_test', 'user', 'views'];
+  /**
+   * {@inheritdoc}
+   */
+  public static $modules = [
+    'entity',
+    'entity_module_test',
+    'user',
+    'views',
+    'system',
+  ];
 
   /**
    * {@inheritdoc}
@@ -31,10 +40,8 @@ class QueryAccessTest extends KernelTestBase {
 
     $this->installSchema('system', 'sequences');
     $this->installEntitySchema('user');
-    $this->installEntitySchema('entity_query_access_test');
-    $this->installConfig('entity_query_access_test');
+    $this->installEntitySchema('entity_test_enhanced');
   }
-
   
   /**
    * Creates a user.
@@ -70,11 +77,11 @@ class QueryAccessTest extends KernelTestBase {
 
   public function testAccess() {
     $other_user = $this->createUser();
-    $admin_user = $this->createUser([], ['administer entity_query_access_test']);
-    $user_view = $this->createUser([], ['view entity_query_access_test']);
-    $user_view_own_up = $this->createUser([], ['view entity_query_access_test', 'view own unpublished entity_query_access_test']);
+    $admin_user = $this->createUser([], ['administer entity_test_enhanced']);
+    $user_view = $this->createUser([], ['view entity_test_enhanced']);
+    $user_view_own_up = $this->createUser([], ['view entity_test_enhanced', 'view own unpublished entity_test_enhanced']);
 
-    $first_entity_other = EntityQueryAccessTest::create([
+    $first_entity_other = EnhancedEntity::create([
       'type' => 'first',
       'label' => 'First',
       'user_id' => $other_user->id(),
@@ -82,7 +89,7 @@ class QueryAccessTest extends KernelTestBase {
     ]);
     $first_entity_other->save();
 
-    $first_entity_own_up = EntityQueryAccessTest::create([
+    $first_entity_own_up = EnhancedEntity::create([
       'type' => 'first',
       'label' => 'First',
       'user_id' => $user_view_own_up->id(),
@@ -90,7 +97,7 @@ class QueryAccessTest extends KernelTestBase {
     ]);
     $first_entity_own_up->save();
 
-    $second_entity_other = EntityQueryAccessTest::create([
+    $second_entity_other = EnhancedEntity::create([
       'type' => 'second',
       'label' => 'Second',
       'user_id' => $other_user->id(),
@@ -100,19 +107,19 @@ class QueryAccessTest extends KernelTestBase {
 
     $entityTypeManager = \Drupal::entityTypeManager();
 
-    $query = $entityTypeManager->getStorage('entity_query_access_test')->getQuery();
+    $query = $entityTypeManager->getStorage('entity_test_enhanced')->getQuery();
     \Drupal::currentUser()->setAccount($admin_user);
     $result = $query->execute();
     sort($result);
     $this->assertEquals([$first_entity_other->id(), $first_entity_own_up->id(), $second_entity_other->id()], array_values($result));
 
-    $query = $entityTypeManager->getStorage('entity_query_access_test')->getQuery();
+    $query = $entityTypeManager->getStorage('entity_test_enhanced')->getQuery();
     \Drupal::currentUser()->setAccount($user_view);
     $result = $query->execute();
     sort($result);
     $this->assertEquals([$first_entity_other->id(),  $second_entity_other->id()], array_values($result));
 
-    $query = $entityTypeManager->getStorage('entity_query_access_test')->getQuery();
+    $query = $entityTypeManager->getStorage('entity_test_enhanced')->getQuery();
     \Drupal::currentUser()->setAccount($user_view_own_up);
     $result = $query->execute();
     $this->assertEquals([$first_entity_other->id(), $first_entity_own_up->id(), $second_entity_other->id()], array_values($result));
@@ -122,12 +129,12 @@ class QueryAccessTest extends KernelTestBase {
     ];
 
     \Drupal::currentUser()->setAccount($user_view);
-    $view = Views::getView('entity_test_query_access');
+    $view = Views::getView('entity_test_enhanced');
     $view->execute();
     $this->assertIdenticalResultset($view, $this->convertToExpectedResult([$first_entity_other->id(),  $second_entity_other->id()]), $column_map);
 
     \Drupal::currentUser()->setAccount($user_view_own_up);
-    $view = Views::getView('entity_test_query_access');
+    $view = Views::getView('entity_test_enhanced');
     $view->execute();
     $this->assertIdenticalResultset($view, $this->convertToExpectedResult([$first_entity_other->id(), $first_entity_own_up->id(), $second_entity_other->id()]), $column_map);
   }
