@@ -63,7 +63,6 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *     "revision-revert-form" = "/entity_test_enhanced/{entity_test_enhanced}/revisions/{entity_test_enhanced_revision}/revert",
  *     "version-history" = "/entity_test_enhanced/{entity_test_enhanced}/revisions",
  *   },
- *   bundle_entity_type = "entity_test_enhanced_bundle",
  * )
  */
 class EnhancedEntity extends RevisionableContentEntityBase {
