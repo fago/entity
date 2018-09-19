@@ -24,6 +24,7 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *   handlers = {
  *     "storage" = "\Drupal\Core\Entity\Sql\SqlContentEntityStorage",
  *     "access" = "\Drupal\Core\Entity\EntityAccessControlHandler",
+ *     "query_access" = "\Drupal\entity\QueryAccess\QueryAccessHandler",
  *     "permission_provider" = "\Drupal\entity\EntityPermissionProvider",
  *     "form" = {
  *       "add" = "\Drupal\entity\Form\RevisionableContentEntityForm",
@@ -39,6 +40,7 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *       "collection" = "\Drupal\entity\Menu\EntityCollectionLocalActionProvider",
  *     },
  *     "list_builder" = "\Drupal\Core\Entity\EntityListBuilder",
+ *     "views_data" = "\Drupal\views\EntityViewsData",
  *   },
  *   base_table = "entity_test_enhanced",
  *   data_table = "entity_test_enhanced_field_data",
@@ -53,6 +55,7 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *     "bundle" = "type",
  *     "revision" = "vid",
  *     "langcode" = "langcode",
+ *     "label" = "name",
  *     "published" = "status",
  *   },
  *   links = {

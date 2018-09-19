@@ -3,7 +3,6 @@
 namespace Drupal\Tests\entity\Kernel\QueryAccess;
 
 use Drupal\entity\QueryAccess\Condition;
-use Drupal\entity\QueryAccess\ConditionGroup;
 use Drupal\entity\QueryAccess\QueryAccessHandler;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
 

@@ -5,10 +5,14 @@
  * Provides expanded entity APIs.
  */
 
-use Drupal\Core\Database\Query\Select;
+use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\entity\BundlePlugin\BundlePluginHandler;
-use Drupal\entity\QueryAccess\SqlQueryAlter;
+use Drupal\entity\QueryAccess\EntityQueryAlter;
+use Drupal\entity\QueryAccess\ViewsQueryAlter;
+use Drupal\views\Plugin\views\query\QueryPluginBase;
+use Drupal\views\Plugin\views\query\Sql;
+use Drupal\views\ViewExecutable;
 
 /**
  * Gets the entity types which use bundle plugins.
@@ -91,51 +95,26 @@ function entity_module_preuninstall($module) {
 
 /**
  * Implements hook_query_TAG_alter().
- *
- * Performs access filtering for entity queries.
  */
-function entity_query_entity_query_alter(Select $query) {
+function entity_query_entity_query_alter(SelectInterface $query) {
   $entity_type_id = $query->getMetaData('entity_type');
   if ($query->hasTag($entity_type_id . '_access')) {
     $entity_type_manager = \Drupal::entityTypeManager();
     $entity_type = $entity_type_manager->getDefinition($entity_type_id);
-    SqlQueryAlter::create(\Drupal::getContainer())->queryAlter($query, $entity_type);
+
+    \Drupal::service('class_resolver')
+      ->getInstanceFromDefinition(EntityQueryAlter::class)
+      ->alter($query, $entity_type);
   }
 }
 
 /**
- * Implements hook_query_TAG_alter().
- *
- * Performs access filtering for views queries.
+ * Implements hook_views_query_alter().
  */
-function entity_query_views_alter(Select $select) {
-  $tables_info = $select->getTables();
-  $table_info = reset($tables_info);
-  if ($entity_type = _entity_get_entity_type_from_table($table_info['table'])) {
-    SqlQueryAlter::create(\Drupal::getContainer())->queryAlter($select, $entity_type);
+function entity_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
+  if ($query instanceof Sql) {
+    \Drupal::service('class_resolver')
+      ->getInstanceFromDefinition(ViewsQueryAlter::class)
+      ->alter($query, $view);
   }
-}
-
-/**
- * Determine the entity type of a query based upon the table name.
- *
- * @param string $table_name
- *   The table name.
- *
- * @return \Drupal\Core\Entity\EntityTypeInterface|null
- *   The entity type, or NULL if unknown.
- */
-function _entity_get_entity_type_from_table($table_name) {
-  foreach (\Drupal::entityTypeManager()->getDefinitions() as $entity_type) {
-    $tables = [
-      $entity_type->getBaseTable(),
-      $entity_type->getDataTable(),
-      $entity_type->getRevisionTable(),
-      $entity_type->getRevisionDataTable(),
-    ];
-    if (in_array($table_name, $tables)) {
-      return $entity_type;
-    }
-  }
-  return NULL;
 }

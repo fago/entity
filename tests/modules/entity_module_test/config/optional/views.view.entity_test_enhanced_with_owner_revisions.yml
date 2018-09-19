@@ -2,14 +2,14 @@ langcode: en
 status: true
 dependencies:
   module:
-  - entity_module_test
-id: entity_test_enhanced
-label: 'Enhanced entities'
+    - entity_module_test
+id: entity_test_enhanced_with_owner_revisions
+label: 'Enhanced entities with an owner (Revisions)'
 module: views
 description: ''
 tag: ''
-base_table: entity_test_enhanced_field_data
-base_field: id
+base_table: entity_test_enhanced_with_owner_field_revision
+base_field: nid
 core: 8.x
 display:
   default:
@@ -76,7 +76,7 @@ display:
           default_field_elements: true
       fields:
         name:
-          table: entity_test_enhanced_field_data
+          table: entity_test_enhanced_with_owner_field_revision
           field: name
           id: name
           entity_type: null
@@ -141,10 +141,10 @@ display:
           field_api_classes: false
       filters: {  }
       sorts:
-        id:
-          id: id
-          table: entity_test_enhanced_field_data
-          field: id
+        vid:
+          id: vid
+          table: entity_test_enhanced_with_owner_field_revision
+          field: vid
           relationship: none
           group_type: group
           admin_label: ''
@@ -152,8 +152,8 @@ display:
           exposed: false
           expose:
             label: ''
-          entity_type: entity_test_enhanced
-          entity_field: id
+          entity_type: entity_test_enhanced_with_owner
+          entity_field: vid
           plugin_id: standard
       header: {  }
       footer: {  }
@@ -164,7 +164,7 @@ display:
     cache_metadata:
       max-age: -1
       contexts:
-      - 'languages:language_content'
-      - 'languages:language_interface'
-      - url.query_args
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url.query_args
       tags: {  }

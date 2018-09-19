@@ -15,17 +15,18 @@ use Drupal\user\UserInterface;
  *
  * @ContentEntityType(
  *   id = "entity_test_enhanced_with_owner",
- *   label = @Translation("Enhanced entity"),
- *   label_collection = @Translation("Enhanced entities"),
- *   label_singular = @Translation("enhanced entity"),
- *   label_plural = @Translation("enhanced entities"),
+ *   label = @Translation("Enhanced entity with owner"),
+ *   label_collection = @Translation("Enhanced entities with owner"),
+ *   label_singular = @Translation("enhanced entity with owner"),
+ *   label_plural = @Translation("enhanced entities with owner"),
  *   label_count = @PluralTranslation(
- *     singular = "@count enhanced entity",
- *     plural = "@count enhanced entities",
+ *     singular = "@count enhanced entity with owner",
+ *     plural = "@count enhanced entities with owner",
  *   ),
  *   handlers = {
  *     "storage" = "\Drupal\Core\Entity\Sql\SqlContentEntityStorage",
  *     "access" = "\Drupal\Core\Entity\EntityAccessControlHandler",
+ *     "query_access" = "\Drupal\entity\QueryAccess\UncacheableQueryAccessHandler",
  *     "permission_provider" = "\Drupal\entity\UncacheableEntityPermissionProvider",
  *     "form" = {
  *       "add" = "\Drupal\entity\Form\RevisionableContentEntityForm",
@@ -41,6 +42,7 @@ use Drupal\user\UserInterface;
  *       "collection" = "\Drupal\entity\Menu\EntityCollectionLocalActionProvider",
  *     },
  *     "list_builder" = "\Drupal\Core\Entity\EntityListBuilder",
+ *     "views_data" = "\Drupal\views\EntityViewsData",
  *   },
  *   base_table = "entity_test_enhanced_with_owner",
  *   data_table = "entity_test_enhanced_with_owner_field_data",
@@ -55,6 +57,7 @@ use Drupal\user\UserInterface;
  *     "bundle" = "type",
  *     "revision" = "vid",
  *     "langcode" = "langcode",
+ *     "label" = "name",
  *     "uid" = "user_id",
  *     "published" = "status",
  *   },
@@ -64,10 +67,6 @@ use Drupal\user\UserInterface;
  *     "edit-form" = "/entity_test_enhanced_with_owner/{entity_test_enhanced_with_owner}/edit",
  *     "canonical" = "/entity_test_enhanced_with_owner/{entity_test_enhanced_with_owner}",
  *     "collection" = "/entity_test_enhanced_with_owner",
- *     "delete-multiple-form" = "/entity_test_enhanced_with_owner/delete",
- *     "revision" = "/entity_test_enhanced_with_owner/{entity_test_enhanced_with_owner}/revisions/{entity_test_enhanced_with_owner_revision}/view",
- *     "revision-revert-form" = "/entity_test_enhanced_with_owner/{entity_test_enhanced_with_owner}/revisions/{entity_test_enhanced_with_owner_revision}/revert",
- *     "version-history" = "/entity_test_enhanced_with_owner/{entity_test_enhanced_with_owner}/revisions",
  *   },
  * )
  */
