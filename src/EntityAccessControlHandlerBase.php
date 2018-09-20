@@ -30,8 +30,7 @@ class EntityAccessControlHandlerBase extends CoreEntityAccessControlHandler {
       }
     }
 
-    // Ensure that access is evaluated again when the entity changes.
-    return $result->addCacheableDependency($entity);
+    return $result;
   }
 
   /**
@@ -87,9 +86,11 @@ class EntityAccessControlHandlerBase extends CoreEntityAccessControlHandler {
         "$operation any {$entity->bundle()} {$entity->getEntityTypeId()}",
       ];
     }
-    $result = AccessResult::allowedIfHasPermissions($account, $permissions, 'OR')->cachePerUser();
+    $result = AccessResult::allowedIfHasPermissions($account, $permissions, 'OR');
 
-    return $result;
+    // The access result must be reevaluated per user and if the entity's owner
+    // is updated.
+    return $result->cachePerUser()->addCacheableDependency($entity);;
   }
 
   /**

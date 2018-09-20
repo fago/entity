@@ -35,20 +35,25 @@ class UncacheableEntityAccessControlHandler extends EntityAccessControlHandlerBa
     /** @var \Drupal\user\EntityOwnerInterface $entity */
     if ($operation === 'view' && $entity instanceof EntityPublishedInterface && !$entity->isPublished()) {
       if ($account->id() != $entity->getOwnerId()) {
-        // There's no permission for viewing other user's unpublished entity.
-        return AccessResult::neutral()->cachePerUser();
+        // There's no permission for viewing another user's unpublished entity.
+        $result = AccessResult::neutral()->cachePerUser()->addCacheableDependency($entity);
       }
-
-      $permissions = [
-        "view own unpublished {$entity->getEntityTypeId()}",
-      ];
-      $result = AccessResult::allowedIfHasPermissions($account, $permissions)->cachePerUser();
+      else {
+        $permissions = [
+          "view own unpublished {$entity->getEntityTypeId()}",
+        ];
+        $result = AccessResult::allowedIfHasPermissions($account, $permissions)->cachePerUser();
+      }
     }
     else {
       $result = parent::checkEntityOwnerPermissions($entity, $operation, $account);
     }
 
-    return $result;
+    // If the entity is unpublishable, the access result must be reevaluated
+    // if its status changes.
+    return $entity instanceof EntityPublishedInterface
+      ? $result->addCacheableDependency($entity)
+      : $result;
   }
 
 }
