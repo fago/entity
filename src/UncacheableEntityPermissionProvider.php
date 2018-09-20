@@ -35,7 +35,7 @@ use Drupal\user\EntityOwnerInterface;
  *  }
  * @endcode
  *
- * @see \Drupal\entity\EntityAccessControlHandler
+ * @see \Drupal\entity\PermissionBasedEntityAccessControlHandler
  * @see \Drupal\entity\EntityPermissions
  */
 class UncacheableEntityPermissionProvider extends EntityPermissionProviderBase {

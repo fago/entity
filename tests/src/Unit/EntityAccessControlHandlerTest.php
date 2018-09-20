@@ -14,7 +14,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\entity\EntityAccessControlHandler;
+use Drupal\entity\PermissionBasedEntityAccessControlHandler;
 use Drupal\entity\EntityPermissionProvider;
 use Drupal\Tests\UnitTestCase;
 use Drupal\user\EntityOwnerInterface;
@@ -52,7 +52,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
    * @dataProvider accessProvider
    */
   public function testAccess(EntityInterface $entity, $operation, $account, $allowed) {
-    $handler = new EntityAccessControlHandler($entity->getEntityType());
+    $handler = new PermissionBasedEntityAccessControlHandler($entity->getEntityType());
     $handler->setStringTranslation($this->getStringTranslationStub());
     $result = $handler->access($entity, $operation, $account);
     $this->assertEquals($allowed, $result);
@@ -64,7 +64,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
    * @dataProvider createAccessProvider
    */
   public function testCreateAccess(EntityTypeInterface $entity_type, $bundle, $account, $allowed) {
-    $handler = new EntityAccessControlHandler($entity_type);
+    $handler = new PermissionBasedEntityAccessControlHandler($entity_type);
     $handler->setStringTranslation($this->getStringTranslationStub());
     $result = $handler->createAccess($bundle, $account);
     $this->assertEquals($allowed, $result);

@@ -32,7 +32,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
  *  }
  * @endcode
  *
- * @see \Drupal\entity\EntityAccessControlHandler
+ * @see \Drupal\entity\PermissionBasedEntityAccessControlHandler
  * @see \Drupal\entity\EntityPermissions
  */
 class EntityPermissionProvider extends EntityPermissionProviderBase {
