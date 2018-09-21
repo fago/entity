@@ -117,7 +117,7 @@ class PermissionBasedEntityAccessControlHandler extends CoreEntityAccessControlH
 
     if ($entity instanceof EntityPublishedInterface) {
       // The result must be reevaluated if the published status changes.
-      $result->andIf(AccessResult::allowedIf($entity->isPublished())->addCacheableDependency($entity));
+      $result = $result->andIf(AccessResult::allowedIf($entity->isPublished())->addCacheableDependency($entity));
     }
 
     // If the result was not allowed, then check if the entity is owned by the
@@ -126,10 +126,10 @@ class PermissionBasedEntityAccessControlHandler extends CoreEntityAccessControlH
       if ($account->id() == $entity->getOwnerId()) {
         // The access result must be reevaluated the entity's owner or published
         // state is updated.
-        $result->orIf(AccessResult::allowedIfHasPermissions($account, $own_permissions, 'OR')->addCacheableDependency($entity));
+        $result = $result->orIf(AccessResult::allowedIfHasPermissions($account, $own_permissions, 'OR')->addCacheableDependency($entity));
       }
       // The result must be reevaluated if the account is different.
-      $result->cachePerUser();
+      $result = $result->cachePerUser();
     }
 
     return $result;
