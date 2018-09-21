@@ -87,10 +87,10 @@ class PermissionBasedEntityAccessControlHandlerTest extends UnitTestCase {
 
     $data = [];
     // Admin permission.
-    $admin_user = $this->buildMockUser(5, 'administer green_entity');
-    $data[] = [$entity->reveal(), 'view', $admin_user->reveal(), TRUE];
-    $data[] = [$entity->reveal(), 'update', $admin_user->reveal(), TRUE];
-    $data[] = [$entity->reveal(), 'delete', $admin_user->reveal(), TRUE];
+    $admin_user = $this->buildMockUser(5,  'administer green_entity');
+    $data['admin user, view'] = [$entity->reveal(), 'view', $admin_user->reveal(), TRUE];
+    $data['admin user, update'] = [$entity->reveal(), 'update', $admin_user->reveal(), TRUE];
+    $data['admin user, delete'] = [$entity->reveal(), 'delete', $admin_user->reveal(), TRUE];
 
     // View, Update, delete permissions, entity without an owner.
     $second_entity = $this->buildMockEntity($entity_type->reveal());
@@ -98,8 +98,8 @@ class PermissionBasedEntityAccessControlHandlerTest extends UnitTestCase {
       $first_user = $this->buildMockUser(6, $operation . ' green_entity');
       $second_user = $this->buildMockUser(7, 'access content');
 
-      $data[] = [$second_entity->reveal(), $operation, $first_user->reveal(), TRUE];
-      $data[] = [$second_entity->reveal(), $operation, $second_user->reveal(), FALSE];
+      $data["first user, $operation, entity without owner"] = [$second_entity->reveal(), $operation, $first_user->reveal(), TRUE];
+      $data["second user, $operation, entity without owner"] = [$second_entity->reveal(), $operation, $second_user->reveal(), FALSE];
     }
 
     // Update and delete permissions.
@@ -109,9 +109,9 @@ class PermissionBasedEntityAccessControlHandlerTest extends UnitTestCase {
       $second_user = $this->buildMockUser(7, $operation . ' own green_entity');
       $third_user = $this->buildMockUser(8, $operation . ' any green_entity');
 
-      $data[] = [$entity->reveal(), $operation, $first_user->reveal(), TRUE];
-      $data[] = [$entity->reveal(), $operation, $second_user->reveal(), FALSE];
-      $data[] = [$entity->reveal(), $operation, $third_user->reveal(), TRUE];
+      $data["first user, $operation, entity with owner"] = [$entity->reveal(), $operation, $first_user->reveal(), TRUE];
+      $data["second user, $operation, entity with owner"] = [$entity->reveal(), $operation, $second_user->reveal(), FALSE];
+      $data["third user, $operation, entity with owner"] = [$entity->reveal(), $operation, $third_user->reveal(), TRUE];
     }
 
     // View permissions.
@@ -125,24 +125,24 @@ class PermissionBasedEntityAccessControlHandlerTest extends UnitTestCase {
     $third_entity = $this->buildMockEntity($entity_type->reveal(), 14, 'first', FALSE);
 
     // The first user can view the two published entities.
-    $data[] = [$first_entity->reveal(), 'view', $first_user->reveal(), TRUE];
-    $data[] = [$second_entity->reveal(), 'view', $first_user->reveal(), TRUE];
-    $data[] = [$third_entity->reveal(), 'view', $first_user->reveal(), FALSE];
+    $data['first user, view, 1st entity'] = [$first_entity->reveal(), 'view', $first_user->reveal(), TRUE];
+    $data['first user, view, 2nd entity'] = [$second_entity->reveal(), 'view', $first_user->reveal(), TRUE];
+    $data['first user, view, 3rd entity'] = [$third_entity->reveal(), 'view', $first_user->reveal(), FALSE];
 
     // The second user can only view published entities of bundle "first".
-    $data[] = [$first_entity->reveal(), 'view', $second_user->reveal(), TRUE];
-    $data[] = [$second_entity->reveal(), 'view', $second_user->reveal(), FALSE];
-    $data[] = [$third_entity->reveal(), 'view', $second_user->reveal(), FALSE];
+    $data['second user, view, 1st entity'] = [$first_entity->reveal(), 'view', $second_user->reveal(), TRUE];
+    $data['second user, view, 2nd entity'] = [$second_entity->reveal(), 'view', $second_user->reveal(), FALSE];
+    $data['second user, view, 3rd entity'] = [$third_entity->reveal(), 'view', $second_user->reveal(), FALSE];
 
     // The third user can view their own unpublished entity.
-    $data[] = [$first_entity->reveal(), 'view', $third_user->reveal(), FALSE];
-    $data[] = [$second_entity->reveal(), 'view', $third_user->reveal(), FALSE];
-    $data[] = [$third_entity->reveal(), 'view', $third_user->reveal(), TRUE];
+    $data['third user, view, 1st entity'] = [$first_entity->reveal(), 'view', $third_user->reveal(), FALSE];
+    $data['third user, view, 1st entity'] = [$second_entity->reveal(), 'view', $third_user->reveal(), FALSE];
+    $data['thirduser, view, 1st entity'] = [$third_entity->reveal(), 'view', $third_user->reveal(), TRUE];
 
     // The fourth user can't view anything.
-    $data[] = [$first_entity->reveal(), 'view', $fourth_user->reveal(), FALSE];
-    $data[] = [$second_entity->reveal(), 'view', $fourth_user->reveal(), FALSE];
-    $data[] = [$third_entity->reveal(), 'view', $fourth_user->reveal(), FALSE];
+    $data['fourth user, view, 1st entity'] = [$first_entity->reveal(), 'view', $fourth_user->reveal(), FALSE];
+    $data['fourth user, view, 1st entity'] = [$second_entity->reveal(), 'view', $fourth_user->reveal(), FALSE];
+    $data['fourth user, view, 1st entity'] = [$third_entity->reveal(), 'view', $fourth_user->reveal(), FALSE];
 
     return $data;
   }
