@@ -36,6 +36,9 @@ class QueryAccessSubscriber implements EventSubscriberInterface {
     }
     elseif ($account->getEmail() == 'user2@example.com') {
       // This user should have access to entities with the IDs 1, 2, and 3.
+      // The query access handler might have already set ->alwaysFalse()
+      // due to the user not having any other access, so we make sure
+      // to undo it with $conditions->alwaysFalse(TRUE).
       $conditions->alwaysFalse(FALSE);
       $conditions->addCondition('id', ['1', '2', '3']);
     }

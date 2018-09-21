@@ -7,7 +7,7 @@ use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Cache\RefinableCacheableDependencyTrait;
 
 /**
- * Represents a group of access conditions.
+ * Represents a group of query access conditions.
  *
  * Used by query access handlers for filtering lists of entities based on
  * granted permissions.

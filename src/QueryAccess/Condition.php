@@ -3,14 +3,14 @@
 namespace Drupal\entity\QueryAccess;
 
 /**
- * Represents a single access condition.
+ * Represents a single query access condition.
  */
 final class Condition {
 
   /**
    * The supported operators.
    *
-   * @var array
+   * @var string[]
    */
   protected static $supportedOperators = [
     '=', '<>', '<', '<=', '>', '>=', 'BETWEEN', 'NOT BETWEEN',

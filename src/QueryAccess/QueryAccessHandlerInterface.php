@@ -24,7 +24,7 @@ interface QueryAccessHandlerInterface {
   /**
    * Gets the conditions for the given operation and user.
    *
-   * The "entity.query_access.$entity_type_id" event is fired to allow other
+   * The "entity.query_access.$entity_type_id" event is fired to allow
    * modules to alter the conditions.
    *
    * @param string $operation
