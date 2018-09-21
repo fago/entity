@@ -79,6 +79,7 @@ class UncacheableEntityAccessControlHandlerTest extends UnitTestCase {
   public function accessProvider() {
     $entity_type = $this->prophesize(ContentEntityTypeInterface::class);
     $entity_type->id()->willReturn('green_entity');
+    $entity_type->get('requires_view_own_access_check')->willReturn(TRUE);
     $entity_type->getAdminPermission()->willReturn('administer green_entity');
     $entity_type->hasHandlerClass('permission_provider')->willReturn(TRUE);
     $entity_type->getHandlerClass('permission_provider')->willReturn(UncacheableEntityPermissionProvider::class);
@@ -161,6 +162,7 @@ class UncacheableEntityAccessControlHandlerTest extends UnitTestCase {
 
     $entity_type = $this->prophesize(ContentEntityTypeInterface::class);
     $entity_type->id()->willReturn('green_entity');
+    $entity_type->get('requires_view_own_access_check')->willReturn(TRUE);
     $entity_type->getAdminPermission()->willReturn('administer green_entity');
     $entity_type->hasHandlerClass('permission_provider')->willReturn(TRUE);
     $entity_type->getHandlerClass('permission_provider')->willReturn(UncacheableEntityPermissionProvider::class);
