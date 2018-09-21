@@ -115,8 +115,8 @@ class PermissionBasedEntityAccessControlHandlerTest extends UnitTestCase {
     }
 
     // View permissions.
-    $first_user = $this->buildMockUser(9, 'view green_entity');
-    $second_user = $this->buildMockUser(10, 'view first green_entity');
+    $first_user = $this->buildMockUser(9, 'view any green_entity');
+    $second_user = $this->buildMockUser(10, 'view any first green_entity');
     $third_user = $this->buildMockUser(14, 'view own unpublished green_entity');
     $fourth_user = $this->buildMockUser(14, 'access content');
 
