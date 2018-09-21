@@ -167,7 +167,14 @@ class ViewsQueryAlter implements ContainerInjectionInterface {
           continue;
         }
         $field_storage_definition = $field_storage_definitions[$field];
-        $property_name = $field_storage_definition->getMainPropertyName();
+        if (strpos($field, '.') !== FALSE) {
+          $specifiers = explode('.', $field);
+          $property_name = end($specifiers);
+        }
+        else {
+          $property_name = $field_storage_definition->getMainPropertyName();
+        }
+
         $column = $table_mapping->getFieldColumnName($field_storage_definition, $property_name);
         if ($table_mapping->requiresDedicatedTableStorage($field_storage_definitions[$field])) {
           if ($base_table['revision']) {
