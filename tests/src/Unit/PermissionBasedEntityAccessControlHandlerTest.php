@@ -21,10 +21,10 @@ use Drupal\user\EntityOwnerInterface;
 use Prophecy\Argument;
 
 /**
- * @coversDefaultClass \Drupal\entity\EntityAccessControlHandler
+ * @coversDefaultClass \Drupal\entity\PermissionBasedEntityAccessControlHandler
  * @group entity
  */
-class EntityAccessControlHandlerTest extends UnitTestCase {
+class PermissionBasedEntityAccessControlHandlerTest extends UnitTestCase {
 
   /**
    * {@inheritdoc}
@@ -78,6 +78,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
    */
   public function accessProvider() {
     $entity_type = $this->prophesize(ContentEntityTypeInterface::class);
+    $entity_type->get("requires_view_own_access_check")->willReturn(TRUE);
     $entity_type->id()->willReturn('green_entity');
     $entity_type->getAdminPermission()->willReturn('administer green_entity');
     $entity_type->hasHandlerClass('permission_provider')->willReturn(TRUE);
@@ -156,6 +157,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $data = [];
 
     $entity_type = $this->prophesize(ContentEntityTypeInterface::class);
+    $entity_type->get("requires_view_own_access_check")->willReturn(TRUE);
     $entity_type->id()->willReturn('green_entity');
     $entity_type->getAdminPermission()->willReturn('administer green_entity');
     $entity_type->hasHandlerClass('permission_provider')->willReturn(TRUE);

@@ -32,13 +32,9 @@ class PermissionBasedEntityAccessControlHandler extends CoreEntityAccessControlH
   public function __construct(EntityTypeInterface $entity_type) {
     parent::__construct($entity_type);
     $this->requiresViewOwnAccessCheck = (bool) $this->entityType->get('requires_view_own_access_check');
-    // @todo: either combine EntityPermissionProvider and UncacheableEntityPermissionProvider or make this check work for both.
-    //if (!$entity_type->hasHandlerClass('permission_provider') || !is_a($entity_type->getHandlerClass('permission_provider'), EntityPermissionProvider::class, TRUE)) {
-    //  throw new \Exception('\Drupal\entity\EntityAccessControlHandler requires the \Drupal\entity\EntityPermissionProvider permission provider.');
-    //}
-    //if (!$entity_type->hasHandlerClass('permission_provider') || !is_a($entity_type->getHandlerClass('permission_provider'), UncacheableEntityPermissionProvider::class, TRUE)) {
-    //  throw new \Exception('\Drupal\entity\UncacheableEntityAccessControlHandler requires the \Drupal\entity\UncacheableEntityPermissionProvider permission provider.');
-    //}
+    if (!$entity_type->hasHandlerClass('permission_provider') || !is_a($entity_type->getHandlerClass('permission_provider'), EntityPermissionProviderBase::class, TRUE)) {
+      throw new \Exception('\Drupal\entity\EntityAccessControlHandler requires the \Drupal\entity\EntityPermissionProvider or \Drupal\entity\UncacheableEntityPermissionProvider permission provider.');
+    }
   }
 
   /**
