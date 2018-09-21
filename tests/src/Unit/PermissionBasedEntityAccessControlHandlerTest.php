@@ -144,6 +144,41 @@ class PermissionBasedEntityAccessControlHandlerTest extends UnitTestCase {
     $data['fourth user, view, 1st entity'] = [$second_entity->reveal(), 'view', $fourth_user->reveal(), FALSE];
     $data['fourth user, view, 1st entity'] = [$third_entity->reveal(), 'view', $fourth_user->reveal(), FALSE];
 
+    $entity_type_without_owner_check = $this->prophesize(ContentEntityTypeInterface::class);
+    $entity_type_without_owner_check->get('requires_view_own_access_check')->willReturn(FALSE);
+    $entity_type_without_owner_check->id()->willReturn('green_entity');
+    $entity_type_without_owner_check->getAdminPermission()->willReturn('administer green_entity');
+    $entity_type_without_owner_check->hasHandlerClass('permission_provider')->willReturn(TRUE);
+    $entity_type_without_owner_check->getHandlerClass('permission_provider')->willReturn(EntityPermissionProvider::class);
+
+    $first_user = $this->buildMockUser(15, 'view green_entity');
+    $second_user = $this->buildMockUser(16, 'view green_entity');
+    $third_user = $this->buildMockUser(17, 'access content');
+
+    $first_entity = $this->buildMockEntity($entity_type_without_owner_check->reveal(), 15);
+    $second_entity = $this->buildMockEntity($entity_type_without_owner_check->reveal(), 15);
+    $third_entity = $this->buildMockEntity($entity_type_without_owner_check->reveal(), 17);
+    $fourth_entity = $this->buildMockEntity($entity_type_without_owner_check->reveal(), 17, NULL, FALSE);
+
+    // The first user can view all the entities.
+    $data['first user, view, 1st entity, no owner check'] = [$first_entity->reveal(), 'view', $first_user->reveal(), TRUE];
+    $data['first user, view, 2nd entity, no owner check'] = [$second_entity->reveal(), 'view', $first_user->reveal(), TRUE];
+    $data['first user, view, 3rd entity, no owner check'] = [$third_entity->reveal(), 'view', $first_user->reveal(), TRUE];
+    $data['first user, view, 4th entity, no owner check'] = [$fourth_entity->reveal(), 'view', $first_user->reveal(), TRUE];
+
+    // The second user can view all the entities, even though it does not own
+    // any of them.
+    $data['second user, view, 1st entity, no owner check'] = [$first_entity->reveal(), 'view', $second_user->reveal(), TRUE];
+    $data['second user, view, 2nd entity, no owner check'] = [$second_entity->reveal(), 'view', $second_user->reveal(), TRUE];
+    $data['second user, view, 3rd entity, no owner check'] = [$third_entity->reveal(), 'view', $second_user->reveal(), TRUE];
+    $data['second user, view, 4th entity, no owner check'] = [$fourth_entity->reveal(), 'view', $second_user->reveal(), TRUE];
+
+    // The third user cannot view any entities, even though it owns one of them.
+    $data['second user, view, 1st entity, no owner check'] = [$first_entity->reveal(), 'view', $third_user->reveal(), FALSE];
+    $data['second user, view, 2nd entity, no owner check'] = [$second_entity->reveal(), 'view', $third_user->reveal(), FALSE];
+    $data['second user, view, 3rd entity, no owner check'] = [$third_entity->reveal(), 'view', $third_user->reveal(), FALSE];
+    $data['second user, view, 4th entity, no owner check'] = [$fourth_entity->reveal(), 'view', $third_user->reveal(), FALSE];
+
     return $data;
   }
 
