@@ -87,7 +87,7 @@ class PermissionBasedEntityAccessControlHandlerTest extends UnitTestCase {
 
     $data = [];
     // Admin permission.
-    $admin_user = $this->buildMockUser(5,  'administer green_entity');
+    $admin_user = $this->buildMockUser(5, 'administer green_entity');
     $data['admin user, view'] = [$entity->reveal(), 'view', $admin_user->reveal(), TRUE];
     $data['admin user, update'] = [$entity->reveal(), 'update', $admin_user->reveal(), TRUE];
     $data['admin user, delete'] = [$entity->reveal(), 'delete', $admin_user->reveal(), TRUE];
