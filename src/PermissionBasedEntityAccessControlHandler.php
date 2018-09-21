@@ -128,8 +128,8 @@ class PermissionBasedEntityAccessControlHandler extends CoreEntityAccessControlH
     // account.
     if (!$result->isAllowed()) {
       if ($account->id() == $entity->getOwnerId()) {
-        // The access result must be reevaluated the entity's owner is
-        // updated.
+        // The access result must be reevaluated the entity's owner or published
+        // state is updated.
         $result->orIf(AccessResult::allowedIfHasPermissions($account, $own_permissions, 'OR')->addCacheableDependency($entity));
       }
       // The result must be reevaluated if the account is different.
