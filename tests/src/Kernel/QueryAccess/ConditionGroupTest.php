@@ -1,16 +1,21 @@
 <?php
 
-namespace Drupal\Tests\entity\Unit\QueryAccess;
+namespace Drupal\Tests\entity\Kernel\QueryAccess;
 
 use Drupal\entity\QueryAccess\Condition;
 use Drupal\entity\QueryAccess\ConditionGroup;
-use Drupal\Tests\UnitTestCase;
+use Drupal\KernelTests\KernelTestBase;
 
 /**
+ * Tests the condition group class.
+ *
+ * ConditionGroup uses \Drupal\Core\Cache\Cache internally, which makes it
+ * impossible to use a unit test (due to Cache accessing the global container).
+ *
  * @coversDefaultClass \Drupal\entity\QueryAccess\ConditionGroup
  * @group entity
  */
-class ConditionGroupTest extends UnitTestCase {
+class ConditionGroupTest extends KernelTestBase {
 
   /**
    * ::covers getConjunction
