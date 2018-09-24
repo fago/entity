@@ -25,7 +25,7 @@ use Drupal\user\UserInterface;
  *   ),
  *   handlers = {
  *     "storage" = "\Drupal\Core\Entity\Sql\SqlContentEntityStorage",
- *     "access" = "\Drupal\Core\Entity\EntityAccessControlHandler",
+ *     "access" = "\Drupal\entity\UncacheableEntityAccessControlHandler",
  *     "query_access" = "\Drupal\entity\QueryAccess\UncacheableQueryAccessHandler",
  *     "permission_provider" = "\Drupal\entity\UncacheableEntityPermissionProvider",
  *     "form" = {

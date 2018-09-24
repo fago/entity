@@ -23,7 +23,7 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *   ),
  *   handlers = {
  *     "storage" = "\Drupal\Core\Entity\Sql\SqlContentEntityStorage",
- *     "access" = "\Drupal\Core\Entity\EntityAccessControlHandler",
+ *     "access" = "\Drupal\entity\EntityAccessControlHandler",
  *     "query_access" = "\Drupal\entity\QueryAccess\QueryAccessHandler",
  *     "permission_provider" = "\Drupal\entity\EntityPermissionProvider",
  *     "form" = {
