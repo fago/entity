@@ -163,15 +163,16 @@ class ViewsQueryAlter implements ContainerInjectionInterface {
       }
       else {
         $field = $condition->getField();
+        $property_name = NULL;
+        if (strpos($field, '.') !== FALSE) {
+          list($field, $property_name) = explode('.', $field);
+        }
+        // Skip unknown fields.
         if (!isset($field_storage_definitions[$field])) {
           continue;
         }
         $field_storage_definition = $field_storage_definitions[$field];
-        if (strpos($field, '.') !== FALSE) {
-          $specifiers = explode('.', $field);
-          $property_name = end($specifiers);
-        }
-        else {
+        if (!$property_name) {
           $property_name = $field_storage_definition->getMainPropertyName();
         }
 
@@ -213,13 +214,14 @@ class ViewsQueryAlter implements ContainerInjectionInterface {
         $value = $condition->getValue();
         $operator = $condition->getOperator();
         // Using LIKE/NOT LIKE ensures a case insensitive comparison.
+        // @see \Drupal\Core\Entity\Query\Sql\Condition::translateCondition().
         $property_definitions = $field_storage_definition->getPropertyDefinitions();
         $case_sensitive = $property_definitions[$property_name]->getSetting('case_sensitive');
         $operator_map = [
           '=' => 'LIKE',
           '<>' => 'NOT LIKE',
         ];
-        if ($case_sensitive && isset($operator_map[$operator])) {
+        if (!$case_sensitive && isset($operator_map[$operator])) {
           $operator = $operator_map[$operator];
           $value = $this->connection->escapeLike($value);
         }

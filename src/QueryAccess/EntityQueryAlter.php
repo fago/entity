@@ -145,12 +145,13 @@ class EntityQueryAlter implements ContainerInjectionInterface {
         $value = $condition->getValue();
         $operator = $condition->getOperator();
         // Using LIKE/NOT LIKE ensures a case insensitive comparison.
+        // @see \Drupal\Core\Entity\Query\Sql\Condition::translateCondition().
         $case_sensitive = $tables->isFieldCaseSensitive($condition->getField());
         $operator_map = [
           '=' => 'LIKE',
           '<>' => 'NOT LIKE',
         ];
-        if ($case_sensitive && isset($operator_map[$operator])) {
+        if (!$case_sensitive && isset($operator_map[$operator])) {
           $operator = $operator_map[$operator];
           $value = $query->escapeLike($value);
         }

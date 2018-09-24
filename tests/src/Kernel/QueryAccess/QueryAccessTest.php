@@ -284,4 +284,60 @@ class QueryAccessTest extends EntityKernelTestBase {
     ], ['vid' => 'vid']);
   }
 
+  /**
+   * Tests filtering based on a configurable field.
+   *
+   * QueryAccessSubscriber adds a condition that ensures that the field value
+   * is either empty or matches "marketing".
+   *
+   * @see \Drupal\entity_module_test\EventSubscriber\QueryAccessSubscriber
+   */
+  public function testConfigurableField() {
+    $this->entities[0]->set('assigned', 'marketing');
+    $this->entities[0]->save();
+    // The field is case sensitive, so the third entity should be ignored.
+    $this->entities[2]->set('assigned', 'MarKeTing');
+    $this->entities[2]->save();
+    $user = $this->createUser([
+      'mail' => 'user3@example.com',
+    ], ['access content']);
+    \Drupal::currentUser()->setAccount($user);
+
+    // EntityQuery.
+    $result = $this->storage->getQuery()->sort('id')->execute();
+    $this->assertEquals([
+      $this->entities[0]->id(),
+      $this->entities[1]->id(),
+    ], array_values($result));
+
+    // EntityQuery with revisions.
+    $result = $this->storage->getQuery()->allRevisions()->sort('id')->execute();
+    $this->assertEquals([
+      '1' => $this->entities[0]->id(),
+      '2' => $this->entities[0]->id(),
+      '3' => $this->entities[1]->id(),
+      '4' => $this->entities[1]->id(),
+      '5' => $this->entities[2]->id(),
+    ], $result);
+
+    // View.
+    $view = Views::getView('entity_test_enhanced');
+    $view->execute();
+    $this->assertIdenticalResultset($view, [
+      ['id' => $this->entities[0]->id()],
+      ['id' => $this->entities[1]->id()],
+    ], ['id' => 'id']);
+
+    // View with revisions.
+    $view = Views::getView('entity_test_enhanced_revisions');
+    $view->execute();
+    $this->assertIdenticalResultset($view, [
+      ['vid' => '1', 'id' => $this->entities[0]->id()],
+      ['vid' => '2', 'id' => $this->entities[0]->id()],
+      ['vid' => '3', 'id' => $this->entities[1]->id()],
+      ['vid' => '4', 'id' => $this->entities[1]->id()],
+      ['vid' => '5', 'id' => $this->entities[2]->id()],
+    ], ['vid' => 'vid']);
+  }
+
 }
