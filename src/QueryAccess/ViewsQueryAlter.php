@@ -189,7 +189,7 @@ class ViewsQueryAlter implements ContainerInjectionInterface {
           $alias = $query->ensureTable($dedicated_table);
         }
         elseif ($base_table['revision'] && !$field_storage_definition->isRevisionable()) {
-          // Workaround for #3001146, which causes $query->ensureTable()
+          // Workaround for #2652652, which causes $query->ensureTable()
           // to not work in this case, due to a missing relationship.
           if ($data_table = $query->getTableInfo($base_table['data_table'])) {
             $alias = $data_table['alias'];
