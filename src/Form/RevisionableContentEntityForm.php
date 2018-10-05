@@ -11,8 +11,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Extends the base entity form with revision support in the UI.
  *
- * @deprecated in favor of \Drupal\Core\Entity\ContentEntityForm. Use that
- *   instead.
+ * @deprecated Use \Drupal\Core\Entity\ContentEntityForm instead.
  */
 class RevisionableContentEntityForm extends ContentEntityForm {
 
