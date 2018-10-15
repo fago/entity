@@ -5,13 +5,37 @@ namespace Drupal\entity;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityAccessControlHandler as CoreEntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityPublishedInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\user\EntityOwnerInterface;
 
 /**
  * @internal
  */
-class EntityAccessControlHandlerBase extends CoreEntityAccessControlHandler {
+class PermissionBasedEntityAccessControlHandler extends CoreEntityAccessControlHandler {
+
+  /**
+   * If access checks should permit viewing own unpublished entities.
+   *
+   * This has severe caching implications because access must always vary per
+   * user. It is defined by the `requires_view_own_access_check` entity type
+   * annotation.
+   *
+   * @var bool
+   */
+  protected $requiresViewOwnAccessCheck;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(EntityTypeInterface $entity_type) {
+    parent::__construct($entity_type);
+    $this->requiresViewOwnAccessCheck = (bool) $this->entityType->get('requires_view_own_access_check');
+    if (!$entity_type->hasHandlerClass('permission_provider') || !is_a($entity_type->getHandlerClass('permission_provider'), EntityPermissionProviderBase::class, TRUE)) {
+      throw new \Exception('\Drupal\entity\EntityAccessControlHandler requires the \Drupal\entity\EntityPermissionProvider or \Drupal\entity\UncacheableEntityPermissionProvider permission provider.');
+    }
+  }
 
   /**
    * {@inheritdoc}
@@ -22,7 +46,7 @@ class EntityAccessControlHandlerBase extends CoreEntityAccessControlHandler {
     $result = parent::checkAccess($entity, $operation, $account);
 
     if ($result->isNeutral()) {
-      if ($entity instanceof EntityOwnerInterface) {
+      if ($entity instanceof EntityOwnerInterface && $this->requiresViewOwnAccessCheck) {
         $result = $this->checkEntityOwnerPermissions($entity, $operation, $account);
       }
       else {
@@ -30,8 +54,7 @@ class EntityAccessControlHandlerBase extends CoreEntityAccessControlHandler {
       }
     }
 
-    // Ensure that access is evaluated again when the entity changes.
-    return $result->addCacheableDependency($entity);
+    return $result;
   }
 
   /**
@@ -72,22 +95,41 @@ class EntityAccessControlHandlerBase extends CoreEntityAccessControlHandler {
    *   The access result.
    */
   protected function checkEntityOwnerPermissions(EntityInterface $entity, $operation, AccountInterface $account) {
-    /** @var \Drupal\user\EntityOwnerInterface $entity */
-    if ($account->id() == $entity->getOwnerId()) {
-      $permissions = [
-        "$operation own {$entity->getEntityTypeId()}",
-        "$operation any {$entity->getEntityTypeId()}",
-        "$operation own {$entity->bundle()} {$entity->getEntityTypeId()}",
-        "$operation any {$entity->bundle()} {$entity->getEntityTypeId()}",
+    /** @var \Drupal\Core\Entity\EntityInterface|\Drupal\user\EntityOwnerInterface $entity */
+    $any_permissions = [
+      "$operation any {$entity->getEntityTypeId()}",
+      "$operation any {$entity->bundle()} {$entity->getEntityTypeId()}",
+    ];
+    if ($operation === 'view' && $entity instanceof EntityPublishedInterface) {
+      $own_permissions = [
+        "view own unpublished {$entity->getEntityTypeId()}",
+        "view own unpublished {$entity->bundle()} {$entity->getEntityTypeId()}",
       ];
     }
     else {
-      $permissions = [
-        "$operation any {$entity->getEntityTypeId()}",
-        "$operation any {$entity->bundle()} {$entity->getEntityTypeId()}",
+      $own_permissions = [
+        "$operation own {$entity->getEntityTypeId()}",
+        "$operation own {$entity->bundle()} {$entity->getEntityTypeId()}",
       ];
     }
-    $result = AccessResult::allowedIfHasPermissions($account, $permissions, 'OR')->cachePerUser();
+
+    $result = AccessResult::allowedIfHasPermissions($account, $any_permissions, 'OR');
+
+    if ($entity instanceof EntityPublishedInterface) {
+      // The result must be reevaluated if the published status changes.
+      $result = $result->andIf(AccessResult::allowedIf($entity->isPublished())->addCacheableDependency($entity));
+    }
+
+    // If the result was not allowed, then check if the entity is owned by the
+    // account.
+    if (!$result->isAllowed()) {
+      if ($account->id() == $entity->getOwnerId()) {
+        $result = $result->orIf(AccessResult::allowedIfHasPermissions($account, $own_permissions, 'OR'));
+      }
+      // The result must also be reevaluated if the account is different or the
+      // entity's owner is updated.
+      $result = $result->cachePerUser()->addCacheableDependency($entity);
+    }
 
     return $result;
   }

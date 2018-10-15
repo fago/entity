@@ -171,7 +171,6 @@ class UncacheableEntityPermissionProviderTest extends UnitTestCase {
     $expected_permissions = [
       'administer pink_entity' => 'Administer pink entities',
       'access pink_entity overview' => 'Access the pink entities overview page',
-      'view own unpublished pink_entity' => 'View own unpublished pink entities',
       'create third pink_entity' => 'Third: Create pink entities',
       'update any third pink_entity' => 'Third: Update any pink entity',
       'update own third pink_entity' => 'Third: Update own pink entities',
@@ -179,8 +178,10 @@ class UncacheableEntityPermissionProviderTest extends UnitTestCase {
       'delete own third pink_entity' => 'Third: Delete own pink entities',
       'view any pink_entity' => 'View any pink entities',
       'view own pink_entity' => 'View own pink entities',
+      'view own unpublished pink_entity' => 'View own unpublished pink entities',
       'view any third pink_entity' => 'Third: View any pink entities',
       'view own third pink_entity' => 'Third: View own pink entities',
+      'view own unpublished third pink_entity' => 'Third: View own unpublished pink entities',
     ];
     $data[] = [$entity_type->reveal(), $expected_permissions];
 

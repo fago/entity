@@ -14,17 +14,17 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\entity\EntityAccessControlHandler;
+use Drupal\entity\PermissionBasedEntityAccessControlHandler;
 use Drupal\entity\EntityPermissionProvider;
 use Drupal\Tests\UnitTestCase;
 use Drupal\user\EntityOwnerInterface;
 use Prophecy\Argument;
 
 /**
- * @coversDefaultClass \Drupal\entity\EntityAccessControlHandler
+ * @coversDefaultClass \Drupal\entity\PermissionBasedEntityAccessControlHandler
  * @group entity
  */
-class EntityAccessControlHandlerTest extends UnitTestCase {
+class PermissionBasedEntityAccessControlHandlerTest extends UnitTestCase {
 
   /**
    * {@inheritdoc}
@@ -52,7 +52,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
    * @dataProvider accessProvider
    */
   public function testAccess(EntityInterface $entity, $operation, $account, $allowed) {
-    $handler = new EntityAccessControlHandler($entity->getEntityType());
+    $handler = new PermissionBasedEntityAccessControlHandler($entity->getEntityType());
     $handler->setStringTranslation($this->getStringTranslationStub());
     $result = $handler->access($entity, $operation, $account);
     $this->assertEquals($allowed, $result);
@@ -64,7 +64,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
    * @dataProvider createAccessProvider
    */
   public function testCreateAccess(EntityTypeInterface $entity_type, $bundle, $account, $allowed) {
-    $handler = new EntityAccessControlHandler($entity_type);
+    $handler = new PermissionBasedEntityAccessControlHandler($entity_type);
     $handler->setStringTranslation($this->getStringTranslationStub());
     $result = $handler->createAccess($bundle, $account);
     $this->assertEquals($allowed, $result);
@@ -78,6 +78,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
    */
   public function accessProvider() {
     $entity_type = $this->prophesize(ContentEntityTypeInterface::class);
+    $entity_type->get('requires_view_own_access_check')->willReturn(TRUE);
     $entity_type->id()->willReturn('green_entity');
     $entity_type->getAdminPermission()->willReturn('administer green_entity');
     $entity_type->hasHandlerClass('permission_provider')->willReturn(TRUE);
@@ -87,9 +88,9 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $data = [];
     // Admin permission.
     $admin_user = $this->buildMockUser(5, 'administer green_entity');
-    $data[] = [$entity->reveal(), 'view', $admin_user->reveal(), TRUE];
-    $data[] = [$entity->reveal(), 'update', $admin_user->reveal(), TRUE];
-    $data[] = [$entity->reveal(), 'delete', $admin_user->reveal(), TRUE];
+    $data['admin user, view'] = [$entity->reveal(), 'view', $admin_user->reveal(), TRUE];
+    $data['admin user, update'] = [$entity->reveal(), 'update', $admin_user->reveal(), TRUE];
+    $data['admin user, delete'] = [$entity->reveal(), 'delete', $admin_user->reveal(), TRUE];
 
     // View, Update, delete permissions, entity without an owner.
     $second_entity = $this->buildMockEntity($entity_type->reveal());
@@ -97,8 +98,8 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
       $first_user = $this->buildMockUser(6, $operation . ' green_entity');
       $second_user = $this->buildMockUser(7, 'access content');
 
-      $data[] = [$second_entity->reveal(), $operation, $first_user->reveal(), TRUE];
-      $data[] = [$second_entity->reveal(), $operation, $second_user->reveal(), FALSE];
+      $data["first user, $operation, entity without owner"] = [$second_entity->reveal(), $operation, $first_user->reveal(), TRUE];
+      $data["second user, $operation, entity without owner"] = [$second_entity->reveal(), $operation, $second_user->reveal(), FALSE];
     }
 
     // Update and delete permissions.
@@ -108,14 +109,14 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
       $second_user = $this->buildMockUser(7, $operation . ' own green_entity');
       $third_user = $this->buildMockUser(8, $operation . ' any green_entity');
 
-      $data[] = [$entity->reveal(), $operation, $first_user->reveal(), TRUE];
-      $data[] = [$entity->reveal(), $operation, $second_user->reveal(), FALSE];
-      $data[] = [$entity->reveal(), $operation, $third_user->reveal(), TRUE];
+      $data["first user, $operation, entity with owner"] = [$entity->reveal(), $operation, $first_user->reveal(), TRUE];
+      $data["second user, $operation, entity with owner"] = [$entity->reveal(), $operation, $second_user->reveal(), FALSE];
+      $data["third user, $operation, entity with owner"] = [$entity->reveal(), $operation, $third_user->reveal(), TRUE];
     }
 
     // View permissions.
-    $first_user = $this->buildMockUser(9, 'view green_entity');
-    $second_user = $this->buildMockUser(10, 'view first green_entity');
+    $first_user = $this->buildMockUser(9, 'view any green_entity');
+    $second_user = $this->buildMockUser(10, 'view any first green_entity');
     $third_user = $this->buildMockUser(14, 'view own unpublished green_entity');
     $fourth_user = $this->buildMockUser(14, 'access content');
 
@@ -124,24 +125,59 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $third_entity = $this->buildMockEntity($entity_type->reveal(), 14, 'first', FALSE);
 
     // The first user can view the two published entities.
-    $data[] = [$first_entity->reveal(), 'view', $first_user->reveal(), TRUE];
-    $data[] = [$second_entity->reveal(), 'view', $first_user->reveal(), TRUE];
-    $data[] = [$third_entity->reveal(), 'view', $first_user->reveal(), FALSE];
+    $data['first user, view, 1st entity'] = [$first_entity->reveal(), 'view', $first_user->reveal(), TRUE];
+    $data['first user, view, 2nd entity'] = [$second_entity->reveal(), 'view', $first_user->reveal(), TRUE];
+    $data['first user, view, 3rd entity'] = [$third_entity->reveal(), 'view', $first_user->reveal(), FALSE];
 
     // The second user can only view published entities of bundle "first".
-    $data[] = [$first_entity->reveal(), 'view', $second_user->reveal(), TRUE];
-    $data[] = [$second_entity->reveal(), 'view', $second_user->reveal(), FALSE];
-    $data[] = [$third_entity->reveal(), 'view', $second_user->reveal(), FALSE];
+    $data['second user, view, 1st entity'] = [$first_entity->reveal(), 'view', $second_user->reveal(), TRUE];
+    $data['second user, view, 2nd entity'] = [$second_entity->reveal(), 'view', $second_user->reveal(), FALSE];
+    $data['second user, view, 3rd entity'] = [$third_entity->reveal(), 'view', $second_user->reveal(), FALSE];
 
     // The third user can view their own unpublished entity.
-    $data[] = [$first_entity->reveal(), 'view', $third_user->reveal(), FALSE];
-    $data[] = [$second_entity->reveal(), 'view', $third_user->reveal(), FALSE];
-    $data[] = [$third_entity->reveal(), 'view', $third_user->reveal(), TRUE];
+    $data['third user, view, 1st entity'] = [$first_entity->reveal(), 'view', $third_user->reveal(), FALSE];
+    $data['third user, view, 1st entity'] = [$second_entity->reveal(), 'view', $third_user->reveal(), FALSE];
+    $data['thirduser, view, 1st entity'] = [$third_entity->reveal(), 'view', $third_user->reveal(), TRUE];
 
     // The fourth user can't view anything.
-    $data[] = [$first_entity->reveal(), 'view', $fourth_user->reveal(), FALSE];
-    $data[] = [$second_entity->reveal(), 'view', $fourth_user->reveal(), FALSE];
-    $data[] = [$third_entity->reveal(), 'view', $fourth_user->reveal(), FALSE];
+    $data['fourth user, view, 1st entity'] = [$first_entity->reveal(), 'view', $fourth_user->reveal(), FALSE];
+    $data['fourth user, view, 1st entity'] = [$second_entity->reveal(), 'view', $fourth_user->reveal(), FALSE];
+    $data['fourth user, view, 1st entity'] = [$third_entity->reveal(), 'view', $fourth_user->reveal(), FALSE];
+
+    $entity_type_without_owner_check = $this->prophesize(ContentEntityTypeInterface::class);
+    $entity_type_without_owner_check->get('requires_view_own_access_check')->willReturn(FALSE);
+    $entity_type_without_owner_check->id()->willReturn('green_entity');
+    $entity_type_without_owner_check->getAdminPermission()->willReturn('administer green_entity');
+    $entity_type_without_owner_check->hasHandlerClass('permission_provider')->willReturn(TRUE);
+    $entity_type_without_owner_check->getHandlerClass('permission_provider')->willReturn(EntityPermissionProvider::class);
+
+    $first_user = $this->buildMockUser(15, 'view green_entity');
+    $second_user = $this->buildMockUser(16, 'view green_entity');
+    $third_user = $this->buildMockUser(17, 'access content');
+
+    $first_entity = $this->buildMockEntity($entity_type_without_owner_check->reveal(), 15);
+    $second_entity = $this->buildMockEntity($entity_type_without_owner_check->reveal(), 15);
+    $third_entity = $this->buildMockEntity($entity_type_without_owner_check->reveal(), 17);
+    $fourth_entity = $this->buildMockEntity($entity_type_without_owner_check->reveal(), 17, NULL, FALSE);
+
+    // The first user can view all the entities.
+    $data['first user, view, 1st entity, no owner check'] = [$first_entity->reveal(), 'view', $first_user->reveal(), TRUE];
+    $data['first user, view, 2nd entity, no owner check'] = [$second_entity->reveal(), 'view', $first_user->reveal(), TRUE];
+    $data['first user, view, 3rd entity, no owner check'] = [$third_entity->reveal(), 'view', $first_user->reveal(), TRUE];
+    $data['first user, view, 4th entity, no owner check'] = [$fourth_entity->reveal(), 'view', $first_user->reveal(), TRUE];
+
+    // The second user can view all the entities, even though it does not own
+    // any of them.
+    $data['second user, view, 1st entity, no owner check'] = [$first_entity->reveal(), 'view', $second_user->reveal(), TRUE];
+    $data['second user, view, 2nd entity, no owner check'] = [$second_entity->reveal(), 'view', $second_user->reveal(), TRUE];
+    $data['second user, view, 3rd entity, no owner check'] = [$third_entity->reveal(), 'view', $second_user->reveal(), TRUE];
+    $data['second user, view, 4th entity, no owner check'] = [$fourth_entity->reveal(), 'view', $second_user->reveal(), TRUE];
+
+    // The third user cannot view any entities, even though it owns one of them.
+    $data['second user, view, 1st entity, no owner check'] = [$first_entity->reveal(), 'view', $third_user->reveal(), FALSE];
+    $data['second user, view, 2nd entity, no owner check'] = [$second_entity->reveal(), 'view', $third_user->reveal(), FALSE];
+    $data['second user, view, 3rd entity, no owner check'] = [$third_entity->reveal(), 'view', $third_user->reveal(), FALSE];
+    $data['second user, view, 4th entity, no owner check'] = [$fourth_entity->reveal(), 'view', $third_user->reveal(), FALSE];
 
     return $data;
   }
@@ -156,6 +192,7 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $data = [];
 
     $entity_type = $this->prophesize(ContentEntityTypeInterface::class);
+    $entity_type->get("requires_view_own_access_check")->willReturn(TRUE);
     $entity_type->id()->willReturn('green_entity');
     $entity_type->getAdminPermission()->willReturn('administer green_entity');
     $entity_type->hasHandlerClass('permission_provider')->willReturn(TRUE);

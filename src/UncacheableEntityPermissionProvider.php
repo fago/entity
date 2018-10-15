@@ -2,6 +2,7 @@
 
 namespace Drupal\entity;
 
+use Drupal\Core\Entity\EntityPublishedInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\user\EntityOwnerInterface;
 
@@ -14,14 +15,15 @@ use Drupal\user\EntityOwnerInterface;
  * Provided permissions:
  * - administer $entity_type
  * - access $entity_type overview
- * - view own unpublished $entity_type
  * - view (own|any) ($bundle) $entity_type
+ * - view own unpublished ($bundle) $entity_type
  * - update (own|any) ($bundle) $entity_type
  * - delete (own|any) ($bundle) $entity_type
  * - create $bundle $entity_type
  *
  * Important:
- * Provides "view own ($bundle) $entity_type" permissions, which require
+ * Provides "view own ($bundle) $entity_type" and
+ * "view own unpublished ($bundle) $entity_type" permissions, which require
  * caching pages per user. This can significantly increase the size of caches,
  * impacting site performance. Use \Drupal\entity\EntityPermissionProvider
  * if those permissions are not necessary.
@@ -34,25 +36,20 @@ use Drupal\user\EntityOwnerInterface;
  *  }
  * @endcode
  *
- * @see \Drupal\entity\EntityAccessControlHandler
+ * @see \Drupal\entity\PermissionBasedEntityAccessControlHandler
  * @see \Drupal\entity\EntityPermissions
  */
 class UncacheableEntityPermissionProvider extends EntityPermissionProviderBase {
 
   /**
-   * Builds permissions for the entity_type granularity.
-   *
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
-   *   The entity type.
-   *
-   * @return array
-   *   The permissions.
+   * {@inheritdoc}
    */
   protected function buildEntityTypePermissions(EntityTypeInterface $entity_type) {
     $permissions = parent::buildEntityTypePermissions($entity_type);
 
     $entity_type_id = $entity_type->id();
     $has_owner = $entity_type->entityClassImplements(EntityOwnerInterface::class);
+    $is_unpublishable = $entity_type->entityClassImplements(EntityPublishedInterface::class);
     $plural_label = $entity_type->getPluralLabel();
 
     if ($has_owner) {
@@ -66,6 +63,13 @@ class UncacheableEntityPermissionProvider extends EntityPermissionProviderBase {
           '@type' => $plural_label,
         ]),
       ];
+      if ($is_unpublishable) {
+        $permissions["view own unpublished {$entity_type_id}"] = [
+          'title' => $this->t('View own unpublished @type', [
+            '@type' => $plural_label,
+          ]),
+        ];
+      }
     }
     else {
       $permissions["view {$entity_type_id}"] = [
@@ -79,19 +83,14 @@ class UncacheableEntityPermissionProvider extends EntityPermissionProviderBase {
   }
 
   /**
-   * Builds permissions for the bundle granularity.
-   *
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
-   *   The entity type.
-   *
-   * @return array
-   *   The permissions.
+   * {@inheritdoc}
    */
   protected function buildBundlePermissions(EntityTypeInterface $entity_type) {
     $permissions = parent::buildBundlePermissions($entity_type);
     $entity_type_id = $entity_type->id();
     $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type_id);
     $has_owner = $entity_type->entityClassImplements(EntityOwnerInterface::class);
+    $is_unpublishable = $entity_type->entityClassImplements(EntityPublishedInterface::class);
     $plural_label = $entity_type->getPluralLabel();
 
     if ($has_owner) {
@@ -105,6 +104,13 @@ class UncacheableEntityPermissionProvider extends EntityPermissionProviderBase {
           '@type' => $plural_label,
         ]),
       ];
+      if ($is_unpublishable) {
+        $permissions["view own unpublished {$entity_type_id}"] = [
+          'title' => $this->t('View own unpublished @type', [
+            '@type' => $plural_label,
+          ]),
+        ];
+      }
     }
     else {
       $permissions["view {$entity_type_id}"] = [
@@ -128,6 +134,14 @@ class UncacheableEntityPermissionProvider extends EntityPermissionProviderBase {
             '@type' => $plural_label,
           ]),
         ];
+        if ($is_unpublishable) {
+          $permissions["view own unpublished {$bundle_name} {$entity_type_id}"] = [
+            'title' => $this->t('@bundle: View own unpublished @type', [
+              '@bundle' => $bundle_info['label'],
+              '@type' => $plural_label,
+            ]),
+          ];
+        }
       }
       else {
         $permissions["view {$bundle_name} {$entity_type_id}"] = [

@@ -3,7 +3,6 @@
 namespace Drupal\entity;
 
 use Drupal\Core\Entity\EntityHandlerInterface;
-use Drupal\Core\Entity\EntityPublishedInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -48,7 +47,6 @@ class EntityPermissionProviderBase implements EntityPermissionProviderInterface,
    */
   public function buildPermissions(EntityTypeInterface $entity_type) {
     $entity_type_id = $entity_type->id();
-    $has_owner = $entity_type->entityClassImplements(EntityOwnerInterface::class);
     $plural_label = $entity_type->getPluralLabel();
 
     $permissions = [];
@@ -59,13 +57,6 @@ class EntityPermissionProviderBase implements EntityPermissionProviderInterface,
     if ($entity_type->hasLinkTemplate('collection')) {
       $permissions["access {$entity_type_id} overview"] = [
         'title' => $this->t('Access the @type overview page', ['@type' => $plural_label]),
-      ];
-    }
-    if ($has_owner && $entity_type->entityClassImplements(EntityPublishedInterface::class)) {
-      $permissions["view own unpublished {$entity_type_id}"] = [
-        'title' => $this->t('View own unpublished @type', [
-          '@type' => $plural_label,
-        ]),
       ];
     }
 
