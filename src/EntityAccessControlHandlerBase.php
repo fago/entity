@@ -73,23 +73,29 @@ class EntityAccessControlHandlerBase extends CoreEntityAccessControlHandler {
    */
   protected function checkEntityOwnerPermissions(EntityInterface $entity, $operation, AccountInterface $account) {
     /** @var \Drupal\user\EntityOwnerInterface $entity */
+    // The "any" permission grants access regardless of the entity owner.
+    $any_result = AccessResult::allowedIfHasPermissions($account, [
+      "$operation any {$entity->getEntityTypeId()}",
+      "$operation any {$entity->bundle()} {$entity->getEntityTypeId()}",
+    ], 'OR');
+
+    if ($any_result->isAllowed()) {
+      return $any_result;
+    }
+
     if ($account->id() == $entity->getOwnerId()) {
-      $permissions = [
+      $own_result = AccessResult::allowedIfHasPermissions($account, [
         "$operation own {$entity->getEntityTypeId()}",
-        "$operation any {$entity->getEntityTypeId()}",
         "$operation own {$entity->bundle()} {$entity->getEntityTypeId()}",
-        "$operation any {$entity->bundle()} {$entity->getEntityTypeId()}",
-      ];
+      ], 'OR');
     }
     else {
-      $permissions = [
-        "$operation any {$entity->getEntityTypeId()}",
-        "$operation any {$entity->bundle()} {$entity->getEntityTypeId()}",
-      ];
+      $own_result = AccessResult::neutral()->cachePerPermissions();
     }
-    $result = AccessResult::allowedIfHasPermissions($account, $permissions, 'OR')->cachePerUser();
 
-    return $result;
+    // The "own" permission is based on the current user's ID, so the result
+    // must be cached per user.
+    return $own_result->cachePerUser();
   }
 
   /**
