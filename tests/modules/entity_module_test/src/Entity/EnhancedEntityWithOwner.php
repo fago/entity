@@ -29,8 +29,8 @@ use Drupal\user\UserInterface;
  *     "query_access" = "\Drupal\entity\QueryAccess\UncacheableQueryAccessHandler",
  *     "permission_provider" = "\Drupal\entity\UncacheableEntityPermissionProvider",
  *     "form" = {
- *       "add" = "\Drupal\entity\Form\RevisionableContentEntityForm",
- *       "edit" = "\Drupal\entity\Form\RevisionableContentEntityForm",
+ *       "add" = "\Drupal\Core\Entity\ContentEntityForm",
+ *       "edit" = "\Drupal\Core\Entity\ContentEntityForm",
  *       "delete" = "\Drupal\Core\Entity\EntityDeleteForm",
  *     },
  *     "route_provider" = {

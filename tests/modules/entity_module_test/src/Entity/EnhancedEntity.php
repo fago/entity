@@ -27,8 +27,9 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *     "query_access" = "\Drupal\entity\QueryAccess\QueryAccessHandler",
  *     "permission_provider" = "\Drupal\entity\EntityPermissionProvider",
  *     "form" = {
- *       "add" = "\Drupal\entity\Form\RevisionableContentEntityForm",
- *       "edit" = "\Drupal\entity\Form\RevisionableContentEntityForm",
+ *       "add" = "\Drupal\entity_module_test\Form\EnhancedEntityForm",
+ *       "edit" = "\Drupal\entity_module_test\Form\EnhancedEntityForm",
+ *       "duplicate" = "\Drupal\entity_module_test\Form\EnhancedEntityForm",
  *       "delete" = "\Drupal\Core\Entity\EntityDeleteForm",
  *     },
  *     "route_provider" = {
@@ -62,6 +63,7 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *     "add-page" = "/entity_test_enhanced/add",
  *     "add-form" = "/entity_test_enhanced/add/{type}",
  *     "edit-form" = "/entity_test_enhanced/{entity_test_enhanced}/edit",
+ *     "duplicate-form" = "/entity_test_enhanced/{entity_test_enhanced}/duplicate",
  *     "canonical" = "/entity_test_enhanced/{entity_test_enhanced}",
  *     "collection" = "/entity_test_enhanced",
  *     "delete-multiple-form" = "/entity_test_enhanced/delete",
@@ -85,6 +87,10 @@ class EnhancedEntity extends RevisionableContentEntityBase implements EntityPubl
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel('Name')
       ->setRevisionable(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'string_textfield',
+        'weight' => 0,
+      ])
       ->setDisplayOptions('view', [
         'label' => 'hidden',
         'type' => 'string',

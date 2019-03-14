@@ -11,3 +11,4 @@ Current functionality:
 - Query access API (Change record: https://www.drupal.org/node/3002038, core issue: #777578)
 - Bundle plugin API (plugin-based entity bundles, currently not proposed for core inclusion)
 - A generic UI for revisions (WIP, see #2625122)
+- Duplicate entity UI

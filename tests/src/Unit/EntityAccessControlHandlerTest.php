@@ -91,11 +91,12 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
     $admin_user = $this->buildMockUser(5, 'administer green_entity');
     $data['admin user, view'] = [$entity->reveal(), 'view', $admin_user->reveal(), TRUE, ['user.permissions']];
     $data['admin user, update'] = [$entity->reveal(), 'update', $admin_user->reveal(), TRUE, ['user.permissions']];
+    $data['admin user, duplicate'] = [$entity->reveal(), 'duplicate', $admin_user->reveal(), TRUE, ['user.permissions']];
     $data['admin user, delete'] = [$entity->reveal(), 'delete', $admin_user->reveal(), TRUE, ['user.permissions']];
 
-    // View, Update, delete permissions, entity without an owner.
+    // View, update, duplicate, delete permissions, entity without an owner.
     $second_entity = $this->buildMockEntity($entity_type->reveal());
-    foreach (['view', 'update', 'delete'] as $operation) {
+    foreach (['view', 'update', 'duplicate', 'delete'] as $operation) {
       $first_user = $this->buildMockUser(6, $operation . ' green_entity');
       $second_user = $this->buildMockUser(7, 'access content');
 
@@ -103,8 +104,8 @@ class EntityAccessControlHandlerTest extends UnitTestCase {
       $data["second user, $operation, entity without owner"] = [$second_entity->reveal(), $operation, $second_user->reveal(), FALSE, ['user.permissions']];
     }
 
-    // Update and delete permissions.
-    foreach (['update', 'delete'] as $operation) {
+    // Update, duplicate, and delete permissions.
+    foreach (['update', 'duplicate', 'delete'] as $operation) {
       // Owner, non-owner, user with "any" permission.
       $first_user = $this->buildMockUser(6, $operation . ' own green_entity');
       $second_user = $this->buildMockUser(7, $operation . ' own green_entity');

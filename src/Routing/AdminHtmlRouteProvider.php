@@ -25,6 +25,7 @@ class AdminHtmlRouteProvider extends DefaultHtmlRouteProvider {
       "entity.{$entity_type_id}.edit_form",
       "entity.{$entity_type_id}.delete_form",
       "entity.{$entity_type_id}.delete_multiple_form",
+      "entity.{$entity_type_id}.duplicate_form",
     ];
     foreach ($admin_route_names as $admin_route_name) {
       if ($route = $collection->get($admin_route_name)) {

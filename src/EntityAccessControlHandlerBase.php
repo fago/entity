@@ -40,8 +40,8 @@ class EntityAccessControlHandlerBase extends CoreEntityAccessControlHandler {
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity for which to check access.
    * @param string $operation
-   *   The entity operation. Usually one of 'view', 'view label', 'update' or
-   *   'delete'.
+   *   The entity operation. Usually one of 'view', 'view label', 'update',
+   *   'duplicate' or 'delete'.
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The user for which to check access.
    *
@@ -63,8 +63,8 @@ class EntityAccessControlHandlerBase extends CoreEntityAccessControlHandler {
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity for which to check access.
    * @param string $operation
-   *   The entity operation. Usually one of 'view', 'view label', 'update' or
-   *   'delete'.
+   *   The entity operation. Usually one of 'view', 'view label', 'update',
+   *   'duplicate' or 'delete'.
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The user for which to check access.
    *
