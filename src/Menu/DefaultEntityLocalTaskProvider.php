@@ -11,12 +11,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Provides a set of tasks to view, edit and delete an entity.
  */
-class DefaultEntityTasksProvider implements EntityLocalTaskProviderInterface, EntityHandlerInterface {
+class DefaultEntityLocalTaskProvider implements EntityLocalTaskProviderInterface, EntityHandlerInterface {
 
   use StringTranslationTrait;
 
   /**
-   * Constructs a DefaultEntityTasksProvider object.
+   * Constructs a DefaultEntityLocalTaskProvider object.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type.
@@ -39,7 +39,7 @@ class DefaultEntityTasksProvider implements EntityLocalTaskProviderInterface, En
    */
   public function buildLocalTasks(EntityTypeInterface $entity_type) {
     $link_templates = [];
-    foreach (['canonical', 'edit-form', 'delete-form', 'version-history'] as $rel) {
+    foreach (['canonical', 'edit-form', 'duplicate-form', 'delete-form', 'version-history'] as $rel) {
       if ($entity_type->hasLinkTemplate($rel)) {
         $link_templates[] = str_replace('-', '_', $rel);
       }
@@ -53,6 +53,7 @@ class DefaultEntityTasksProvider implements EntityLocalTaskProviderInterface, En
       $titles = [
         'canonical' => $this->t('View'),
         'edit_form' => $this->t('Edit'),
+        'duplicate_form' => $this->t('Duplicate'),
         'delete_form' => $this->t('Delete'),
         'version_history' => $this->t('Revisions'),
       ];

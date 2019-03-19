@@ -41,7 +41,7 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *       "collection" = "\Drupal\entity\Menu\EntityCollectionLocalActionProvider",
  *     },
  *     "local_task_provider" = {
- *       "default" = "\Drupal\entity\Menu\DefaultEntityTasksProvider",
+ *       "default" = "\Drupal\entity\Menu\DefaultEntityLocalTaskProvider",
  *     },
  *     "list_builder" = "\Drupal\Core\Entity\EntityListBuilder",
  *     "views_data" = "\Drupal\views\EntityViewsData",
