@@ -132,7 +132,7 @@ function entity_query_entity_query_alter(SelectInterface $query) {
  * Implements hook_views_query_alter().
  */
 function entity_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
-  if ($query instanceof Sql) {
+  if ($query instanceof Sql && empty($query->options['disable_sql_rewrite'])) {
     \Drupal::service('class_resolver')
       ->getInstanceFromDefinition(ViewsQueryAlter::class)
       ->alter($query, $view);
