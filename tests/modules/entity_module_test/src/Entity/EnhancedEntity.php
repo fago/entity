@@ -40,6 +40,9 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *     "local_action_provider" = {
  *       "collection" = "\Drupal\entity\Menu\EntityCollectionLocalActionProvider",
  *     },
+ *     "local_task_provider" = {
+ *       "default" = "\Drupal\entity\Menu\DefaultEntityTasksProvider",
+ *     },
  *     "list_builder" = "\Drupal\Core\Entity\EntityListBuilder",
  *     "views_data" = "\Drupal\views\EntityViewsData",
  *   },
@@ -66,6 +69,7 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *     "duplicate-form" = "/entity_test_enhanced/{entity_test_enhanced}/duplicate",
  *     "canonical" = "/entity_test_enhanced/{entity_test_enhanced}",
  *     "collection" = "/entity_test_enhanced",
+ *     "delete-form" = "/entity_test_enhanced/{entity_test_enhanced}/delete",
  *     "delete-multiple-form" = "/entity_test_enhanced/delete",
  *     "revision" = "/entity_test_enhanced/{entity_test_enhanced}/revisions/{entity_test_enhanced_revision}/view",
  *     "revision-revert-form" = "/entity_test_enhanced/{entity_test_enhanced}/revisions/{entity_test_enhanced_revision}/revert",
