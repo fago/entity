@@ -41,7 +41,7 @@ use Drupal\user\UserInterface;
  *     "local_action_provider" = {
  *       "collection" = "\Drupal\entity\Menu\EntityCollectionLocalActionProvider",
  *     },
- *     "list_builder" = "\Drupal\Core\Entity\EntityListBuilder",
+ *     "list_builder" = "\Drupal\entity\BulkFormEntityListBuilder",
  *     "views_data" = "\Drupal\views\EntityViewsData",
  *   },
  *   base_table = "entity_test_enhanced_with_owner",
@@ -67,6 +67,7 @@ use Drupal\user\UserInterface;
  *     "edit-form" = "/entity_test_enhanced_with_owner/{entity_test_enhanced_with_owner}/edit",
  *     "canonical" = "/entity_test_enhanced_with_owner/{entity_test_enhanced_with_owner}",
  *     "collection" = "/entity_test_enhanced_with_owner",
+ *     "delete-multiple-form" = "/entity_test_enhanced_with_owner/delete",
  *   },
  * )
  */
