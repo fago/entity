@@ -53,6 +53,10 @@ function entity_get_bundle_plugin_entity_types() {
 function entity_entity_type_build(array &$entity_types) {
   foreach ($entity_types as $entity_type) {
     if ($entity_type->get('bundle_plugin_type')) {
+      if (!$entity_type->hasKey('bundle')) {
+        throw new \LogicException(sprintf('The %s entity type uses a bundle plugin type but has no bundle key.', $entity_type->id()));
+      }
+
       if (!$entity_type->hasHandlerClass('bundle_plugin')) {
         $entity_type->setHandlerClass('bundle_plugin', BundlePluginHandler::class);
       }
