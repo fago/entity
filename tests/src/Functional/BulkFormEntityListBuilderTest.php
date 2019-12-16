@@ -34,6 +34,11 @@ class BulkFormEntityListBuilderTest extends BrowserTestBase {
   public static $modules = ['entity_module_test', 'user', 'entity', 'block'];
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * The base permissions to grant for the test user.
    *
    * @var string[]
