@@ -117,7 +117,8 @@ abstract class QueryAccessHandlerBase implements EntityHandlerInterface, QueryAc
       throw new \RuntimeException(sprintf('The "%s" entity type did not define a "published" key', $entity_type_id));
     }
 
-    if ($account->hasPermission("administer {$entity_type_id}")) {
+    $admin_permission = $this->entityType->getAdminPermission() ?: "administer {$entity_type_id}";
+    if ($account->hasPermission($admin_permission)) {
       // The user has full access to all operations, no conditions needed.
       $conditions = new ConditionGroup('OR');
       $conditions->addCacheContexts(['user.permissions']);
