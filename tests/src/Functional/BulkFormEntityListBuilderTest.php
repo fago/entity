@@ -36,7 +36,7 @@ class BulkFormEntityListBuilderTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $defaultTheme = 'stark';
+  protected $defaultTheme = 'classy';
 
   /**
    * The base permissions to grant for the test user.
@@ -129,7 +129,7 @@ class BulkFormEntityListBuilderTest extends BrowserTestBase {
 
     $this->assertSession()->elementTextContains('css', 'h1', 'Enhanced entities with owner');
     $this->assertSession()->elementTextContains('css', '.messages--status', 'Deleted 1 item.');
-    $this->assertFalse($this->storage->load($id));
+    $this->assertNull($this->storage->load($id));
   }
 
   /**
