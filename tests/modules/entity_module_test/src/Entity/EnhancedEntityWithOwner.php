@@ -61,10 +61,16 @@ use Drupal\user\UserInterface;
  *     "uid" = "user_id",
  *     "published" = "status",
  *   },
+ *   revision_metadata_keys = {
+ *     "revision_user" = "revision_user",
+ *     "revision_created" = "revision_created",
+ *     "revision_log_message" = "revision_log_message"
+ *   },
  *   links = {
  *     "add-page" = "/entity_test_enhanced_with_owner/add",
  *     "add-form" = "/entity_test_enhanced_with_owner/add/{type}",
  *     "edit-form" = "/entity_test_enhanced_with_owner/{entity_test_enhanced_with_owner}/edit",
+ *     "duplicate-form" = "/entity_test_enhanced/{entity_test_enhanced}/duplicate",
  *     "canonical" = "/entity_test_enhanced_with_owner/{entity_test_enhanced_with_owner}",
  *     "collection" = "/entity_test_enhanced_with_owner",
  *     "delete-multiple-form" = "/entity_test_enhanced_with_owner/delete",

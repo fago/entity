@@ -26,8 +26,6 @@ class BundlePluginTest extends KernelTestBase {
   protected function setUp() {
     parent::setUp();
 
-    $this->installSchema('system', 'router');
-
     // Install the modules properly. Putting them into static::$modules doesn't trigger the install
     // hooks, like hook_modules_installed, so entity_modules_installed is not triggered().
     /** @var \Drupal\Core\Extension\ModuleInstallerInterface $module_installer */

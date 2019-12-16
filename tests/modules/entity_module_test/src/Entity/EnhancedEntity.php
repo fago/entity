@@ -62,6 +62,11 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *     "label" = "name",
  *     "published" = "status",
  *   },
+ *   revision_metadata_keys = {
+ *     "revision_user" = "revision_user",
+ *     "revision_created" = "revision_created",
+ *     "revision_log_message" = "revision_log_message"
+ *   },
  *   links = {
  *     "add-page" = "/entity_test_enhanced/add",
  *     "add-form" = "/entity_test_enhanced/add/{type}",
