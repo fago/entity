@@ -29,7 +29,7 @@ class RevisionBasicUITest extends KernelTestBase {
     $this->installSchema('system', 'sequences');
     $this->installConfig(['system']);
 
-    \Drupal::service('router.builder')->rebuild();
+    $this->container->get('router.builder')->rebuild();
 
     // Create a test user so that the mock requests performed below have a valid
     // current user context.
@@ -40,7 +40,7 @@ class RevisionBasicUITest extends KernelTestBase {
       'name' => 'Test user',
     ]);
     $user->save();
-    \Drupal::service('account_switcher')->switchTo($user);
+    $this->container->get('account_switcher')->switchTo($user);
   }
 
   /**
@@ -60,7 +60,7 @@ class RevisionBasicUITest extends KernelTestBase {
     $revision->save();
 
     /** @var \Symfony\Component\HttpKernel\HttpKernelInterface $http_kernel */
-    $http_kernel = \Drupal::service('http_kernel');
+    $http_kernel = $this->container->get('http_kernel');
     $request = Request::create($revision->toUrl('version-history')->toString());
     $response = $http_kernel->handle($request);
     $this->assertEquals(403, $response->getStatusCode());
@@ -79,7 +79,7 @@ class RevisionBasicUITest extends KernelTestBase {
     ]);
     $user_admin->addRole($role_admin->id());
     $user_admin->save();
-    \Drupal::service('account_switcher')->switchTo($user_admin);
+    $this->container->get('account_switcher')->switchTo($user_admin);
 
     $request = Request::create($revision->toUrl('version-history')->toString());
     $response = $http_kernel->handle($request);
@@ -90,7 +90,7 @@ class RevisionBasicUITest extends KernelTestBase {
     ]);
     $user->addRole($role->id());
     $user->save();
-    \Drupal::service('account_switcher')->switchTo($user);
+    $this->container->get('account_switcher')->switchTo($user);
 
     $request = Request::create($revision->toUrl('version-history')->toString());
     $response = $http_kernel->handle($request);
@@ -129,7 +129,7 @@ class RevisionBasicUITest extends KernelTestBase {
     $revision->save();
 
     /** @var \Symfony\Component\HttpKernel\HttpKernelInterface $http_kernel */
-    $http_kernel = \Drupal::service('http_kernel');
+    $http_kernel = $this->container->get('http_kernel');
     $request = Request::create($revision->toUrl('revision')->toString());
     $response = $http_kernel->handle($request);
     $this->assertEquals(403, $response->getStatusCode());
@@ -148,7 +148,7 @@ class RevisionBasicUITest extends KernelTestBase {
     ]);
     $user_admin->addRole($role_admin->id());
     $user_admin->save();
-    \Drupal::service('account_switcher')->switchTo($user_admin);
+    $this->container->get('account_switcher')->switchTo($user_admin);
 
     $request = Request::create($revision->toUrl('version-history')->toString());
     $response = $http_kernel->handle($request);
@@ -159,7 +159,7 @@ class RevisionBasicUITest extends KernelTestBase {
     ]);
     $user->addRole($role->id());
     $user->save();
-    \Drupal::service('account_switcher')->switchTo($user);
+    $this->container->get('account_switcher')->switchTo($user);
 
     $request = Request::create($revision->toUrl('revision')->toString());
     $response = $http_kernel->handle($request);
@@ -189,10 +189,10 @@ class RevisionBasicUITest extends KernelTestBase {
     ]);
     $user->addRole($role->id());
     $user->save();
-    \Drupal::service('account_switcher')->switchTo($user);
+    $this->container->get('account_switcher')->switchTo($user);
 
     /** @var \Symfony\Component\HttpKernel\HttpKernelInterface $http_kernel */
-    $http_kernel = \Drupal::service('http_kernel');
+    $http_kernel = $this->container->get('http_kernel');
     $request = Request::create($entity->toUrl('revision-revert-form')->toString());
     $response = $http_kernel->handle($request);
     $this->assertEquals(200, $response->getStatusCode());
