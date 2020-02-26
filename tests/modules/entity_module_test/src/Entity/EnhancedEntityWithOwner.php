@@ -42,7 +42,7 @@ use Drupal\user\EntityOwnerTrait;
  *       "collection" = "\Drupal\entity\Menu\EntityCollectionLocalActionProvider",
  *     },
  *     "list_builder" = "\Drupal\entity\BulkFormEntityListBuilder",
- *     "views_data" = "\Drupal\views\EntityViewsData",
+ *     "views_data" = "\Drupal\entity\EntityViewsData",
  *   },
  *   base_table = "entity_test_enhanced_with_owner",
  *   data_table = "entity_test_enhanced_with_owner_field_data",

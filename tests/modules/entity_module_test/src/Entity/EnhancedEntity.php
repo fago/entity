@@ -44,7 +44,7 @@ use Drupal\entity\Revision\RevisionableContentEntityBase;
  *       "default" = "\Drupal\entity\Menu\DefaultEntityLocalTaskProvider",
  *     },
  *     "list_builder" = "\Drupal\Core\Entity\EntityListBuilder",
- *     "views_data" = "\Drupal\views\EntityViewsData",
+ *     "views_data" = "\Drupal\entity\EntityViewsData",
  *   },
  *   base_table = "entity_test_enhanced",
  *   data_table = "entity_test_enhanced_field_data",
