@@ -13,8 +13,34 @@ class QueryAccessSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     return [
+      'entity.query_access' => 'onGenericQueryAccess',
       'entity.query_access.entity_test_enhanced' => 'onQueryAccess',
     ];
+  }
+
+  /**
+   * Modifies the access conditions based on the entity type.
+   *
+   * This is just a convenient example for testing the catch-all event. A real
+   * subscriber would probably extend the conditions based on the third party
+   * settings it set on the entity type(s).
+   *
+   * @param \Drupal\entity\QueryAccess\QueryAccessEvent $event
+   *   The event.
+   */
+  public function onGenericQueryAccess(QueryAccessEvent $event) {
+    $conditions = $event->getConditions();
+    $email = $event->getAccount()->getEmail();
+    if ($event->getEntityTypeId() == 'entity_test_enhanced_with_owner') {
+      // Disallow access to entity_test_enhanced_with_owner for the user with
+      // email address user9000@example.com. Anyone else has access.
+      if ($email == 'user9000@example.com') {
+        $conditions->alwaysFalse();
+      }
+      elseif ($email == 'user9001@example.com') {
+        $conditions->alwaysFalse(FALSE);
+      }
+    }
   }
 
   /**
