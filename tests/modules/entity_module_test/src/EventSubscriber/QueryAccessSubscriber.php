@@ -15,6 +15,7 @@ class QueryAccessSubscriber implements EventSubscriberInterface {
     return [
       'entity.query_access' => 'onGenericQueryAccess',
       'entity.query_access.entity_test_enhanced' => 'onQueryAccess',
+      'entity.query_access.node' => 'onEventOnlyQueryAccess',
     ];
   }
 
@@ -78,6 +79,23 @@ class QueryAccessSubscriber implements EventSubscriberInterface {
         // Confirm that explicitly specifying the property name works.
         ->addCondition('assigned.value', 'marketing')
       );
+    }
+  }
+
+  /**
+   * Modifies the access conditions based on the node type.
+   *
+   * This is just a convenient example for testing whether the event-only query
+   * access subscriber is added to entity types that do not specify a query
+   * access handler; in this case: node.
+   *
+   * @param \Drupal\entity\QueryAccess\QueryAccessEvent $event
+   *   The event.
+   */
+  public function onEventOnlyQueryAccess(QueryAccessEvent $event) {
+    if (\Drupal::state()->get('test_event_only_query_access')) {
+      $conditions = $event->getConditions();
+      $conditions->addCondition('type', 'foo');
     }
   }
 
